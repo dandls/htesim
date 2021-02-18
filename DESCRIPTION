@@ -1,16 +1,23 @@
 Package: htesim
-Title: What the Package Does (One Line, Title Case)
+Title: Conducting Extensive Simulation Studies of Heterogeneous Treatment Effect Estimation 
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Susanne",
+           family = "Dandl",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+           email = "dandl.susanne@gmail.com",
+           comment = c(ORCID = "0000-0003-4324-4163"))
+Maintainer: Susanne Dandl <dandl.susanne@gmail.com>
+Description: Framework to simulate data for simulation studies to evaluate methods for estimating heterogeneous treatment effects.  
+License: MIT + file LICENSE
+URL: 
+BugReports: 
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Suggests: 
+    testthat (>= 3.0.0),
+    mlt, 
+    tram
+Config/testthat/edition: 3
