@@ -19,5 +19,6 @@ RoxygenNote: 7.1.1
 Suggests: 
     testthat (>= 3.0.0),
     mlt, 
-    tram
+    tram,
+    survival
 Config/testthat/edition: 3

@@ -19,6 +19,11 @@ simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4,
       stop("Package \"tram\" needed for this function to work. Please install it.",
         call. = FALSE)
     }
+
+    if (!requireNamespace("survival", quietly = TRUE)) {
+      stop("Package \"survival\" needed for this function to work. Please install it.",
+        call. = FALSE)
+    }
   }
 
   ### set and re-set seed
@@ -79,7 +84,7 @@ simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4,
     cens <- simulate(mlt::as.mlt(tram::Coxph(y ~ 1, data = data.frame(y = y),
       log_first = TRUE)))
     cens <- trtf:::.R2vec(cens)
-    y <- Surv(ifelse(y < cens, y, cens), ifelse(y < cens, 1, 0))
+    y <- survival::Surv(ifelse(y < cens, y, cens), ifelse(y < cens, 1, 0))
   }
   df <- data.frame(x, y = y, trt = factor(trt))
   attributes(df)$truth <- object
@@ -90,3 +95,4 @@ simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4,
   class(df) <- c("simdgp", class(df))
   return(df)
 }
+
