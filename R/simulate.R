@@ -6,8 +6,13 @@
 #' @param nsimtest (numeric(1)) Number of observations (n) for test dataset, default 1000.
 #' @return data.frame of class simdpg with columns: x, y and trt/w.
 #' @export
-simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4,
-  nsimtest = 1000) {
+simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL) {
+
+  ###  input checks
+  assertIntegerish(nsim, lower = 1, len = 1, any.missing = FALSE)
+  assertIntegerish(dim, lower = 1, len = 1, any.missing = FALSE)
+  assertIntegerish(nsimtest, lower = 1, len = 1, any.missing = FALSE)
+  assertNumber(seed, null.ok = TRUE)
 
   ### mlt & tram packages required for Weibull models
   if (object$model == "weibull") {
@@ -51,9 +56,19 @@ simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4,
   testxdf <- as.data.frame(testx)
   testxdf$trt <- factor(c(0, 1))[2]
 
-  tX <- object$tfct(x)
-  pX <- object$pfct(x)
-  mX <- object$mfct(x)
+  tX <- tryCatch({object$tfct(x)},
+    error = function(e) {
+      stop("treatment effects function operates on variables out of bounds, increase dim")
+    })
+  pX <- tryCatch({object$pfct(x)},
+    error = function(e) {
+      stop("propensity score function operates on variables out of bounds, increase dim")
+    })
+
+  mX <- tryCatch({object$mfct(x)},
+    error = function(e) {
+      stop("prognostic function operates on variables out of bounds, increase dim")
+    })
   sd <- object$sdfct(x)
   model <- object$model
 

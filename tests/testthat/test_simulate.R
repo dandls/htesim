@@ -53,4 +53,15 @@ test_that("setting seed works", {
 })
 
 
+test_that("throw comprehensible errors for wrong inputs", {
+  dgp1 <- dgp(t = tF_max_x1_x5)
+  expect_error(simulate(dgp1, nsim = 0.57), "integerish")
+  expect_error(simulate(dgp1, dim = 0.57), "integerish")
+  expect_error(simulate(dgp1, nsimtest = 0.77), "integerish")
+  expect_error(simulate(dgp1, seed = "ab"), "number")
+  expect_error(simulate(dgp1, dim = 3), "increase dim")
+  expect_error(simulate(dgp(p = pF_sin_x3), dim = 2), "increase dim")
+  expect_error(simulate(dgp(m = mF_max2_x1_x5), dim = 3), "increase dim")
+})
+
 
