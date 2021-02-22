@@ -1,3 +1,8 @@
+test_that("throw comprehensible errors for wrong inputs", {
+  expect_error(dgp(model = "hweoh"), "Must be element of set")
+  expect_error(dgp(xmodel = "hweoh"), "Must be element of set")
+})
+
 
 test_that("simulate returns correct output for normal model", {
   sx <- simulate(dgp(m = mF_x1, model = "normal", xmodel = "unif"), nsim = 500, dim = 2)
@@ -64,4 +69,14 @@ test_that("throw comprehensible errors for wrong inputs", {
   expect_error(simulate(dgp(m = mF_max2_x1_x5), dim = 3), "increase dim")
 })
 
+
+test_that("predict works properly", {
+  dg1 <- dgp()
+  sim1 <- simulate(dg1, nsim = 100)
+  tau <- predict.simdgp(sim1, newdata = sim1)
+  expect_equal(nrow(tau), 100L)
+  expect_equal(ncol(tau), 4L)
+  expect_true(all(tau$pfct == 0.5))
+
+})
 

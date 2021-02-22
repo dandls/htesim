@@ -20,17 +20,20 @@ h_exp <- function(x) {
   return(1 + 1 / (1 + exp(-20 * (x - 1/3))))
 }
 
-#'@rdname treatmentfunc
+#' @rdname treatmentfunc
+#' @export
 tF_div_x1_x2 <- function(x) {
   return((x[,"X1"] + x[,"X2"]) / 2)
 }
 
-#'@rdname treatmentfunc
+#' @rdname treatmentfunc
+#' @export
 tF_log_x1_x2 <- function(x) {
  return(x[,"X1"] + log(1 + exp(x[,"X2"])))
 }
 
-#'@rdname treatmentfunc
+#' @rdname treatmentfunc
+#' @export
 tF_max_x1_x5 <- function(x){
   return(pmax(x[,"X1"] + x[,"X2"] + x[,"X3"], 0) - pmax(x[,"X4"] + x[,"X5"], 0))
 }
@@ -48,37 +51,44 @@ pF_x1 <- function(x) {
   return(1 / 4 * (1 + dbeta(x[,"X1"], 2, 4)))
 }
 
-#'@rdname propensityfunc
+#' @rdname propensityfunc
+#' @export
 pF_x3 <- function(x) {
   return(1 / 4 * (1 + dbeta(x[,"X3"], 2, 4)))
 }
 
-#'@rdname propensityfunc
+#' @rdname propensityfunc
+#' @export
 pF_x4 <- function(x) {
   return(1 / 4 * (1 + dbeta(x[,"X4"], 2, 4)))
 }
 
-#'@rdname propensityfunc
+#' @rdname propensityfunc
+#' @export
 pF_sin_x3 <- function(x) {
   return(sin(2 * pi * x[,"X3"]) / 4 + .5)
 }
 
-#'@rdname propensityfunc
+#' @rdname propensityfunc
+#' @export
 pF_eta_x1_x2 <- function(x, eta = 0.1) {
   return(pmax(eta, pmin(sin(pi * x[,"X1"] * x[,"X2"]), 1-eta)))
 }
 
-#'@rdname propensityfunc
+#' @rdname propensityfunc
+#' @export
 pF_x2_x3 <- function(x) {
   return(1/(1 + exp(x[,"X2"] + x[,"X3"])))
 }
 
-#'@rdname propensityfunc
+#' @rdname propensityfunc
+#' @export
 pF_exp_x1_x2 <- function(x) {
   return(1/(1 + exp(-x[,"X1"]) + exp(-x[,"X2"])))
 }
 
-#'@rdname treatmentfunc
+#' @rdname treatmentfunc
+#' @export
 tF_max_x1_x5 <- function(x){
   return(pmax(x[,"X1"] + x[,"X2"] + x[,"X3"], 0) - pmax(x[,"X4"] + x[,"X5"], 0))
 }
@@ -97,26 +107,31 @@ mF_x1 <- function(x) {
 }
 
 #' @rdname prognosticfunc
+#' @export
 mF_x3 <- function(x) {
   return(2 * x[,"X3"] - 1)
 }
 
 #' @rdname prognosticfunc
+#' @export
 mF_sin_x1_x5 <- function(x) {
   return(sin(pi * x[,"X1"] * x[,"X2"]) + 2*(x[,"X3"]-0.5)^2 + x[,"X4"] + 0.5*x[,"X5"])
 }
 
 #' @rdname prognosticfunc
+#' @export
 mF_max_x1_x5 <- function(x) {
   return(pmax(0, x[,"X1"] + x[,"X2"], x[,"X3"]) + pmax(0, x[,"X4"] + x[,"X5"]))
 }
 
 #' @rdname prognosticfunc
+#' @export
 mF_log_x1_x3 <- function(x) {
   return(2 * log(1 + exp(x[,"X1"] + x[,"X2"] + x[,"X3"])))
 }
 
 #' @rdname prognosticfunc
+#' @export
 mF_max2_x1_x5 <- function(x) {
   return((pmax(x[,"X1"] + x[,"X2"] + x[,"X3"], 0) + pmax(x[,"X4"] + x[,"X5"], 0)) / 2)
 }

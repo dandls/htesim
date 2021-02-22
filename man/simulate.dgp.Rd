@@ -4,18 +4,18 @@
 \alias{simulate.dgp}
 \title{Simulate from a given dgp object}
 \usage{
-\method{simulate}{dgp}(object, nsim = 1, seed = NULL, dim = 4, nsimtest = 1000)
+\method{simulate}{dgp}(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL)
 }
 \arguments{
 \item{object}{(list/gpd) Manual for data generation.}
 
 \item{nsim}{(numeric(1)) Number of observations (n), default 1.}
 
-\item{seed}{(numeric(1)) Seed for data generation, default NULL.}
-
 \item{dim}{(numeric(1)) Dimension, number of predictors (p), default 4.}
 
 \item{nsimtest}{(numeric(1)) Number of observations (n) for test dataset, default 1000.}
+
+\item{seed}{(numeric(1)) Seed for data generation, default NULL.}
 }
 \value{
 data.frame of class simdpg with columns: x, y and trt/w.
