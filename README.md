@@ -16,14 +16,14 @@ Code is now on Github, our publication will be available soon.
 
 ## Installation
 
-You can also install the github version, using `remotes`:
+You can install the github version, using `remotes`:
 
 ```r
 remotes::install_github("susanne-207/htesim")
 ```
 
 ## Example 
-To immitate Setup A of Nie and Wager (2020) we can use the following code. 
+The following code immitates Setup A of Nie and Wager (2020)  
 ```r 
 # Initialize manual for data generating process
 # Functions for treatment effect, prognostic effect and treatment propensity 
