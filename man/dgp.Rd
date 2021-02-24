@@ -30,7 +30,9 @@ has an effect if model = "normal".}
 \item{pi}{(numeric(1)) how much of predictive effect is added to prognostic effect.
 If pi = 0, conditional mean does not depend on treatment effect.}
 
-\item{model}{("normal"|"weibull") Name of used model.}
+\item{model}{("normal"|"weibull"|"binomial"|"polr") Name of used model to simulate outcome y.}
+
+\item{xmodel}{("normal") Name of used model to simulate covariates x.}
 }
 \value{
 list of class gpd with entries:
@@ -39,4 +41,8 @@ model (model used)).
 }
 \description{
 Create manual for data generation
+}
+\seealso{
+\code{\link{pF}}, \code{\link{mF}} and \code{\link{tF}}
+for predefined functions for \code{p}, \code{m} and \code{t}.
 }

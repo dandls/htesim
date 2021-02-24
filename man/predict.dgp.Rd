@@ -4,7 +4,7 @@
 \alias{predict.dgp}
 \title{Predict ground truth effects for new data}
 \usage{
-\method{predict}{dgp}(object, newdata, ...)
+\method{predict}{dgp}(object, newdata)
 }
 \arguments{
 \item{object}{(list/gpd) Manual for data generation.}

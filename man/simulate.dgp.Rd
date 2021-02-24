@@ -21,5 +21,8 @@
 data.frame of class simdpg with columns: x, y and trt/w.
 }
 \description{
-Simulate from a given dgp object
+Simulate data from a given \code{dgp} object.
+}
+\seealso{
+\code{\link{dgp}}
 }

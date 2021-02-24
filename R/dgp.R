@@ -9,10 +9,13 @@
 #' has an effect if model = "normal".
 #' @param pi (numeric(1)) how much of predictive effect is added to prognostic effect.
 #' If pi = 0, conditional mean does not depend on treatment effect.
-#' @param model ("normal"|"weibull") Name of used model.
+#' @param model ("normal"|"weibull"|"binomial"|"polr") Name of used model to simulate outcome y.
+#' @param xmodel ("normal") Name of used model to simulate covariates x.
 #' @return list of class gpd with entries:
 #' pfct (pi(x)), mfct (mu(x)), tfct (tau(x)), sdfct (sd for normal model),
 #' model (model used)).
+#' @seealso \code{\link{pF}}, \code{\link{mF}} and \code{\link{tF}}
+#' for predefined functions for \code{p}, \code{m} and \code{t}.
 #' @export
 dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
 
@@ -56,12 +59,14 @@ dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5, model = c("normal", "wei
 }
 
 
-#' Simulate from a given dgp object
+#' @title Simulate from a given dgp object
+#' @description Simulate data from a given \code{dgp} object.
 #' @param object (list/gpd) Manual for data generation.
 #' @param nsim (numeric(1)) Number of observations (n), default 1.
 #' @param seed (numeric(1)) Seed for data generation, default NULL.
 #' @param dim (numeric(1)) Dimension, number of predictors (p), default 4.
 #' @param nsimtest (numeric(1)) Number of observations (n) for test dataset, default 1000.
+#' @seealso \code{\link{dgp}}
 #' @return data.frame of class simdpg with columns: x, y and trt/w.
 #' @export
 simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL) {
@@ -176,7 +181,7 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL
 #' @return data.frame with true values of
 #' pfct (pi(x)), mfct (mu(x)), tfct (tau(x)) and sdfct (sd for normal model).
 #' @export
-predict.dgp <- function(object, newdata, ...) {
+predict.dgp <- function(object, newdata) {
   atr <- object[sapply(object, is.function)]
   ret <- sapply(atr, function(f) f(newdata))
   return(data.frame(ret))
