@@ -11,11 +11,10 @@
 #' If pi = 0, conditional mean does not depend on treatment effect.
 #' @param model ("normal"|"weibull") Name of used model.
 #' @return list of class gpd with entries:
-#' pfct (pi(x)), mfct (mu(x)), tfct (tau(x)), sdfct (sd for normal),
+#' pfct (pi(x)), mfct (mu(x)), tfct (tau(x)), sdfct (sd for normal model),
 #' model (model used)).
 #' @export
-dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5,
-  model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
+dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
 
   # sanity checks
   assert_true(is.function(p) || is.numeric(p))
@@ -174,22 +173,28 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL
 #' Predict ground truth effects for new data
 #' @param object (list/gpd) Manual for data generation.
 #' @param newdata (data.frame) New data to predict on.
-#' @return data.frame of class simdpg with columns: x, y and trt/w.
+#' @return data.frame with true values of
+#' pfct (pi(x)), mfct (mu(x)), tfct (tau(x)) and sdfct (sd for normal model).
 #' @export
-predict.simdgp <- function(object, newdata, ...) {
-  atr <- attributes(object)$truth
-  atr <- atr[sapply(atr, is.function)]
+predict.dgp <- function(object, newdata, ...) {
+  atr <- object[sapply(object, is.function)]
   ret <- sapply(atr, function(f) f(newdata))
-  if (attributes(object)$truth$model == "weibull") {
-    time <- max(object$y[object$y[,2] > 0, 1])
-    ### compute restricted mean survival time
-    mX <- ret[, "mfct"]
-    tX <- ret[, "tfct"]
-    tm <- matrix(seq(from = 0, to = time, length.out = 100),
-      nrow = length(mX), ncol = 100, byrow = TRUE)
-    rmstdiff <- rowSums(exp(-exp(2 * tm - (mX + tX)))) * (time / ncol(tm)) -
-      rowSums(exp(-exp(2 * tm - mX))) * (time / ncol(tm))
-    ret <- cbind(ret, "rmst" = rmstdiff)
-  }
   return(data.frame(ret))
 }
+# predict.simdgp <- function(object, newdata, ...) {
+#   atr <- attributes(object)$truth
+#   atr <- atr[sapply(atr, is.function)]
+#   ret <- sapply(atr, function(f) f(newdata))
+#   if (attributes(object)$truth$model == "weibull") {
+#     time <- max(object$y[object$y[,2] > 0, 1])
+#     ### compute restricted mean survival time
+#     mX <- ret[, "mfct"]
+#     tX <- ret[, "tfct"]
+#     tm <- matrix(seq(from = 0, to = time, length.out = 100),
+#       nrow = length(mX), ncol = 100, byrow = TRUE)
+#     rmstdiff <- rowSums(exp(-exp(2 * tm - (mX + tX)))) * (time / ncol(tm)) -
+#       rowSums(exp(-exp(2 * tm - mX))) * (time / ncol(tm))
+#     ret <- cbind(ret, "rmst" = rmstdiff)
+#   }
+#   return(data.frame(ret))
+# }

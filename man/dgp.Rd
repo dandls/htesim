@@ -34,7 +34,7 @@ If pi = 0, conditional mean does not depend on treatment effect.}
 }
 \value{
 list of class gpd with entries:
-pfct (pi(x)), mfct (mu(x)), tfct (tau(x)), sdfct (sd for normal),
+pfct (pi(x)), mfct (mu(x)), tfct (tau(x)), sdfct (sd for normal model),
 model (model used)).
 }
 \description{

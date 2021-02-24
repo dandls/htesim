@@ -64,7 +64,7 @@ tF_max_x1_x5 <- function(x){
 #' and \code{pF_exp_x1_x2} to \deqn{1/(1 + \exp{- x_1} + \exp{- x_2})}{1/(1 + exp(-x1) + exp(-x2)).}
 #'
 #' @param x (data.frame)
-#' @param eta (numeric(1))  trimming parameter for \code{pF_eta_x1_x2}.
+#' @param eta (numeric(1))  Trimming parameter for \code{pF_eta_x1_x2}.
 #'
 #' @return vector of corresponding propensities
 #'

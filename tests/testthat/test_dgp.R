@@ -73,7 +73,7 @@ test_that("throw comprehensible errors for wrong inputs", {
 test_that("predict works properly", {
   dg1 <- dgp()
   sim1 <- simulate(dg1, nsim = 100)
-  tau <- predict.simdgp(sim1, newdata = sim1)
+  tau <- predict.dgp(dg1, newdata = sim1)
   expect_equal(nrow(tau), 100L)
   expect_equal(ncol(tau), 4L)
   expect_true(all(tau$pfct == 0.5))

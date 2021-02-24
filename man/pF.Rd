@@ -28,7 +28,7 @@ pF_exp_x1_x2(x)
 \arguments{
 \item{x}{(data.frame)}
 
-\item{eta}{(numeric(1))  trimming parameter for \code{pF_eta_x1_x2}.}
+\item{eta}{(numeric(1))  Trimming parameter for \code{pF_eta_x1_x2}.}
 }
 \value{
 vector of corresponding propensities
