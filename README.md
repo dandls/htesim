@@ -3,8 +3,7 @@
 The study frameworks are based on the following papers: 
 
 <!--- * Dandl S, Hothorn T, Heidi S (2020). Divide or Unite? A Comparison of Two Strategies to Random Forests-type Heterogeneous Treatment Effect Estimation. --->
-* Athey S, Tibshirani J, Wager S (2019). “Generalized Random Forests.” The Annals of
-Statistics, 47(2), 1148–1178. doi:10.1214/18-AOS1709.
+* Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
 * Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Ef-
 fects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076,
 https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, 
