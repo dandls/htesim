@@ -171,7 +171,7 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL
 }
 
 
-#' Predict ground truth treatment effect for new data
+#' Predict ground truth effects for new data
 #' @param object (list/gpd) Manual for data generation.
 #' @param newdata (data.frame) New data to predict on.
 #' @return data.frame of class simdpg with columns: x, y and trt/w.
