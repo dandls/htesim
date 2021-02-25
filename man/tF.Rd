@@ -3,12 +3,15 @@
 \name{tF}
 \alias{tF}
 \alias{tF_exp_x1_x2}
+\alias{tF_exp2_x1_x2}
 \alias{tF_div_x1_x2}
 \alias{tF_log_x1_x2}
 \alias{tF_max_x1_x5}
 \title{Treatment effect functions}
 \usage{
 tF_exp_x1_x2(x)
+
+tF_exp2_x1_x2(x)
 
 tF_div_x1_x2(x)
 
@@ -18,6 +21,8 @@ tF_max_x1_x5(x)
 }
 \arguments{
 \item{x}{(data.frame)}
+
+\item{h}{(function) Helper function.}
 }
 \value{
 vector of corresponding treatment effects
@@ -27,6 +32,7 @@ Treatment effect functions are based on Wager and Athey (2018) and Nie and Wager
 }
 \details{
 \code{tF_exp_x1_x2} corresponds to \deqn{\prod_{j = 1}^2 1 + \frac{1}{1 + \exp{(-20(x_j - \frac{1}{3}))}}}{\prod_{j = 1}^2 (1 +  1/(1 + exp(-20 (xj - (1/3))))).}
+\code{tF_exp2_x1_x2} is equal to \deqn{\prod_{j = 1}^2 \frac{2}{1 + \exp{(-20(x_j - \frac{1}{2}))}}}{\prod_{j = 1}^2 (2/(1 + exp(-20 (xj - (1/2))))).}
 \code{tF_div_x1_x2} corresponds to \deqn{\frac{x_1 + x_2}{2}}{(x1 + x2)/2,}
 \code{tF_log_x1_x2} to \deqn{x_1 + \log{1 + \exp{x_2}}}{x1 + log(1 + x2)}
 and \code{tF_max_x1_x5} to \deqn{\max{x_1 + x_2 + x_3, 0} - \max{x_4 + x_5, 0}}{max(x1 + x2 + x3, 0) - max(x4 + x5, 0).}

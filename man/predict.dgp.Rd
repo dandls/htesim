@@ -18,3 +18,11 @@ pfct (pi(x)), mfct (mu(x)), tfct (tau(x)) and sdfct (sd for normal model).
 \description{
 Predict ground truth effects for new data
 }
+\examples{
+# Wager and Athey (2018) - first experiment
+dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, model = "normal", xmodel = "unif")
+sim1 <- simulate(dgp1, nsim = 500L, d = 2, nsimtest = 1000L)
+newdata <- attr(sim1, "testxdf")
+pred1 <- predict(dgp1, newdata)
+head(pred1)
+}

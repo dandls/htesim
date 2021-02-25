@@ -16,6 +16,33 @@
 #' model (model used)).
 #' @seealso \code{\link{pF}}, \code{\link{mF}} and \code{\link{tF}}
 #' for predefined functions for \code{p}, \code{m} and \code{t}.
+#' @references
+#' Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
+#'
+#' Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Ef- fects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076, https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, URL https://doi.org/10.1093/biomet/asaa076.
+#'
+#' @examples
+#' # Wager and Athey (2018) - first experiment
+#' dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, model = "normal", xmodel = "unif")
+#'
+#' # Wager and Athey (2018) - second experiment
+#' dgp2 <- dgp(p = 0.5, m = 0, t = tF_exp_x1_x2, model = "normal", xmodel = "unif")
+#'
+#' # Wager and Athey (2018) - third experiment
+#' dgp3 <- dgp(p = 0.5, m = 0, t = tF_exp2_x1_x2, model = "normal", xmodel = "unif")
+#'
+#' # Nie and Wager (2020) - Setup A
+#' dgpA <- dgp(p = pF_eta_x1_x2, m = mF_sin_x1_x5, t = tF_div_x1_x2, model = "normal", xmodel = "unif")
+#'
+#' # Nie and Wager (2020) - Setup B
+#' dgpB <- dgp(p = 0.5, m = mF_max_x1_x5, t = tF_log_x1_x2, model = "normal", xmodel = "normal")
+#'
+#' # Nie and Wager (2020) - Setup C
+#' dgpC <- dgp(p = pF_x2_x3, m = mF_log_x1_x3, t = 1, model = "normal", xmodel = "normal")
+#'
+#' # Nie and Wager (2020) - Setup D
+#' dgpD <- dgp(p = pF_exp_x1_x2, m = mF_max2_x1_x5, t = tF_max_x1_x5, model = "normal", xmodel = "normal")
+#'
 #' @export
 dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
 
@@ -68,6 +95,20 @@ dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5, model = c("normal", "wei
 #' @param nsimtest (numeric(1)) Number of observations (n) for test dataset, default 1000.
 #' @seealso \code{\link{dgp}}
 #' @return data.frame of class simdpg with columns: x, y and trt/w.
+#'
+#' @examples
+#'
+#' # Wager and Athey (2018) - first experiment
+#' dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, model = "normal", xmodel = "unif")
+#' sim1 <- simulate(dgp1, nsim = 500L, d = 2L, nsimtest = 1000L) # in paper d = {2, 5, 10, 15, 20, 30}
+#' head(sim1)
+#'
+#' # Nie and Wager (2020) - Setup A
+#' dgpA <- dgp(p = pF_eta_x1_x2, m = mF_sin_x1_x5, t = tF_div_x1_x2,
+#'  model = "normal", xmodel = "unif")
+#' simA <- simulate(dgpA, nsim = 500L, d = 6L, nsimtest = 500L)
+#' head(simA)
+#'
 #' @export
 simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL) {
 
@@ -180,26 +221,17 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL
 #' @param newdata (data.frame) New data to predict on.
 #' @return data.frame with true values of
 #' pfct (pi(x)), mfct (mu(x)), tfct (tau(x)) and sdfct (sd for normal model).
+#' @examples
+#' # Wager and Athey (2018) - first experiment
+#' dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, model = "normal", xmodel = "unif")
+#' sim1 <- simulate(dgp1, nsim = 500L, d = 2, nsimtest = 1000L)
+#' newdata <- attr(sim1, "testxdf")
+#' pred1 <- predict(dgp1, newdata)
+#' head(pred1)
 #' @export
 predict.dgp <- function(object, newdata) {
+  assert_data_frame(newdata)
   atr <- object[sapply(object, is.function)]
   ret <- sapply(atr, function(f) f(newdata))
   return(data.frame(ret))
 }
-# predict.simdgp <- function(object, newdata, ...) {
-#   atr <- attributes(object)$truth
-#   atr <- atr[sapply(atr, is.function)]
-#   ret <- sapply(atr, function(f) f(newdata))
-#   if (attributes(object)$truth$model == "weibull") {
-#     time <- max(object$y[object$y[,2] > 0, 1])
-#     ### compute restricted mean survival time
-#     mX <- ret[, "mfct"]
-#     tX <- ret[, "tfct"]
-#     tm <- matrix(seq(from = 0, to = time, length.out = 100),
-#       nrow = length(mX), ncol = 100, byrow = TRUE)
-#     rmstdiff <- rowSums(exp(-exp(2 * tm - (mX + tX)))) * (time / ncol(tm)) -
-#       rowSums(exp(-exp(2 * tm - mX))) * (time / ncol(tm))
-#     ret <- cbind(ret, "rmst" = rmstdiff)
-#   }
-#   return(data.frame(ret))
-# }

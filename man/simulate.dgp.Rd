@@ -23,6 +23,20 @@ data.frame of class simdpg with columns: x, y and trt/w.
 \description{
 Simulate data from a given \code{dgp} object.
 }
+\examples{
+
+# Wager and Athey (2018) - first experiment
+dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, model = "normal", xmodel = "unif")
+sim1 <- simulate(dgp1, nsim = 500L, d = 2L, nsimtest = 1000L) # in paper d = {2, 5, 10, 15, 20, 30}
+head(sim1)
+
+# Nie and Wager (2020) - Setup A
+dgpA <- dgp(p = pF_eta_x1_x2, m = mF_sin_x1_x5, t = tF_div_x1_x2,
+ model = "normal", xmodel = "unif")
+simA <- simulate(dgpA, nsim = 500L, d = 6L, nsimtest = 500L)
+head(simA)
+
+}
 \seealso{
 \code{\link{dgp}}
 }

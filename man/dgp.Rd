@@ -42,6 +42,34 @@ model (model used)).
 \description{
 Create manual for data generation
 }
+\examples{
+# Wager and Athey (2018) - first experiment
+dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, model = "normal", xmodel = "unif")
+
+# Wager and Athey (2018) - second experiment
+dgp2 <- dgp(p = 0.5, m = 0, t = tF_exp_x1_x2, model = "normal", xmodel = "unif")
+
+# Wager and Athey (2018) - third experiment
+dgp3 <- dgp(p = 0.5, m = 0, t = tF_exp2_x1_x2, model = "normal", xmodel = "unif")
+
+# Nie and Wager (2020) - Setup A
+dgpA <- dgp(p = pF_eta_x1_x2, m = mF_sin_x1_x5, t = tF_div_x1_x2, model = "normal", xmodel = "unif")
+
+# Nie and Wager (2020) - Setup B
+dgpB <- dgp(p = 0.5, m = mF_max_x1_x5, t = tF_log_x1_x2, model = "normal", xmodel = "normal")
+
+# Nie and Wager (2020) - Setup C
+dgpC <- dgp(p = pF_x2_x3, m = mF_log_x1_x3, t = 1, model = "normal", xmodel = "normal")
+
+# Nie and Wager (2020) - Setup D
+dgpD <- dgp(p = pF_exp_x1_x2, m = mF_max2_x1_x5, t = tF_max_x1_x5, model = "normal", xmodel = "normal")
+
+}
+\references{
+Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
+
+Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Ef- fects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076, https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, URL https://doi.org/10.1093/biomet/asaa076.
+}
 \seealso{
 \code{\link{pF}}, \code{\link{mF}} and \code{\link{tF}}
 for predefined functions for \code{p}, \code{m} and \code{t}.
