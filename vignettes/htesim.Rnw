@@ -1,0 +1,143 @@
+\documentclass[nojss]{jss}
+
+%% packages
+\usepackage{amstext}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{thumbpdf}
+\usepackage{rotating}
+%% need no \usepackage{Sweave}
+
+%% additional commands
+\newcommand{\squote}[1]{`{#1}'}
+\newcommand{\dquote}[1]{``{#1}''}
+\newcommand{\fct}[1]{\texttt{#1()}}
+\newcommand{\class}[1]{\squote{\texttt{#1}}}
+
+%% for internal use
+\newcommand{\fixme}[1]{\emph{\marginpar{FIXME} (#1)}}
+\newcommand{\readme}[1]{\emph{\marginpar{README} (#1)}}
+
+\hyphenation{Qua-dra-tic}
+
+\title{\pkg{htesim}: A Simulation Study Framework for Heterogeneous Treatment Effect Estimation}
+\Plaintitle{htesim: A Simulation Study Framework for Heterogeneous Treatment Effect Estimation}
+
+\author{Susanne Dandl\\Ludwig-Maximilians-Universit\"at M\"unchen
+   \And Torsten Hothorn\\University of Z\"urich}
+\Plainauthor{Susanne Dandl, Torsten Hothorn}
+
+\Abstract{
+  The \pkg{htestim} package provides an extensive simulation study framework to
+  evaluate methods to estimate heterogeneous treatment effects.
+}
+\Keywords{treatment effect estimation, simulation study, observational data}
+
+\Address{
+  Susanne Dandl \\
+  Department of Statistics \\
+  Chair of Statistical Learning and Data Science \\
+  LMU Munich\\
+  E-mail: \email{Susanne.Dandl@stat.uni-muenchen.de} \\
+  URL: \url{https://www.slds.stat.uni-muenchen.de/people/dandl/} \\
+
+  Torsten Hothorn\\
+  Institut f\"ur Epidemiologie, Biostatistik und Pr\"avention \\
+  Universit\"at Z\"urich \\
+  Hirschengraben 84\\
+  CH-8001 Z\"urich, Switzerland \\
+  E-mail: \email{Torsten.Hothorn@R-project.org}\\
+  URL: \url{http://user.math.uzh.ch/hothorn/}
+}
+
+
+\begin{document}
+
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+tidy=FALSE, eval = TRUE
+)
+@
+
+<<setup, echo = FALSE, results='hide'>>=
+suppressWarnings(RNGversion("3.5.2"))
+options(width = 70)
+library("htesim")
+library("checkmate")
+set.seed(8008)
+@
+
+\section{Overview} \label{sec:overview}
+
+\begin{itemize}
+  \item Why this package? Introduction to heterogeneous treatment effect estimation
+  \item Related work
+  \item What it can (overview of functions) and what it can't (limitations)
+  \item Structure of Vignette
+\end{itemize}
+
+\section{Example} \label{sec:example}
+
+\section{Functionalities} \label{sec:functions}
+
+\subsection{Define a Data Generating Process} \label{subsec:dgp}
+
+\begin{itemize}
+  \item Explain dgp
+  \item Predefined functions (settings Athey and others)
+\end{itemize}
+
+\subsection{Simulate from Data Generating Process} \label{subsec:simulate}
+
+\subsection{Compute Ground Truth for New Data} \label{subsec:predict}
+
+\section{Examples} \label{sec:examples}
+
+\subsection{Use your own Functions} \label{subsec:ownfunc}
+It is also possible to specify and simulate from your own treatment effect, prognostic effect
+and treatment propensity functions.
+In Section~\ref{sec:functions} we saw that \code{simulate} generates a dataset of
+covariates by drawing random numbers from a uniform distribution or normal distribution.
+These variables are labelled as "X1", "X2", and so on.
+This dataset is the input for a new function.
+As an example, we want our treatment effect function to have the form
+$$ \tau(\mathbf{x}) = (x_1 + x_2)^{\nu}/4 $$
+with $\nu \ge 0$, our prognostic effect function should be
+$$ \mu(\mathbf{x}) = exp(x_1 + 0.3 x_2 + 0.4 x_3)$$.
+The propensity score should be $0.5$ for all observations, meaning that
+we conduct a randomized trial.
+We can our functions up using
+<<owntE >>=
+tE_nu_x1_x2 <- function(x, nu = 1) {
+  return(((x[, "X1"] + x[, "X2"])^nu)/4)
+}
+
+mE_exp_x1_x3 <- function(x) {
+  return(exp(x[, "X1"] + 0.3 * x[, "X2"] + 0.4 * x[, "X3"]))
+}
+@
+To receive simulation study data, for example, of size $n = 500$, we pass these functions to \code{dgp} and \code{simulate} from
+it.
+
+<<simowntE >>=
+dgpown <- dgp(p = 0.5, m = mE_exp_x1_x3, t = tE_nu_x1_x2)
+simown <- simulate(dgpown, nsim = 500)
+head(simown)
+@
+
+\subsection{Reproduce Study of Dandl et al. (2021)} \label{subsec:dandl}
+
+\begin{itemize}
+  \item Dandl Setup
+  \item Results of Dandl to compare with yours
+\end{itemize}
+
+\section{Summary} \label{summary}
+This vignette (\code{"htesim"}) introduces the package \pkg{htesim} that
+provides...
+
+
+\bibliography{literature}
+
+\end{document}

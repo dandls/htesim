@@ -20,7 +20,10 @@ Imports:
     checkmate
 Suggests: 
     testthat (>= 3.0.0),
-    mlt, 
+    mlt,
     tram,
-    survival
+    survival,
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
+VignetteBuilder: knitr
