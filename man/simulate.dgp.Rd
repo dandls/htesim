@@ -18,7 +18,12 @@
 \item{seed}{(numeric(1)) Seed for data generation, default NULL.}
 }
 \value{
-data.frame of class simdpg with columns: x, y and trt/w.
+data.frame of class simdpg with columns: x, y and trt and attributes
+\itemize{
+\item \code{truth}: the  \code{object}
+\item \code{testxdf}: the test data with \code{nsimtest} rows and \code{dim} columns
+\item \code{runseed}: an additional seed (e.g., to run a method)
+}
 }
 \description{
 Simulate data from a given \code{dgp} object.
@@ -35,6 +40,7 @@ dgpA <- dgp(p = pF_eta_x1_x2, m = mF_sin_x1_x5, t = tF_div_x1_x2,
  model = "normal", xmodel = "unif")
 simA <- simulate(dgpA, nsim = 500L, d = 6L, nsimtest = 500L)
 head(simA)
+testdf <- attr(simA, "testxdf")
 
 }
 \seealso{

@@ -126,7 +126,77 @@ simown <- simulate(dgpown, nsim = 500)
 head(simown)
 @
 
-\subsection{Reproduce Study of Dandl et al. (2021)} \label{subsec:dandl}
+\subsection{Reproduce Study of xxxx} \label{subsec:dandl}
+To compare the results of other methods to the methods investigated in
+xxxx, the study setting and the corresponding results of the forest approaches are
+available in this package.
+
+<<loadres>>=
+load(file = "../data/studyresults.rda")
+head(res)
+@
+
+The column \code{setup} corresponds to the unique data generating process defined  by \code{p}, \code{m}, \code{t}, \code{sd}, \code{pi}, \code{model}, \code{xmodel}, \code{nsim} and \code{dim}.
+Each data generating process war repeated 100 times. \code{repl} stores the rerun ids.
+\code{p}, \code{m}, \code{t}, \code{sd}, \code{pi} \code{pi}, \code{model} and \code{xmodel}
+are arguments for \code{dgp}, while \code{nsim}, \code{dim}, \code{nsimtest} and \code{seed}
+should be inserted into \code{simulate.dgp}.
+
+The information in these columns are enough to reproduce the data generating process.
+The following function helps to convert the character names of functions in columns \textit{p}, \textit{m} and \textit{t}
+to proper function names before \code{dgp} could be called.
+
+<<helper>>=
+get_dgp <- function(row) {
+  p <- eval(parse(text = row$p))
+  m <- eval(parse(text = row$m))
+  t <- eval(parse(text = row$t))
+dgpr <- dgp(p = p, m = m, t = t, sd = row$sd, model = row$model,
+   xmodel = row$xmodel)
+return(dgpr)
+}
+@
+
+For illustration, we will generate a study dataset derived from the first
+row of \code{res}.
+
+<<row1>>=
+res1 <- res[1,]
+@
+
+After we called the helper function \code{get_dgp} to produce a \code{dgp} object,
+we call \code{simulate} with additional the corresponding \code{nsim}, \code{dim},
+\code{nsimtest} and \code{seed} of \code{res1}.
+
+<<getdatar>>=
+dgp1 <- get_dgp(res1)
+sim1 <- simulate(dgp1, nsim = res1$nsim, dim = res1$dim, seed = res1$seed, nsimtest = res1$nsimtest)
+head(sim1)
+@
+
+The test data was attached to \code{sim1} as an attribute.
+
+<<gettest>>=
+test <- attr(sim1, "testxdf")
+head(test)
+@
+
+We receive the true effects using for the test data using
+<<predtest>>=
+tau <- predict(dgp1, newdata = test)
+head(tau)
+@
+
+xxx were only interested in the treatment effect estimation.
+They compared different forest-based methods to estimate these effects.
+Performance was assessed by mean squared error
+$$\frac{1}{1000} \sum_{i = 1}^{1000}(\tau(\mathbf{x}_i) - \hat{\tau}(\mathbf{x}_i))$$
+evaluated on the test sample.
+The results for each method are save in columns 14 to 23 and can be plotted with the following code.
+
+<<plots>>=
+
+@
 
 \begin{itemize}
   \item Dandl Setup

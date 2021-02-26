@@ -94,8 +94,10 @@ dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5, model = c("normal", "wei
 #' @param dim (numeric(1)) Dimension, number of predictors (p), default 4.
 #' @param nsimtest (numeric(1)) Number of observations (n) for test dataset, default 1000.
 #' @seealso \code{\link{dgp}}
-#' @return data.frame of class simdpg with columns: x, y and trt/w.
-#'
+#' @return data.frame of class simdpg with columns: x, y and trt and attributes
+#'  * \code{truth}: the  \code{object}
+#'  * \code{testxdf}: the test data with \code{nsimtest} rows and \code{dim} columns
+#'  * \code{runseed}: an additional seed (e.g., to run a method)
 #' @examples
 #'
 #' # Wager and Athey (2018) - first experiment
@@ -108,6 +110,10 @@ dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5, model = c("normal", "wei
 #'  model = "normal", xmodel = "unif")
 #' simA <- simulate(dgpA, nsim = 500L, d = 6L, nsimtest = 500L)
 #' head(simA)
+#'
+#' # Get test data
+#' testdf <- attr(simA, "testxdf")
+#' head(testdf)
 #'
 #' @export
 simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL) {
