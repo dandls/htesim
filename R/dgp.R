@@ -46,10 +46,12 @@
 #' @export
 dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
 
+  cl <- match.call()
+
   # sanity checks
-  assert_true(is.function(p) || is.numeric(p))
-  assert_true(is.function(m) || is.numeric(m))
-  assert_true(is.function(t) || is.numeric(t))
+  assert_true(is.function(p) || is.numeric(p) || is.character(p))
+  assert_true(is.function(m) || is.numeric(m) || is.character(m))
+  assert_true(is.function(t) || is.numeric(t) || is.character(t))
   assert_number(sd, lower = 0)
   assert_number(pi)
 
@@ -62,27 +64,41 @@ dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5, model = c("normal", "wei
       stop("Assertion on 'xmodel' failed: Must be element of set {'normal', 'unif'}")
     })
 
-  if (!is.function(pfct <- p))
-    pfct <- function(x) return(rep(p, NROW(x)))
-
-  if (!is.function(mfct <- m))
-    mfct <- function(x) return(rep(m, NROW(x)))
-
-  if (!is.function(tfct <- t))
-    tfct <- function(x) return(rep(t, NROW(x)))
-
-  if (!is.function(sdfct <- sd))
-    sdfct <- function(x) return(rep(sd, NROW(x)))
+  pfct <- sanitize_fct(p, cl$p)
+  mfct <- sanitize_fct(m, cl$m)
+  tfct <- sanitize_fct(t, cl$t)
+  sdfct <- sanitize_fct(sd, cl$sd)
 
   ### mean effect
   mf <- function(x) mfct(x) - pi * tfct(x)
 
   ret <- list(pfct = pfct, mfct = mf, tfct = tfct, sdfct = sdfct, pi = pi,
-    model = model, xmodel = xmodel, ename = deparse(substitute(e)),
-    mname = deparse(substitute(m)), zname = deparse(substitute(t)),
+    model = model, xmodel = xmodel, pname = deparse(substitute(p)),
+    mname = deparse(substitute(m)), tname = deparse(substitute(t)),
     sdname = deparse(substitute(sd)))
   class(ret) <- "dgp"
   return(ret)
+}
+
+# Helper function to properly handle propensity/prognostic/treatment effects as
+# numerics, characters or functions
+sanitize_fct <- function(fct, call) {
+
+  # proper handling of characters
+  # stop if function not found
+  if (is.character(fct)) {
+    tryCatch({fct <- eval(parse(text = fct))},
+      error = function(e) {
+        stop(paste("function ", call, " not found", sep = "'"))
+      })
+  }
+
+  # proper handling of numerics
+  if (is.numeric(fct)) {
+    fct <- return(function(x) return(rep(fct, NROW(x))))
+  }
+
+  return(fct)
 }
 
 
