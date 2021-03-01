@@ -224,55 +224,26 @@ ltheme$strip.background$col <- "transparent" ## change strip bg
 lattice.options(default.theme = ltheme)
 @
 
-<<settings>>=
+<<adapt>>=
 cols <- c("m4y" = "snow", "m4y-honest" = "snow4",
   "hybrid" = "tan",  "hybrid-honest" = "tan4",
   "equalized" = "darkorchid1", "equalized-honest" = "darkorchid4",
   "cf" = "deepskyblue", "cf-honest" = "deepskyblue4",
   "m4ycf" = "darkolivegreen1", "m4ycf-honest" = "darkolivegreen4")
 
+cols <- cols[-grep("honest", names(cols))]
 
-exA <- c("pF_x3.mF_x3.0" = expression(mu(x[3]) + 0 %.% W(x[3])),
-  "0.5.0.tF_exp" = expression(tau(x[1], x[2]) * W),
-  "pF_x1.mF_x1.tF_exp" = expression(mu(x[1]) + tau(x[1], x[2]) * W(x[1])),
-  "0.5.mF_x1.tF_exp" = expression(mu(x[1]) + tau(x[1], x[2]) * W),
-  "0.5.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * W),
-  "pF_x3.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * W(x[3])),
-  "pF_x3.0.tF_exp" = expression(tau(x[1], x[2])* W(x[3])),
-  "pF_x4.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * W(x[4])),
-  "pF_eta_x1_x2.mF_sin_x1_x5.tF_div" = "Setup A",
-  "0.5.mF_max_x1_x5.tF_log" = "Setup B",
-  "pF_x2_x3.mF_log_x1_x3.1" = "Setup C",
-  "pF_exp_x1_x2.mF_max2_x1_x5.tF_max" = "Setup D")
+methodnams <- c("m4y",  "hybrid", "equalized",  "cf", "m4ycf")
+@
 
-exB <- c("pF_x3.mF_x3.0" = expression(mu(x[3]) + 0 %.% (W(x[3]) - .5)),
-  "0.5.0.tF_exp" = expression(tau(x[1], x[2]) * (W - .5)),
-  "pF_x1.mF_x1.tF_exp" = expression(mu(x[1]) + tau(x[1], x[2]) * (W(x[1]) - .5)),
-  "0.5.mF_x1.tF_exp" = expression(mu(x[1]) + tau(x[1], x[2]) * (W - .5)),
-  "0.5.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * (W - .5)),
-  "pF_x3.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * (W(x[3]) - .5)),
-  "pF_x3.0.tF_exp" = expression(tau(x[1], x[2])* (W(x[3]) - .5)),
-  "pF_x4.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * (W(x[4]) - .5)),
-  "pF_eta_x1_x2.mF_sin_x1_x5.tF_div" = "Setup A",
-  "0.5.mF_max_x1_x5.tF_log" = "Setup B",
-  "pF_x2_x3.mF_log_x1_x3.1" = "Setup C",
-  "pF_exp_x1_x2.mF_max2_x1_x5.tF_max" = "Setup D")
+<<settings>>=
 
-scA <- function(which.given, ..., factor.levels) {
+sc <- function(which.given, ..., factor.levels) {
   if (which.given == 2) {
     strip.default(which.given = which.given, ..., factor.levels)
   } else {
     strip.default(which.given = 1, ...,
-      factor.levels = exA[factor.levels])
-  }
-}
-
-scB <- function(which.given, ..., factor.levels) {
-  if (which.given == 2) {
-    strip.default(which.given = which.given, ..., factor.levels)
-  } else {
-    strip.default(which.given = 1, ...,
-      factor.levels = exB[factor.levels])
+      factor.levels)
   }
 }
 
@@ -303,11 +274,12 @@ refactor <- function(df, method.nams) {
   levels(df$dim) <- paste("P = ", levels(df$dim))
 
   df$i <- with(df, interaction(p, m, t))[, drop = TRUE]
-  df$i <- factor(df$i, levels = names(exA))
+  df$i <- factor(df$i)
   df$i <- droplevels(df$i)
   df$nd <- with(df, interaction(dim, nsim, sep = ", "))
   lev <- levels(df$nd)
   levels(df$nd) <- sapply(strsplit(lev, ", "), function(x) paste(x[2], ", ", x[1]))
+  df$setup <- factor(df$setup)
 
   df <- df[, c("algorithm", "setup", "repl", "i", "nd", "pi", "seed", "value")]
 
@@ -318,10 +290,6 @@ refactor <- function(df, method.nams) {
   return(df)
 }
 
-
-methodnams <- c("m4y",  "hybrid", "equalized",  "cf", "m4ycf",
-  "m4yhonest", "hybridhonest", "equalizedhonest",  "cfhonest", "m4ycfhonest")
-
 mykey <- list(space="top", rectangles=list(col=cols),
   text=list(names(cols)), columns = 5)
 
@@ -329,38 +297,30 @@ ylab <- expression(paste(frac(1, 1000), "",
   sum((tau(x[i]) - hat(tau)(x[i]))^2, i == 1, 1000)))
 
 ### plots
-plot_results <- function(pltdata, sc, ylim, cexstrip = 0.5) {
-  plt <- bwplot(value ~ algorithm | i + nd, data = pltdata,
+plot_results <- function(pltdata, sc, ylim) {
+  plt <- bwplot(value ~ algorithm | setup + nd, data = pltdata,
     ylab = list(ylab), ylim = ylim,
     groups = repl, panel = mypanel,
     as.table = TRUE, strip = sc, key = mykey,
-    scales = list(relation = "same", x = list(rot = 60)),
-    par.strip.text = list(cex = cexstrip),
-    par.settings = list(layout.heights = list(strip = 1.5)))
+    scales = list(relation = "same", x = list(rot = 60)))
   useOuterStrips(plt, strip = sc)
 }
 @
 
 <<plot, fig.width=10, fig.height = 10.5, fig.width = 11>>=
-Nna <- sum(is.na(res$result.res))
 res <- refactor(res, method.nams =  methodnams)
-
 
 ### w/o overlap: W
 normalA <- subset(res, pi == 0)
 ### w overlap: W - .5
 normalB <- subset(res, pi == 0.5)
 
-plot_results(normalA[normalA$setup %in% 1:16,], sc = scA)
-plot_results(normalB[normalA$setup %in% 1:16,], sc = scB)
-plot_results(normalA[normalA$setup %in% 17:20,], sc = scA)
-plot_results(normalB[normalA$setup %in% 17:20,], sc = scB)
+plot_results(normalA[normalA$setup %in% 1:16,], sc = sc)
+plot_results(normalB[normalA$setup %in% 1:16,], sc = sc)
+plot_results(normalA[normalA$setup %in% 17:20,], sc = sc)
+plot_results(normalB[normalA$setup %in% 17:20,], sc = sc)
 @
 
-
-\begin{itemize}
-\item Results of Dandl to compare with yours
-\end{itemize}
 
 \section{Summary} \label{summary}
 This vignette (\code{"htesim"}) introduces the package \pkg{htesim} that
