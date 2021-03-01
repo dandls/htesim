@@ -24,45 +24,48 @@
 \Plaintitle{htesim: A Simulation Study Framework for Heterogeneous Treatment Effect Estimation}
 
 \author{Susanne Dandl\\Ludwig-Maximilians-Universit\"at M\"unchen
-   \And Torsten Hothorn\\University of Z\"urich}
+\And Torsten Hothorn\\University of Z\"urich}
 \Plainauthor{Susanne Dandl, Torsten Hothorn}
 
 \Abstract{
-  The \pkg{htestim} package provides an extensive simulation study framework to
-  evaluate methods to estimate heterogeneous treatment effects.
+The \pkg{htestim} package provides an extensive simulation study framework to
+evaluate methods to estimate heterogeneous treatment effects.
 }
 \Keywords{treatment effect estimation, simulation study, observational data}
 
 \Address{
-  Susanne Dandl \\
-  Department of Statistics \\
-  Chair of Statistical Learning and Data Science \\
-  LMU Munich\\
-  E-mail: \email{Susanne.Dandl@stat.uni-muenchen.de} \\
-  URL: \url{https://www.slds.stat.uni-muenchen.de/people/dandl/} \\
+Susanne Dandl \\
+Department of Statistics \\
+Chair of Statistical Learning and Data Science \\
+LMU Munich\\
+E-mail: \email{Susanne.Dandl@stat.uni-muenchen.de} \\
+URL: \url{https://www.slds.stat.uni-muenchen.de/people/dandl/} \\
 
-  Torsten Hothorn\\
-  Institut f\"ur Epidemiologie, Biostatistik und Pr\"avention \\
-  Universit\"at Z\"urich \\
-  Hirschengraben 84\\
-  CH-8001 Z\"urich, Switzerland \\
-  E-mail: \email{Torsten.Hothorn@R-project.org}\\
-  URL: \url{http://user.math.uzh.ch/hothorn/}
+Torsten Hothorn\\
+Institut f\"ur Epidemiologie, Biostatistik und Pr\"avention \\
+Universit\"at Z\"urich \\
+Hirschengraben 84\\
+CH-8001 Z\"urich, Switzerland \\
+E-mail: \email{Torsten.Hothorn@R-project.org}\\
+URL: \url{http://user.math.uzh.ch/hothorn/}
 }
 
 
 \begin{document}
 
 <<include=FALSE>>=
-library(knitr)
+library("knitr")
 opts_chunk$set(
-tidy=FALSE, eval = TRUE
+  tidy=FALSE, eval = TRUE
 )
 @
 
 <<setup, echo = FALSE, results='hide'>>=
 suppressWarnings(RNGversion("3.5.2"))
 options(width = 70)
+@
+
+<<setup2 >>=
 library("htesim")
 library("checkmate")
 set.seed(8008)
@@ -71,10 +74,10 @@ set.seed(8008)
 \section{Overview} \label{sec:overview}
 
 \begin{itemize}
-  \item Why this package? Introduction to heterogeneous treatment effect estimation
-  \item Related work
-  \item What it can (overview of functions) and what it can't (limitations)
-  \item Structure of Vignette
+\item Why this package? Introduction to heterogeneous treatment effect estimation
+\item Related work
+\item What it can (overview of functions) and what it can't (limitations)
+\item Structure of Vignette
 \end{itemize}
 
 \section{Example} \label{sec:example}
@@ -84,8 +87,8 @@ set.seed(8008)
 \subsection{Define a Data Generating Process} \label{subsec:dgp}
 
 \begin{itemize}
-  \item Explain dgp
-  \item Predefined functions (settings Athey and others)
+\item Explain dgp
+\item Predefined functions (settings Athey and others)
 \end{itemize}
 
 \subsection{Simulate from Data Generating Process} \label{subsec:simulate}
@@ -132,8 +135,8 @@ xxxx, the study setting and the corresponding results of the forest approaches a
 available in this package.
 
 <<loadres>>=
-load(file = "../data/studyresults.rda")
-head(res)
+load(file = "../data/studyres.rda")
+head(studyres)
 @
 
 The column \code{setup} corresponds to the unique data generating process defined  by \code{p}, \code{m}, \code{t}, \code{sd}, \code{pi}, \code{model}, \code{xmodel}, \code{nsim} and \code{dim}.
@@ -143,34 +146,27 @@ are arguments for \code{dgp}, while \code{nsim}, \code{dim}, \code{nsimtest} and
 should be inserted into \code{simulate.dgp}.
 
 The information in these columns are enough to reproduce the data generating process.
-The following function helps to convert the character names of functions in columns \textit{p}, \textit{m} and \textit{t}
-to proper function names before \code{dgp} could be called.
-
-<<helper>>=
-get_dgp <- function(row) {
-  p <- eval(parse(text = row$p))
-  m <- eval(parse(text = row$m))
-  t <- eval(parse(text = row$t))
-dgpr <- dgp(p = p, m = m, t = t, sd = row$sd, model = row$model,
-   xmodel = row$xmodel)
-return(dgpr)
-}
-@
-
 For illustration, we will generate a study dataset derived from the first
 row of \code{res}.
 
 <<row1>>=
-res1 <- res[1,]
+study1 <- studyres[1,]
 @
 
-After we called the helper function \code{get_dgp} to produce a \code{dgp} object,
-we call \code{simulate} with additional the corresponding \code{nsim}, \code{dim},
-\code{nsimtest} and \code{seed} of \code{res1}.
+Since the column names of \code{study1} matches the arguements of \code{dgp} and \code{simulate},
+we can use \code{do.call} to generate the simulated data set.
+\code{seed} helps us to receive the exact and not approximate study data set of xxx.
 
 <<getdatar>>=
-dgp1 <- get_dgp(res1)
-sim1 <- simulate(dgp1, nsim = res1$nsim, dim = res1$dim, seed = res1$seed, nsimtest = res1$nsimtest)
+dgp1 <- do.call(dgp, as.list(study1)[c("p", "m", "t", "sd", "pi", "model", "xmodel")])
+# equivalent to
+# dgp1 <- dgp(p = study1$p, m = study1$m, t = study1$t, sd = study1$sd, pi = study1$pi,
+#  model = study1$model, xmodel = study1$xmodel)
+
+sim1 <- do.call(simulate, c(list(object = dgp1), as.list(study1)[c("nsim", "dim", "seed", "nsimtest")]))
+# equivalent to
+# sim1 <- simulate(dgp1, nsim = study1$nsim, dim = study1$dim, seed = study1$seed, nsimtest = study1$nsimtest)
+
 head(sim1)
 @
 
@@ -192,15 +188,178 @@ They compared different forest-based methods to estimate these effects.
 Performance was assessed by mean squared error
 $$\frac{1}{1000} \sum_{i = 1}^{1000}(\tau(\mathbf{x}_i) - \hat{\tau}(\mathbf{x}_i))$$
 evaluated on the test sample.
-The results for each method are save in columns 14 to 23 and can be plotted with the following code.
+The results for each method are save in columns 14 to 23.
 
-<<plots>>=
-
+<<algonams>>=
+# Get method names
+algos <- names(studyres)[14:23]
 @
 
+To visualize the results of Dandl et al. (2021) with \pkg{lattice}, we have
+to reshape the data from a wide to long format.
+
+<<reshape>>=
+res <- reshape(studyres, direction = "long", varying = algos,
+  idvar = c("p", "m", "t", "sd", "pi", "model", "xmodel",
+    "nsim", "dim", "nsimtest", "seed"), v.names = "value", timevar = "algorithm")
+res$algorithm <- algos[res$algorithm]
+head(res)
+
+@
+Each row corresponds now to the results of \textit{one} method for one study setting
+(unique data generating process, number of training observations and dimensions)
+and replication.
+Each row of our plot should corrspond to one data generating process (i.e., \code{setup}) and
+each row to one unique combination of \code{nsim} and \code{dim}.
+
+<<latticeopts>>=
+library("lattice")
+library("latticeExtra")
+trellis.par.set(list(plot.symbol = list(col="black",pch=18, cex=0.75),
+  box.rectangle = list(col=1),
+  box.umbrella = list(lty=1, col=1),
+  strip.background = list(col = "white")))
+ltheme <- canonical.theme(color = FALSE)     ## in-built B&W theme
+ltheme$strip.background$col <- "transparent" ## change strip bg
+lattice.options(default.theme = ltheme)
+@
+
+<<settings>>=
+cols <- c("m4y" = "snow", "m4y-honest" = "snow4",
+  "hybrid" = "tan",  "hybrid-honest" = "tan4",
+  "equalized" = "darkorchid1", "equalized-honest" = "darkorchid4",
+  "cf" = "deepskyblue", "cf-honest" = "deepskyblue4",
+  "m4ycf" = "darkolivegreen1", "m4ycf-honest" = "darkolivegreen4")
+
+
+exA <- c("pF_x3.mF_x3.0" = expression(mu(x[3]) + 0 %.% W(x[3])),
+  "0.5.0.tF_exp" = expression(tau(x[1], x[2]) * W),
+  "pF_x1.mF_x1.tF_exp" = expression(mu(x[1]) + tau(x[1], x[2]) * W(x[1])),
+  "0.5.mF_x1.tF_exp" = expression(mu(x[1]) + tau(x[1], x[2]) * W),
+  "0.5.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * W),
+  "pF_x3.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * W(x[3])),
+  "pF_x3.0.tF_exp" = expression(tau(x[1], x[2])* W(x[3])),
+  "pF_x4.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * W(x[4])),
+  "pF_eta_x1_x2.mF_sin_x1_x5.tF_div" = "Setup A",
+  "0.5.mF_max_x1_x5.tF_log" = "Setup B",
+  "pF_x2_x3.mF_log_x1_x3.1" = "Setup C",
+  "pF_exp_x1_x2.mF_max2_x1_x5.tF_max" = "Setup D")
+
+exB <- c("pF_x3.mF_x3.0" = expression(mu(x[3]) + 0 %.% (W(x[3]) - .5)),
+  "0.5.0.tF_exp" = expression(tau(x[1], x[2]) * (W - .5)),
+  "pF_x1.mF_x1.tF_exp" = expression(mu(x[1]) + tau(x[1], x[2]) * (W(x[1]) - .5)),
+  "0.5.mF_x1.tF_exp" = expression(mu(x[1]) + tau(x[1], x[2]) * (W - .5)),
+  "0.5.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * (W - .5)),
+  "pF_x3.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * (W(x[3]) - .5)),
+  "pF_x3.0.tF_exp" = expression(tau(x[1], x[2])* (W(x[3]) - .5)),
+  "pF_x4.mF_x3.tF_exp" = expression(mu(x[3]) + tau(x[1], x[2]) * (W(x[4]) - .5)),
+  "pF_eta_x1_x2.mF_sin_x1_x5.tF_div" = "Setup A",
+  "0.5.mF_max_x1_x5.tF_log" = "Setup B",
+  "pF_x2_x3.mF_log_x1_x3.1" = "Setup C",
+  "pF_exp_x1_x2.mF_max2_x1_x5.tF_max" = "Setup D")
+
+scA <- function(which.given, ..., factor.levels) {
+  if (which.given == 2) {
+    strip.default(which.given = which.given, ..., factor.levels)
+  } else {
+    strip.default(which.given = 1, ...,
+      factor.levels = exA[factor.levels])
+  }
+}
+
+scB <- function(which.given, ..., factor.levels) {
+  if (which.given == 2) {
+    strip.default(which.given = which.given, ..., factor.levels)
+  } else {
+    strip.default(which.given = 1, ...,
+      factor.levels = exB[factor.levels])
+  }
+}
+
+mypanel <- function(x, y, groups, subscripts, ...) {
+  fill <- cols[intersect(levels(x), unique(x))]
+  panel.bwplot(x = x, y = y, fill = fill, ...)
+  tapply(1:length(y), groups[subscripts], function(i) {
+    xi <- 1:nlevels(x)
+    yi <- y[i][match(xi, unclass(x[i]))]
+    llines(x = xi, y = yi,
+      col = rgb(0.1, 0.1, 0.1, 0.03))
+  })
+}
+
+refactor <- function(df, method.nams) {
+  plev <- c("pF_x1", "pF_x3", "pF_x4", "pF_eta_x1_x2", "0.5", "pF_x2_x3", "pF_exp_x1_x2")
+  mlev <- c("0", "mF_x1", "mF_x3", "mF_sin_x1_x5", "mF_max_x1_x5", "mF_log_x1_x3", "mF_max2_x1_x5")
+  tlev <- c("0", "tF_exp", "tF_div", "tF_log", "1", "tF_max")
+  nlev <- c(800, 1600)
+  dlev <- c(10, 20)
+
+  df$p <- factor(df$p, labels = plev, levels = plev)
+  df$m <- factor(df$m, labels = mlev, levels = mlev)
+  df$t <- factor(df$t, labels = tlev, levels = tlev)
+  df$nsim <- factor(df$nsim, labels = nlev, levels = nlev)
+  levels(df$nsim) <- paste("N = ", levels(df$nsim))
+  df$dim <- factor(df$dim, labels = dlev, levels = dlev)
+  levels(df$dim) <- paste("P = ", levels(df$dim))
+
+  df$i <- with(df, interaction(p, m, t))[, drop = TRUE]
+  df$i <- factor(df$i, levels = names(exA))
+  df$i <- droplevels(df$i)
+  df$nd <- with(df, interaction(dim, nsim, sep = ", "))
+  lev <- levels(df$nd)
+  levels(df$nd) <- sapply(strsplit(lev, ", "), function(x) paste(x[2], ", ", x[1]))
+
+  df <- df[, c("algorithm", "setup", "repl", "i", "nd", "pi", "seed", "value")]
+
+  df$algorithm <- factor(as.character(df$algorithm), levels = method.nams,
+    labels = gsub("honest", "-honest", method.nams))
+  df <- df[!is.na(df$algorithm),]
+  names(df)[names(df) == "result.res"] <- "value"
+  return(df)
+}
+
+
+methodnams <- c("m4y",  "hybrid", "equalized",  "cf", "m4ycf",
+  "m4yhonest", "hybridhonest", "equalizedhonest",  "cfhonest", "m4ycfhonest")
+
+mykey <- list(space="top", rectangles=list(col=cols),
+  text=list(names(cols)), columns = 5)
+
+ylab <- expression(paste(frac(1, 1000), "",
+  sum((tau(x[i]) - hat(tau)(x[i]))^2, i == 1, 1000)))
+
+### plots
+plot_results <- function(pltdata, sc, ylim, cexstrip = 0.5) {
+  plt <- bwplot(value ~ algorithm | i + nd, data = pltdata,
+    ylab = list(ylab), ylim = ylim,
+    groups = repl, panel = mypanel,
+    as.table = TRUE, strip = sc, key = mykey,
+    scales = list(relation = "same", x = list(rot = 60)),
+    par.strip.text = list(cex = cexstrip),
+    par.settings = list(layout.heights = list(strip = 1.5)))
+  useOuterStrips(plt, strip = sc)
+}
+@
+
+<<plot, fig.width=10, fig.height = 10.5, fig.width = 11>>=
+Nna <- sum(is.na(res$result.res))
+res <- refactor(res, method.nams =  methodnams)
+
+
+### w/o overlap: W
+normalA <- subset(res, pi == 0)
+### w overlap: W - .5
+normalB <- subset(res, pi == 0.5)
+
+plot_results(normalA[normalA$setup %in% 1:16,], sc = scA)
+plot_results(normalB[normalA$setup %in% 1:16,], sc = scB)
+plot_results(normalA[normalA$setup %in% 17:20,], sc = scA)
+plot_results(normalB[normalA$setup %in% 17:20,], sc = scB)
+@
+
+
 \begin{itemize}
-  \item Dandl Setup
-  \item Results of Dandl to compare with yours
+\item Results of Dandl to compare with yours
 \end{itemize}
 
 \section{Summary} \label{summary}
