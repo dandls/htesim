@@ -40,7 +40,10 @@ dgpA <- dgp(p = pF_eta_x1_x2, m = mF_sin_x1_x5, t = tF_div_x1_x2,
  model = "normal", xmodel = "unif")
 simA <- simulate(dgpA, nsim = 500L, d = 6L, nsimtest = 500L)
 head(simA)
+
+# Get test data
 testdf <- attr(simA, "testxdf")
+head(testdf)
 
 }
 \seealso{
