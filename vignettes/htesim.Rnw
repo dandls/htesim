@@ -31,7 +31,7 @@
 The \pkg{htestim} package provides an extensive simulation study framework to
 evaluate methods to estimate heterogeneous treatment effects.
 }
-\Keywords{treatment effect estimation, simulation study, observational data}
+\Keywords{heterogeneous treatment effect estimation, simulation study, randomized and observational data}
 
 \Address{
 Susanne Dandl \\
@@ -65,24 +65,71 @@ suppressWarnings(RNGversion("3.5.2"))
 options(width = 70)
 @
 
+
+
+\section{Overview} \label{sec:overview}
+Estimation of heterogeneous treatment effects from randomized or observational data
+received a lot of attention over the last years in medical, social and economical sciences.
+Methods to identify subgroups with homogeneous
+treatment effects or to derive personalized treatment effects are various and
+range from deploying classical lasso regression (TODO), over recursive partitioning (TODO) to
+deep neural networks (TODO).
+Since these methods do not perform equally good in different settings (e.g. observational
+vs. randomized data, low vs. high dimensional data, constant vs. complex treatment effects, etc.),
+extensive simulation studies are necessary to compare these methods empirically.
+The \pkg{htesim} \proglang{R} package provides a framework to easily setup simulation studies.
+that differ in
+\begin{itemize}
+  \item treatment, prognostic or propensity score functions
+  \item distribution functions of outcomes
+  \item distribution functions of covariates
+  \item number of observations/samples
+  \item number of explanatory variables
+\end{itemize}
+With this toolkit, it is easy to define various data generating processes (\code{dgp}) and to sample
+study observations with known ground truth treatment effects from them (\code{simulate}).
+Users could define own treatment, prognostic and propensity score functions,
+or they make use of multiple predefined functions (\code{tF, mF, pF}).
+These predefined functions are based on TODO and TODO.
+They were also employed by xxxx to compare multiple forest-based methods.
+We stored the study setting and the performance of these methods (\code{studyres})
+so that others could reproduce this study and compare the performance of their methods with them.
+
+\proglang{R} offers a few packages that are tailored to causal treatment effect estimation. Many of them are generate data based on
+structural equation models and not parametric distribution functions like \pkg{htesim} (\pkg{simcausal} package (TODO), \pkg{lavaan} (TODO) and \pkg{simsem}).
+Other packages only cover special cases like generalized multistate models or survival models
+(\pkg{survsim}, \pkg{gems}).
+
+The package \pkg{causalToolbox} provides the most similar functionalities to
+\pkg{htesim}. It mainly focuses on estimation methods, but also includes a functions
+to conduct experiments. It offers predefined underlying effect functions but
+no flexibility to use own functions like \pkg{htesim}. Furthermore, it only covers normal-distributed outcomes and no other distributions.
+
+Overall the distinguishing features of \pkg{htesim} is that
+\begin{enumerate}
+   \item[(1)] simulation data are based on parameteric distribution functions
+   that cover simple scenarios like normal-distributed outcomes or covariates but
+  also more complex scenarios like weibull-distributed outcomes to imitate survival data.
+  \item[(2)] it gives the user the flexibility to define own effect functions.
+  \item[(3)] it provides the necessary functionality to replicate previous studies.
+\end{enumerate}
+
+In the upcoming section, the most important functions of \pkg{htesim} are presented
+followed by some examples on how to employ own effect functions and how to
+replicate the study framework of xxxx.
+
+\section{Functionalities} \label{sec:functions}
+
+\subsection{Overview} \label{subsec:overview}
+
+dgp --> simulate --> predict
+
+Example:
 <<setup2 >>=
 library("htesim")
 library("checkmate")
 set.seed(8008)
 @
-
-\section{Overview} \label{sec:overview}
-
-\begin{itemize}
-\item Why this package? Introduction to heterogeneous treatment effect estimation
-\item Related work
-\item What it can (overview of functions) and what it can't (limitations)
-\item Structure of Vignette
-\end{itemize}
-
-\section{Example} \label{sec:example}
-
-\section{Functionalities} \label{sec:functions}
 
 \subsection{Define a Data Generating Process} \label{subsec:dgp}
 
@@ -172,154 +219,154 @@ head(sim1)
 
 The test data was attached to \code{sim1} as an attribute.
 
-<<gettest>>=
-test <- attr(sim1, "testxdf")
-head(test)
-@
-
-We receive the true effects using for the test data using
-<<predtest>>=
-tau <- predict(dgp1, newdata = test)
-head(tau)
-@
-
-xxx were only interested in the treatment effect estimation.
-They compared different forest-based methods to estimate these effects.
-Performance was assessed by mean squared error
-$$\frac{1}{1000} \sum_{i = 1}^{1000}(\tau(\mathbf{x}_i) - \hat{\tau}(\mathbf{x}_i))$$
-evaluated on the test sample.
-The results for each method are save in columns 14 to 23.
-
-<<algonams>>=
-# Get method names
-algos <- names(studyres)[14:23]
-@
-
-To visualize the results of Dandl et al. (2021) with \pkg{lattice}, we have
-to reshape the data from a wide to long format.
-
-<<reshape>>=
-res <- reshape(studyres, direction = "long", varying = algos,
-  idvar = c("p", "m", "t", "sd", "pi", "model", "xmodel",
-    "nsim", "dim", "nsimtest", "seed"), v.names = "value", timevar = "algorithm")
-res$algorithm <- algos[res$algorithm]
-head(res)
-
-@
-Each row corresponds now to the results of \textit{one} method for one study setting
-(unique data generating process, number of training observations and dimensions)
-and replication.
-Each row of our plot should corrspond to one data generating process (i.e., \code{setup}) and
-each row to one unique combination of \code{nsim} and \code{dim}.
-
-<<latticeopts>>=
-library("lattice")
-library("latticeExtra")
-trellis.par.set(list(plot.symbol = list(col="black",pch=18, cex=0.75),
-  box.rectangle = list(col=1),
-  box.umbrella = list(lty=1, col=1),
-  strip.background = list(col = "white")))
-ltheme <- canonical.theme(color = FALSE)     ## in-built B&W theme
-ltheme$strip.background$col <- "transparent" ## change strip bg
-lattice.options(default.theme = ltheme)
-@
-
-<<adapt>>=
-cols <- c("m4y" = "snow", "m4y-honest" = "snow4",
-  "hybrid" = "tan",  "hybrid-honest" = "tan4",
-  "equalized" = "darkorchid1", "equalized-honest" = "darkorchid4",
-  "cf" = "deepskyblue", "cf-honest" = "deepskyblue4",
-  "m4ycf" = "darkolivegreen1", "m4ycf-honest" = "darkolivegreen4")
-
-cols <- cols[-grep("honest", names(cols))]
-
-methodnams <- c("m4y",  "hybrid", "equalized",  "cf", "m4ycf")
-@
-
-<<settings>>=
-
-sc <- function(which.given, ..., factor.levels) {
-  if (which.given == 2) {
-    strip.default(which.given = which.given, ..., factor.levels)
-  } else {
-    strip.default(which.given = 1, ...,
-      factor.levels)
-  }
-}
-
-mypanel <- function(x, y, groups, subscripts, ...) {
-  fill <- cols[intersect(levels(x), unique(x))]
-  panel.bwplot(x = x, y = y, fill = fill, ...)
-  tapply(1:length(y), groups[subscripts], function(i) {
-    xi <- 1:nlevels(x)
-    yi <- y[i][match(xi, unclass(x[i]))]
-    llines(x = xi, y = yi,
-      col = rgb(0.1, 0.1, 0.1, 0.03))
-  })
-}
-
-refactor <- function(df, method.nams) {
-  plev <- c("pF_x1", "pF_x3", "pF_x4", "pF_eta_x1_x2", "0.5", "pF_x2_x3", "pF_exp_x1_x2")
-  mlev <- c("0", "mF_x1", "mF_x3", "mF_sin_x1_x5", "mF_max_x1_x5", "mF_log_x1_x3", "mF_max2_x1_x5")
-  tlev <- c("0", "tF_exp", "tF_div", "tF_log", "1", "tF_max")
-  nlev <- c(800, 1600)
-  dlev <- c(10, 20)
-
-  df$p <- factor(df$p, labels = plev, levels = plev)
-  df$m <- factor(df$m, labels = mlev, levels = mlev)
-  df$t <- factor(df$t, labels = tlev, levels = tlev)
-  df$nsim <- factor(df$nsim, labels = nlev, levels = nlev)
-  levels(df$nsim) <- paste("N = ", levels(df$nsim))
-  df$dim <- factor(df$dim, labels = dlev, levels = dlev)
-  levels(df$dim) <- paste("P = ", levels(df$dim))
-
-  df$i <- with(df, interaction(p, m, t))[, drop = TRUE]
-  df$i <- factor(df$i)
-  df$i <- droplevels(df$i)
-  df$nd <- with(df, interaction(dim, nsim, sep = ", "))
-  lev <- levels(df$nd)
-  levels(df$nd) <- sapply(strsplit(lev, ", "), function(x) paste(x[2], ", ", x[1]))
-  df$setup <- factor(df$setup)
-
-  df <- df[, c("algorithm", "setup", "repl", "i", "nd", "pi", "seed", "value")]
-
-  df$algorithm <- factor(as.character(df$algorithm), levels = method.nams,
-    labels = gsub("honest", "-honest", method.nams))
-  df <- df[!is.na(df$algorithm),]
-  names(df)[names(df) == "result.res"] <- "value"
-  return(df)
-}
-
-mykey <- list(space="top", rectangles=list(col=cols),
-  text=list(names(cols)), columns = 5)
-
-ylab <- expression(paste(frac(1, 1000), "",
-  sum((tau(x[i]) - hat(tau)(x[i]))^2, i == 1, 1000)))
-
-### plots
-plot_results <- function(pltdata, sc, ylim) {
-  plt <- bwplot(value ~ algorithm | setup + nd, data = pltdata,
-    ylab = list(ylab), ylim = ylim,
-    groups = repl, panel = mypanel,
-    as.table = TRUE, strip = sc, key = mykey,
-    scales = list(relation = "same", x = list(rot = 60)))
-  useOuterStrips(plt, strip = sc)
-}
-@
-
-<<plot, fig.width=10, fig.height = 10.5, fig.width = 11>>=
-res <- refactor(res, method.nams =  methodnams)
-
-### w/o overlap: W
-normalA <- subset(res, pi == 0)
-### w overlap: W - .5
-normalB <- subset(res, pi == 0.5)
-
-plot_results(normalA[normalA$setup %in% 1:16,], sc = sc)
-plot_results(normalB[normalA$setup %in% 1:16,], sc = sc)
-plot_results(normalA[normalA$setup %in% 17:20,], sc = sc)
-plot_results(normalB[normalA$setup %in% 17:20,], sc = sc)
-@
+% <<gettest>>=
+% test <- attr(sim1, "testxdf")
+% head(test)
+% @
+%
+% We receive the true effects using for the test data using
+% <<predtest>>=
+% tau <- predict(dgp1, newdata = test)
+% head(tau)
+% @
+%
+% xxx were only interested in the treatment effect estimation.
+% They compared different forest-based methods to estimate these effects.
+% Performance was assessed by mean squared error
+% $$\frac{1}{1000} \sum_{i = 1}^{1000}(\tau(\mathbf{x}_i) - \hat{\tau}(\mathbf{x}_i))$$
+% evaluated on the test sample.
+% The results for each method are save in columns 14 to 23.
+%
+% <<algonams>>=
+% # Get method names
+% algos <- names(studyres)[14:23]
+% @
+%
+% To visualize the results of Dandl et al. (2021) with \pkg{lattice}, we have
+% to reshape the data from a wide to long format.
+%
+% <<reshape>>=
+% res <- reshape(studyres, direction = "long", varying = algos,
+%   idvar = c("p", "m", "t", "sd", "pi", "model", "xmodel",
+%     "nsim", "dim", "nsimtest", "seed"), v.names = "value", timevar = "algorithm")
+% res$algorithm <- algos[res$algorithm]
+% head(res)
+%
+% @
+% Each row corresponds now to the results of \textit{one} method for one study setting
+% (unique data generating process, number of training observations and dimensions)
+% and replication.
+% Each row of our plot should corrspond to one data generating process (i.e., \code{setup}) and
+% each row to one unique combination of \code{nsim} and \code{dim}.
+%
+% <<latticeopts>>=
+% library("lattice")
+% library("latticeExtra")
+% trellis.par.set(list(plot.symbol = list(col="black",pch=18, cex=0.75),
+%   box.rectangle = list(col=1),
+%   box.umbrella = list(lty=1, col=1),
+%   strip.background = list(col = "white")))
+% ltheme <- canonical.theme(color = FALSE)     ## in-built B&W theme
+% ltheme$strip.background$col <- "transparent" ## change strip bg
+% lattice.options(default.theme = ltheme)
+% @
+%
+% <<adapt>>=
+% cols <- c("m4y" = "snow", "m4y-honest" = "snow4",
+%   "hybrid" = "tan",  "hybrid-honest" = "tan4",
+%   "equalized" = "darkorchid1", "equalized-honest" = "darkorchid4",
+%   "cf" = "deepskyblue", "cf-honest" = "deepskyblue4",
+%   "m4ycf" = "darkolivegreen1", "m4ycf-honest" = "darkolivegreen4")
+%
+% cols <- cols[-grep("honest", names(cols))]
+%
+% methodnams <- c("m4y",  "hybrid", "equalized",  "cf", "m4ycf")
+% @
+%
+% <<settings>>=
+%
+% sc <- function(which.given, ..., factor.levels) {
+%   if (which.given == 2) {
+%     strip.default(which.given = which.given, ..., factor.levels)
+%   } else {
+%     strip.default(which.given = 1, ...,
+%       factor.levels)
+%   }
+% }
+%
+% mypanel <- function(x, y, groups, subscripts, ...) {
+%   fill <- cols[intersect(levels(x), unique(x))]
+%   panel.bwplot(x = x, y = y, fill = fill, ...)
+%   tapply(1:length(y), groups[subscripts], function(i) {
+%     xi <- 1:nlevels(x)
+%     yi <- y[i][match(xi, unclass(x[i]))]
+%     llines(x = xi, y = yi,
+%       col = rgb(0.1, 0.1, 0.1, 0.03))
+%   })
+% }
+%
+% refactor <- function(df, method.nams) {
+%   plev <- c("pF_x1", "pF_x3", "pF_x4", "pF_eta_x1_x2", "0.5", "pF_x2_x3", "pF_exp_x1_x2")
+%   mlev <- c("0", "mF_x1", "mF_x3", "mF_sin_x1_x5", "mF_max_x1_x5", "mF_log_x1_x3", "mF_max2_x1_x5")
+%   tlev <- c("0", "tF_exp", "tF_div", "tF_log", "1", "tF_max")
+%   nlev <- c(800, 1600)
+%   dlev <- c(10, 20)
+%
+%   df$p <- factor(df$p, labels = plev, levels = plev)
+%   df$m <- factor(df$m, labels = mlev, levels = mlev)
+%   df$t <- factor(df$t, labels = tlev, levels = tlev)
+%   df$nsim <- factor(df$nsim, labels = nlev, levels = nlev)
+%   levels(df$nsim) <- paste("N = ", levels(df$nsim))
+%   df$dim <- factor(df$dim, labels = dlev, levels = dlev)
+%   levels(df$dim) <- paste("P = ", levels(df$dim))
+%
+%   df$i <- with(df, interaction(p, m, t))[, drop = TRUE]
+%   df$i <- factor(df$i)
+%   df$i <- droplevels(df$i)
+%   df$nd <- with(df, interaction(dim, nsim, sep = ", "))
+%   lev <- levels(df$nd)
+%   levels(df$nd) <- sapply(strsplit(lev, ", "), function(x) paste(x[2], ", ", x[1]))
+%   df$setup <- factor(df$setup)
+%
+%   df <- df[, c("algorithm", "setup", "repl", "i", "nd", "pi", "seed", "value")]
+%
+%   df$algorithm <- factor(as.character(df$algorithm), levels = method.nams,
+%     labels = gsub("honest", "-honest", method.nams))
+%   df <- df[!is.na(df$algorithm),]
+%   names(df)[names(df) == "result.res"] <- "value"
+%   return(df)
+% }
+%
+% mykey <- list(space="top", rectangles=list(col=cols),
+%   text=list(names(cols)), columns = 5)
+%
+% ylab <- expression(paste(frac(1, 1000), "",
+%   sum((tau(x[i]) - hat(tau)(x[i]))^2, i == 1, 1000)))
+%
+% ### plots
+% plot_results <- function(pltdata, sc, ylim) {
+%   plt <- bwplot(value ~ algorithm | setup + nd, data = pltdata,
+%     ylab = list(ylab), ylim = ylim,
+%     groups = repl, panel = mypanel,
+%     as.table = TRUE, strip = sc, key = mykey,
+%     scales = list(relation = "same", x = list(rot = 60)))
+%   useOuterStrips(plt, strip = sc)
+% }
+% @
+%
+% <<plot, fig.width=10, fig.height = 10.5, fig.width = 11>>=
+% res <- refactor(res, method.nams =  methodnams)
+%
+% ### w/o overlap: W
+% normalA <- subset(res, pi == 0)
+% ### w overlap: W - .5
+% normalB <- subset(res, pi == 0.5)
+%
+% plot_results(normalA[normalA$setup %in% 1:16,], sc = sc)
+% plot_results(normalB[normalA$setup %in% 1:16,], sc = sc)
+% plot_results(normalA[normalA$setup %in% 17:20,], sc = sc)
+% plot_results(normalB[normalA$setup %in% 17:20,], sc = sc)
+% @
 
 
 \section{Summary} \label{summary}
