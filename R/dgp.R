@@ -1,11 +1,11 @@
 #' Create manual for data generation
-#' @param p (numeric(1), function) Propensities P(trt = 1|x) (pi(x)),
+#' @param p (numeric(1), character(1), function) Propensities P(trt = 1|x) (pi(x)),
 #' default = 0.5 means that there is no confounding.
-#' @param m (numeric(1), function) Prognostic effect (mu(x)), default 0 means that
+#' @param m (numeric(1), character (1), function) Prognostic effect (mu(x)), default 0 means that
 #' there is no prognostic effect.
-#' @param t (numeric(1), function) Predictive treatment effect (tau(x)),
+#' @param t (numeric(1), character(1), function) Predictive treatment effect (tau(x)),
 #' default 0 means that there is no treatment effect.
-#' @param sd (numeric(1)) Standard deviation of normal distribution, only
+#' @param sd (numeric(1), character(1), function) Standard deviation of normal distribution, only
 #' has an effect if model = "normal".
 #' @param pi (numeric(1)) how much of predictive effect is added to prognostic effect.
 #' If pi = 0, conditional mean does not depend on treatment effect.
@@ -195,7 +195,10 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL
     error = function(e) {
       stop("prognostic function operates on variables out of bounds, increase dim")
     })
-  sd <- object$sdfct(x)
+  sd <- tryCatch({object$sdfct(x)},
+    error = function(e) {
+      stop("standard deviation function operates on variables out of bounds, increase dim")
+    })
   model <- object$model
 
   ### sample treatments Wi|Xi ~Bernoulli (e(Xi))
