@@ -8,7 +8,7 @@
 #' @param sd (numeric(1), character(1), function) Standard deviation of normal distribution, only
 #' has an effect if model = "normal".
 #' @param pi (numeric(1)) how much of predictive effect is added to prognostic effect.
-#' If pi = 0, conditional mean does not depend on treatment effect.
+#' The default is pi = 0 which means that the conditional mean does not depend on treatment effect.
 #' @param model ("normal"|"weibull"|"binomial"|"polr") Name of used model to simulate outcome y.
 #' @param xmodel ("normal") Name of used model to simulate covariates x.
 #' @return list of class gpd with entries:
@@ -44,7 +44,7 @@
 #' dgpD <- dgp(p = pF_exp_x1_x2, m = mF_max2_x1_x5, t = tF_max_x1_x5, model = "normal", xmodel = "normal")
 #'
 #' @export
-dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = .5, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
+dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = 0, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
 
   cl <- match.call()
 

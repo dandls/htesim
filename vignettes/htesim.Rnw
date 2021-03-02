@@ -14,6 +14,24 @@
 \newcommand{\fct}[1]{\texttt{#1()}}
 \newcommand{\class}[1]{\squote{\texttt{#1}}}
 
+%% random vars
+\def \xvec {\text{\boldmath$x$}}
+\def \mX {\text{\boldmath$X$}}
+\def \yvec {\text{\boldmath$y$}}
+\def \mY {\text{\boldmath$Y$}}
+\def \zvec {\text{\boldmath$z$}}
+\def \mZ {\text{\boldmath$Z$}}
+\newcommand{\rZ}{Z}
+\newcommand{\rY}{Y}
+\newcommand{\rX}{\mX}
+\newcommand{\rz}{z}
+\newcommand{\ry}{y}
+\newcommand{\rx}{\xvec}
+\newcommand{\ru}{\uvec}
+\newcommand{\erx}{x}
+\newcommand{\Xspace}{\mathcal{X}}
+ \DeclareMathOperator{\ND}{N}
+
 %% for internal use
 \newcommand{\fixme}[1]{\emph{\marginpar{FIXME} (#1)}}
 \newcommand{\readme}[1]{\emph{\marginpar{README} (#1)}}
@@ -65,14 +83,12 @@ suppressWarnings(RNGversion("3.5.2"))
 options(width = 70)
 @
 
-
-
 \section{Overview} \label{sec:overview}
 Estimation of heterogeneous treatment effects from randomized or observational data
 received a lot of attention over the last years in medical, social and economical sciences.
 Methods to identify subgroups with homogeneous
 treatment effects or to derive personalized treatment effects are various and
-range from deploying classical lasso regression (TODO), over recursive partitioning (TODO) to
+range from deploying classical lasso regression (TODO), over recursive partitioning \citep{Athey_Tibshirani_Wager_2019, Seibold_Zeileis_Hothorn_2017} to
 deep neural networks (TODO).
 Since these methods do not perform equally good in different settings (e.g. observational
 vs. randomized data, low vs. high dimensional data, constant vs. complex treatment effects, etc.),
@@ -87,11 +103,11 @@ that differ in
   \item number of explanatory variables
 \end{itemize}
 With this toolkit, it is easy to define various data generating processes (\code{dgp}) and to sample
-study observations with known ground truth treatment effects from them (\code{simulate}).
+study observations with known ground truth treatment effects from them (\code{simulate.dpg}).
 Users could define own treatment, prognostic and propensity score functions,
 or they make use of multiple predefined functions (\code{tF, mF, pF}).
-These predefined functions are based on TODO and TODO.
-They were also employed by xxxx to compare multiple forest-based methods.
+These predefined functions are based on \cite{Wager_Athey_2018}, \cite{Athey_Tibshirani_Wager_2019} and \cite{Nie_Wager_2020}.
+They were also employed by \cite{Dandl_Hothorn_Seibold_2021} to compare multiple forest-based methods.
 We stored the study setting and the performance of these methods (\code{studyres})
 so that others could reproduce this study and compare the performance of their methods with them.
 
@@ -116,15 +132,17 @@ Overall the distinguishing features of \pkg{htesim} is that
 
 In the upcoming section, the most important functions of \pkg{htesim} are presented
 followed by some examples on how to employ own effect functions and how to
-replicate the study framework of xxxx.
+replicate the study framework of \cite{Dandl_Hothorn_Seibold_2021}.
 
 \section{Functionalities} \label{sec:functions}
 
 \subsection{Overview} \label{subsec:overview}
+To simulate a data set for empirical performance evaluation, three functions are
+necessary: \code{dgp} to define a manual for data generation, \code{simulate.dgp} to simulate training and test data from the manual and \code{predict.dgp} to receive the ground truth treatment effect, prognostic effect and propensity score.
 
-dgp --> simulate --> predict
+In the following we give details on these functions accompanied by an
+illustrative example which replicates the first experiment of \cite{Wager_Athey_2018}.
 
-Example:
 <<setup2 >>=
 library("htesim")
 library("checkmate")
@@ -132,6 +150,45 @@ set.seed(8008)
 @
 
 \subsection{Define a Data Generating Process} \label{subsec:dgp}
+\code{dpg} defines a manual for the data generating process.
+The underlying propensity score function \code{p}, the prognostic effect function \code{m} (also called
+conditional mean) and treatment effect function \code{t} must be passed to this function.
+\code{dpg} allows as inputs functions, character names of functions or
+constant values.
+
+Furthermore, the underlying model for the outcome (\code{model}) and covariates
+(\code{xmodel}) need to be specified.
+Currently, a normal linear regression model, a binary logistic regression model,
+a Weibull model and a 4-nomial model for the outcome are supported.
+The covariates could be either normally or uniformly distributed.
+If their are normally distributed, the user could optionally pass only a
+function for the standard deviation (\code{sd}).
+Furthermore, a proportion of the treatment effect could be added to the prognostic effect (\code{pi}).
+
+As an example we have a look on the first data generating process of the simulation
+study of \cite{Wager_Athey_2018}.
+The propensity score function is  $\pi(\rx) = \frac{1}{4}(1 + \beta_{2, 4}(x_1))$,
+the prognostic effect function is $\mu(\rx) = 2x_1 - 1$ and there is no
+treatment effect $t(\rx) \equiv 0$.
+Outcomes $Y$ are sampled from the conditional distribution
+$$ (Y|\rX = \rx) \sim N(\mu(\rx) + \tau(\rx)*W, 1)$$
+with $(W | \rX = \rx) \sim B(1, \pi(\rx))$.
+Covariates $\rX$ are sampled from a uniform distribution
+$(\rX \sim U([0, 1]^P))$ with $P = \{2, 5, 10, 15, 20, 30\}$.
+
+All propensity score , prognostic effect and treatment effect functions of \cite{Wager_Athey_2018}, \cite{Athey_Wager_2019} and \cite{Nie_Wager_2020} are already implemented in \pkg{htesim}.
+Please consult the documentation of \code{pE}, \code{mE} and \code{tE}
+for an overview and in-depth definition of these functions.
+
+With the following code we generate the necessary manual to
+replicate the study setting which is essentially a list of class \code{dgp}.
+<<ex:dgp>>=
+dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, pi = 0, model = "normal",
+  xmodel = "unif")
+dgp1
+class(dgp1)
+@
+
 
 \begin{itemize}
 \item Explain dgp
@@ -139,6 +196,8 @@ set.seed(8008)
 \end{itemize}
 
 \subsection{Simulate from Data Generating Process} \label{subsec:simulate}
+For our example we use $P = 2$.
+Training and test data had $n = 500$ observations each.
 
 \subsection{Compute Ground Truth for New Data} \label{subsec:predict}
 
@@ -147,14 +206,14 @@ set.seed(8008)
 \subsection{Use your own Functions} \label{subsec:ownfunc}
 It is also possible to specify and simulate from your own treatment effect, prognostic effect
 and treatment propensity functions.
-In Section~\ref{sec:functions} we saw that \code{simulate} generates a dataset of
+In Section~\ref{sec:functions} we saw that \code{simulate.dgp} generates a dataset of
 covariates by drawing random numbers from a uniform distribution or normal distribution.
 These variables are labelled as "X1", "X2", and so on.
 This dataset is the input for a new function.
 As an example, we want our treatment effect function to have the form
-$$ \tau(\mathbf{x}) = (x_1 + x_2)^{\nu}/4 $$
+$$ \tau(\rx) = (x_1 + x_2)^{\nu}/4 $$
 with $\nu \ge 0$, our prognostic effect function should be
-$$ \mu(\mathbf{x}) = exp(x_1 + 0.3 x_2 + 0.4 x_3)$$.
+$$ \mu(\rx) = exp(x_1 + 0.3 x_2 + 0.4 x_3)$$.
 The propensity score should be $0.5$ for all observations, meaning that
 we conduct a randomized trial.
 We can our functions up using
@@ -176,9 +235,9 @@ simown <- simulate(dgpown, nsim = 500)
 head(simown)
 @
 
-\subsection{Reproduce Study of xxxx} \label{subsec:dandl}
+\subsection{Replicate Study Setting of Dandl et al. (2021)} \label{subsec:dandl}
 To compare the results of other methods to the methods investigated in
-xxxx, the study setting and the corresponding results of the forest approaches are
+\cite{Dandl_Hothorn_Seibold_2021}, the study setting and the corresponding results of the forest approaches are
 available in this package.
 
 <<loadres>>=
@@ -202,7 +261,7 @@ study1 <- studyres[1,]
 
 Since the column names of \code{study1} matches the arguements of \code{dgp} and \code{simulate},
 we can use \code{do.call} to generate the simulated data set.
-\code{seed} helps us to receive the exact and not approximate study data set of xxx.
+\code{seed} helps us to receive the exact and not approximate study data set of \cite{Dandl_Hothorn_Seibold_2021}.
 
 <<getdatar>>=
 dgp1 <- do.call(dgp, as.list(study1)[c("p", "m", "t", "sd", "pi", "model", "xmodel")])
@@ -230,10 +289,10 @@ The test data was attached to \code{sim1} as an attribute.
 % head(tau)
 % @
 %
-% xxx were only interested in the treatment effect estimation.
+% \cite{Dandl_Hothorn_Seibold_2021} were only interested in the treatment effect estimation.
 % They compared different forest-based methods to estimate these effects.
 % Performance was assessed by mean squared error
-% $$\frac{1}{1000} \sum_{i = 1}^{1000}(\tau(\mathbf{x}_i) - \hat{\tau}(\mathbf{x}_i))$$
+% $$\frac{1}{1000} \sum_{i = 1}^{1000}(\tau(\rx_i) - \hat{\tau}(\rx_i))$$
 % evaluated on the test sample.
 % The results for each method are save in columns 14 to 23.
 %
