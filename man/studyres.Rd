@@ -7,10 +7,10 @@
 \format{
 A data frame with 9600 rows and 23 variables:
 \describe{
-\item{setup}{Identifier for data generating process defined by p, m, t, sd, pi, model, xmodel}
-\item{repl}{Replication index (1 to 100)}
+\item{setup}{Identifier for data generating process defined by p, m, t, sd, pi, model, xmodel.}
+\item{repl}{Replication index (1 to 100).}
 \item{p, m, t}{Propensity score, prognostic effect and treatment effect
-function character names. Input for \code{dgp}}
+function character names. Input for \code{dgp}.}
 \item{sd, pi, model, xmodel}{Standard deviation of
 normal distributed outcome, extend of treatment effect added to prognostic
 effect and names of used model for outcome and covariates.

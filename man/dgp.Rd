@@ -9,26 +9,26 @@ dgp(
   m = 0,
   t = 0,
   sd = 1,
-  pi = 0.5,
+  pi = 0,
   model = c("normal", "weibull", "binomial", "polr"),
   xmodel = c("normal", "unif")
 )
 }
 \arguments{
-\item{p}{(numeric(1), function) Propensities P(trt = 1|x) (pi(x)),
+\item{p}{(numeric(1), character(1), function) Propensities P(trt = 1|x) (pi(x)),
 default = 0.5 means that there is no confounding.}
 
-\item{m}{(numeric(1), function) Prognostic effect (mu(x)), default 0 means that
+\item{m}{(numeric(1), character (1), function) Prognostic effect (mu(x)), default 0 means that
 there is no prognostic effect.}
 
-\item{t}{(numeric(1), function) Predictive treatment effect (tau(x)),
+\item{t}{(numeric(1), character(1), function) Predictive treatment effect (tau(x)),
 default 0 means that there is no treatment effect.}
 
-\item{sd}{(numeric(1)) Standard deviation of normal distribution, only
+\item{sd}{(numeric(1), character(1), function) Standard deviation of normal distribution, only
 has an effect if model = "normal".}
 
 \item{pi}{(numeric(1)) how much of predictive effect is added to prognostic effect.
-If pi = 0, conditional mean does not depend on treatment effect.}
+The default is pi = 0 which means that the conditional mean does not depend on treatment effect.}
 
 \item{model}{("normal"|"weibull"|"binomial"|"polr") Name of used model to simulate outcome y.}
 

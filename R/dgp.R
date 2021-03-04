@@ -108,7 +108,8 @@ sanitize_fct <- function(fct, call) {
 #' @param nsim (numeric(1)) Number of observations (n), default 1.
 #' @param seed (numeric(1)) Seed for data generation, default NULL.
 #' @param dim (numeric(1)) Dimension, number of predictors (p), default 4.
-#' @param nsimtest (numeric(1)) Number of observations (n) for test dataset, default 1000.
+#' @param nsimtest (numeric(1)) Number of observations (n) for test dataset.
+#' Default NULL means that no test dataset is generated.
 #' @seealso \code{\link{dgp}}
 #' @return data.frame of class simdpg with columns: x, y and trt and attributes
 #'  * \code{truth}: the  \code{object}
@@ -132,12 +133,12 @@ sanitize_fct <- function(fct, call) {
 #' head(testdf)
 #'
 #' @export
-simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL) {
+simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL) {
 
   ###  input checks
   assertIntegerish(nsim, lower = 1, len = 1, any.missing = FALSE)
   assertIntegerish(dim, lower = 1, len = 1, any.missing = FALSE)
-  assertIntegerish(nsimtest, lower = 1, len = 1, any.missing = FALSE)
+  assertIntegerish(nsimtest, lower = 1, len = 1, any.missing = FALSE, null.ok = TRUE)
   assertNumber(seed, null.ok = TRUE)
 
   ### mlt & tram packages required for Weibull models
@@ -173,12 +174,16 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL
   ### generate dedicated test set here
   if (object$xmodel == "normal") {
     x <- matrix(rnorm(nsim * dim), nrow = nsim, ncol = dim)
-    testx <- matrix(rnorm(nsimtest * dim), nrow = nsimtest, ncol = dim)
+    if (!is.null(nsimtest)) {
+      testx <- matrix(rnorm(nsimtest * dim), nrow = nsimtest, ncol = dim)
+    }
   } else if (object$xmodel == "unif") {
     x <- matrix(runif(nsim * dim), nrow = nsim, ncol = dim)
-    testx <- matrix(runif(nsimtest * dim), nrow = nsimtest, ncol = dim)
+    if (!is.null(nsimtest)) {
+      testx <- matrix(runif(nsimtest * dim), nrow = nsimtest, ncol = dim)
+    }
   }
-  colnames(x) <- colnames(testx) <- paste("X", 1:ncol(x), sep = "")
+  colnames(x) <- paste("X", 1:ncol(x), sep = "")
   testxdf <- as.data.frame(testx)
   testxdf$trt <- factor(c(0, 1))[2]
 
@@ -233,7 +238,14 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = 1000, seed = NULL
   df <- data.frame(x, y = y, trt = factor(trt))
   attributes(df)$truth <- object
   ### test data set (predictor variables only)
-  attributes(df)$testxdf <- testxdf
+  if (!is.null(nsimtest)) {
+    colnames(testx) <- paste("X", 1:ncol(x), sep = "")
+    testxdf <- as.data.frame(testx)
+    testxdf$trt <- factor(c(0, 1))[2]
+    attributes(df)$testxdf <- testxdf
+  } else {
+    attributes(df)$testxdf <- NULL
+  }
   ### seed for model fitting
   attributes(df)$runseed <- round(runif(1) * 100000)
   class(df) <- c("simdgp", class(df))
