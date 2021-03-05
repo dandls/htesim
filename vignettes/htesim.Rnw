@@ -366,10 +366,11 @@ mean((tau - tauhat)^2)
 @
 
 We can apply the linear interaction model to each of 9600 simulation settings specified in \code{studyres}.
-The following helper functions create a study dataset from one study setting,
+The following helper function creates a study dataset from a study setting,
 fits the interaction model on it, estimates the treatment effect and
 returns the MSE.
-The results are attached to \code{studyres}.
+The function is applied to each row of \code{studyres} and the results get
+attached to it.
 
 <<study>>=
 run_linmod <- function(i) {
