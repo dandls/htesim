@@ -108,13 +108,13 @@ Users could define their own treatment, prognostic and propensity score function
 or they make use of multiple predefined functions (\code{tF, mF, pF}).
 These predefined functions are based on \cite{Wager_Athey_2018}, \cite{Athey_Tibshirani_Wager_2019} and \cite{Nie_Wager_2020}.
 They were also employed by \cite{Dandl_Hothorn_Seibold_2021} to compare multiple forest-based methods.
-We stored the study setting and the performance of these methods (\code{studyres})
+A dedicated dataset of the study settings and performances of these methods  is part of this package (\code{data("studyres")})
 so that others could reproduce this study and compare the performance of their methods with them.
 
 \proglang{R} offers a few packages that are tailored to causal treatment effect estimation. Many of them generate data based on
-structural equation models and not parametric distribution functions like \pkg{htesim} (\pkg{simcausal} package \citep{Sofrygin_Laan_Neugebauer_2017}, \pkg{lavaan} \citep{Rosseel_2012} and \pkg{simsem} \citep{Pornprasertmanit_Miller_Schoemann_2020}).
+structural equation models (packages \pkg{simcausal} \citep{Sofrygin_Laan_Neugebauer_2017}, \pkg{lavaan} \citep{Rosseel_2012} and \pkg{simsem} \citep{Pornprasertmanit_Miller_Schoemann_2020}) but not parametric distribution functions like \pkg{htesim}.
 Other packages only cover special cases like generalized multistate models or survival models
-(\pkg{survsim} \citep{Morina_Navarro_2014}, \pkg{gems} \citep{Blaser_Salazar_Estill_2015}).
+(packages \pkg{survsim} \citep{Morina_Navarro_2014}, \pkg{gems} \citep{Blaser_Salazar_Estill_2015}).
 
 The package \pkg{causalToolbox} provides the most similar functionalities to
 \pkg{htesim}. It mainly focuses on estimation methods, but also includes a function
@@ -141,8 +141,7 @@ replicate the study framework of \cite{Dandl_Hothorn_Seibold_2021}.
 To simulate a data set for empirical performance evaluation, three functions are
 necessary: \code{dgp} to define a manual for data generation, \code{simulate.dgp} to simulate training and test data from the manual, and \code{predict.dgp} to receive the ground truth treatment effect, prognostic effect and propensity score.
 
-In the following, we give details on these functions accompanied by an
-illustrative example that replicates the first experiment of \cite{Wager_Athey_2018}.
+In the following, we give details on these functions accompanied by an illustrative example that replicates the first experiment of \cite{Wager_Athey_2018}.
 
 <<setup2 >>=
 library("htesim")
@@ -162,11 +161,10 @@ Furthermore, the underlying model for the outcome (\code{model}) and covariates
 Currently, a normal linear regression model, a binary logistic regression model,
 a Weibull model and a 4-nomial model for the outcome are supported.
 The covariates could be either normally or uniformly distributed.
-If their are normally distributed, the user could optionally pass only a
-function for the standard deviation (\code{sd}).
-Furthermore, a proportion of the treatment effect could be added to the prognostic effect (\code{pi}).
+If they are normally distributed, the user could specify a function for the standard deviation (\code{sd}).
+Furthermore, a proportion \code{pi} $\in \mathbb{R}$ of the treatment effect could be added to the prognostic effect.
 
-As an example we have a look on the first data generating process of the simulation
+As an example, we have a look at the first data generating process of the simulation
 study of \cite{Wager_Athey_2018}.
 The propensity score function is  $\pi(\rx) = \frac{1}{4}(1 + \beta_{2, 4}(x_1))$,
 the prognostic effect function is $\mu(\rx) = 2x_1 - 1$ and there is no
@@ -177,17 +175,20 @@ with $W$ as the treatment indicator and $(W | \rX = \rx) \sim B(1, \pi(\rx))$.
 Covariates $\rX$ are sampled from a uniform distribution
 $(\rX \sim U([0, 1]^P))$ with $P = \{2, 5, 10, 15, 20, 30\}$.
 
-All propensity score , prognostic effect and treatment effect functions of \cite{Wager_Athey_2018}, \cite{Athey_Tibshirani_Wager_2019} and \cite{Nie_Wager_2020} are already implemented in \pkg{htesim}.
+All propensity score functions, prognostic effect functions and treatment effect functions of \cite{Wager_Athey_2018}, \cite{Athey_Tibshirani_Wager_2019} and \cite{Nie_Wager_2020} are already implemented in \pkg{htesim}.
 Please consult the documentation of \code{pF}, \code{mF} and \code{tF}
 for an overview and in-depth definition of these functions.
-For our example, we use \code{pF_x1} for the
-propensity score function and \code{mF_x1} for the prognostic effect function.
+The propensity score function of our example is implemented in \code{pF_x1}
+ and the prognostic effect function in \code{mF_x1}.
 
 The following code generates the manual to replicate the study setting.
-The returned object is a list of class \code{dgp}.
 <<ex:dgp>>=
 dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, pi = 0, model = "normal",
   xmodel = "unif")
+@
+
+The returned object is a list of class \code{dgp} with the following entries.
+<<ex2:dgp2>>=
 dgp1
 class(dgp1)
 @
@@ -197,8 +198,7 @@ The S3 method \code{simulate.dgp} simulates data given a \code{dgp} object,
 the number of observations \code{nsim} and number of predictors \code{dim}.
 Optionally, users can generate a test dataset by specifying the number of
 test observations in \code{nsimtest}.
-The study dataset could be exactly reproduced in another run by specifying a
-\code{seed}.
+An optional \code{seed} helps to reproduce a study dataset in prospective runs.
 
 In the above example, the authors sampled \code{nsim = 500} observations for training
 and \code{nsimtest = 1000} observations for evaluation.
@@ -210,8 +210,8 @@ sim1 <- simulate(object = dgp1, nsim = 500L, d = 2L, nsimtest = 1000L)
 head(sim1)
 nrow(sim1)
 @
-In addition to our uniformly distributed covariates \code{X1} and \code{X2}
-a normally distributed outcome \code{y} was sampled and the treatment indicator
+In addition to our uniformly distributed covariates \code{X1} and \code{X2},
+a normally distributed outcome \code{y} was sampled as well as the treatment indicator
 \code{trt} based on our defined effect and propensity score functions.
 
 The test dataset can be accessed via
@@ -219,16 +219,13 @@ The test dataset can be accessed via
 testdf <- attr(sim1, "testxdf")
 head(testdf)
 @
-The test dataset consist of covariates (the number is equal to \code{dim})
+It consists of covariates (the number is equal to \code{dim})
 and the treatment indicator which is also sampled from a binomial distribution
 with probability $\pi(\rx)$.
 
 \subsection{Compute Ground Truth for New Data} \label{subsec:predict}
-To evaluate if a method accurately estimates the treatment effect or potentially (but less common) the
-prognostic effect, propensity scores or standard deviation we need the
-ground true effects or scores for the test dataset.
-For this purpose the S3 method \code{predict.dgp} exists. It needs as an input
-the \code{dgp object} generated by \code{dgp} and the new data frame.
+To evaluate if a method accurately estimates the treatment effect or potentially (but less common) the prognostic effect, propensity scores or standard deviation we need the ground true effects or scores for the test dataset.
+For this purpose the S3 method \code{predict.dgp} exists. It needs as an input the \code{dgp object} generated by \code{dgp} and the new data frame.
 Continuing with the above example, we get the ground truth by calling
 <<ex:pred>>=
 predtest <- predict(object = dgp1, newdata = testdf)
@@ -239,29 +236,26 @@ conditional mean or prognostic effect, \code{tfct} to the treatment effect and
 \code{sdfct} to the standard deviation of the conditional distribution of $(Y|\rX = \rx)$
 
 \section{Advanced Usage}
-\pkg{htesim} also offers the flexibility for users to specify and simulate from their own functions
-and provides the necessary functionality to replicate previous studies.
+\pkg{htesim} also offers the flexibility for users to specify and simulate from their own functions and provides the necessary functionality to replicate previous studies.
 This is demonstrated in this chapter.
-For the former we use a self-chosen example and for the latter we replicate the
-first study setting of \cite{Dandl_Hothorn_Seibold_2021} which is also
-included in \pkg{htesim} (\code{data("studyres")}).
+For the former, we use a self-chosen example and for the latter, we replicate the first study setting of \cite{Dandl_Hothorn_Seibold_2021}.
 
 
 \subsection{Use your own Functions} \label{subsec:ownfunc}
 In Section~\ref{sec:functions} we saw that \code{simulate.dgp} generates a dataset of
 covariates by drawing random numbers from a uniform  or normal distribution.
-These variables are labelled as "X1", "X2", and so on.
+These variables are labelled as \code{X1}, \code{X2}, and so on.
 A dataset with these variables is the input for a new function.
 As an example, we want our treatment effect function to have the form
-$$ \tau(\rx) = (x_1 + x_2)^{\nu}/4 $$
+$$ \tau(\rx) = (x_1 + x_2)^2/4 $$
 with $\nu \ge 0$, our prognostic effect function should be
 $$ \mu(\rx) = exp(x_1 + 0.3 x_2 + 0.4 x_3).$$
 The propensity score should be $0.5$ for all observations, meaning that
 we conduct a randomized trial.
 We can setup our functions with
 <<owntE >>=
-tE_nu_x1_x2 <- function(x, nu = 1) {
-  return(((x[, "X1"] + x[, "X2"])^nu)/4)
+tE_nu_x1_x2 <- function(x) {
+  return(((x[, "X1"] + x[, "X2"])^2)/4)
 }
 
 mE_exp_x1_x3 <- function(x) {
@@ -275,9 +269,9 @@ set to their defaults (normally distributed outcomes and uniformly distributed c
 dgpown <- dgp(p = 0.5, m = mE_exp_x1_x3, t = tE_nu_x1_x2)
 @
 
-If we want to simulate 500 observations from this dgp we could simply call
+To simulate 500 observations with $5$ predictors from this \code{dgp} we could simply call
 <<simowntE>>=
-simown <- simulate(dgpown, nsim = 500)
+simown <- simulate(dgpown, nsim = 500, dim = 5)
 head(simown)
 @
 
@@ -298,7 +292,7 @@ Columns \code{p}, \code{m}, \code{t}, \code{sd}, \code{pi} \code{pi}, \code{mode
 comprise arguments for \code{dgp}, while \code{nsim}, \code{dim}, \code{nsimtest} and \code{seed}
 should be inserted into \code{simulate.dgp}.
 
-The information in this dataset is enough to reproduce the data generating process.
+The information in this dataset is enough to replicate the study data.
 For illustration, we will generate a study dataset derived from the first
 row of \code{res}.
 
@@ -329,13 +323,13 @@ head(sim1)
 The test data was attached to \code{sim1} as an attribute.
 
 <<gettest>>=
-test <- attr(sim1, "testxdf")
-head(test)
+testdf <- attr(sim1, "testxdf")
+head(testdf)
 @
 
 We receive the true effects for the test data using
 <<predtest>>=
-tau <- predict(dgp1, newdata = test)
+tau <- predict(dgp1, newdata = testdf)$tfct
 head(tau)
 @
 
@@ -343,17 +337,75 @@ head(tau)
 Performances of these methods were assessed by mean squared error
 $$\frac{1}{1000} \sum_{i = 1}^{1000}(\tau(\rx_i) - \hat{\tau}(\rx_i))$$
 evaluated on the test sample.
-The results for each method are given in columns 14 to 23 in \code{studyres}.
-
+The results for each method are also part of the given data frame \code{studyres}.
 
 <<algonams>>=
-# Get method names
+# Method names
 methodnams <- c("m4y", "hybrid", "equalized",  "cf", "m4ycf",
   "m4yhonest", "hybridhonest", "equalizedhonest", "cfhonest", "m4ycfhonest")
+# Get results
+study1[, methodnams]
 @
 
-To visualize the results of Dandl et al. (2021) with \pkg{lattice}, we have
-to reshape the data from a wide to long format.
+Given the replicated study data, users could evaluate new methods against
+the forest-based methods.
+As an example, we compare the performances against a linear model with one interactions term.
+<<newmeth>>=
+mod <- lm(y ~ trt + trt:X3, data = sim1)
+test0 <- test1 <- testdf
+test0$trt <- "0"
+test1$trt <- "1"
+tauhat <- predict(mod, test1) - predict(mod, test0)
+head(tauhat)
+@
+
+The performance is evaluated by the MSE
+
+<<newmethmse>>=
+mean((tau - tauhat)^2)
+@
+
+We can apply the linear interaction model to each of 9600 simulation settings specified in \code{studyres}.
+The following helper functions create a study dataset from one study setting,
+fits the interaction model on it, estimates the treatment effect and
+returns the MSE.
+The results are attached to \code{studyres}.
+
+<<study>>=
+run_linmod <- function(i) {
+  # Extract row
+  row <- studyres[i,]
+  # define dgp
+  dgp1 <- do.call(dgp,
+  as.list(row)[c("p", "m", "t", "sd", "pi", "model", "xmodel")])
+  # simulate train and test data
+  sim1 <- do.call(simulate, c(list(object = dgp1),
+    as.list(row)[c("nsim", "dim", "seed", "nsimtest")]))
+  testdf <- attr(sim1, "testxdf")
+  # get true tau
+  tau <- predict(dgp1, newdata = testdf)$tfct
+  # fit linear model with one interaction term
+  mod <- lm(y ~ trt + trt:X3, data = sim1)
+  # get estimated treatment effect
+  test0 <- test1 <- testdf
+  test0$trt <- "0"
+  test1$trt <- "1"
+  tauhat <- predict(mod, test1) - predict(mod, test0)
+  # evaluation
+  mse <- mean((tau - tauhat)^2)
+  return(mse)
+}
+mse <- sapply(1:nrow(studyres), FUN = run_linmod)
+
+# add results to studyres
+studyres$linmod <- mse
+
+# add name to vector of method names
+methodnams <- c(methodnams, "linmod")
+@
+
+With the \proglang{R} package \pkg{latttice} we compare the performance of the forest-based methods and the linear model visually.
+Therefore, we need to reshape the data from a wide to long format.
 
 <<reshape>>=
 res <- reshape(studyres, direction = "long", varying = methodnams, idvar = c("p",
@@ -362,13 +414,9 @@ res <- reshape(studyres, direction = "long", varying = methodnams, idvar = c("p"
 rownames(res) <- NULL # reset rownames
 res$algorithm <- methodnams[res$algorithm]
 head(res)
-
 @
-Each row corresponds to the results of \textit{one} method for \textit{one} study setting
-(unique data generating process, number of training observations and dimensions)
-and \textit{one} replication.
-Each row of our plot should correspond to one data generating process (i.e., \code{setup}) and
-each row to one unique combination of \code{nsim} and \code{dim}.
+Each row corresponds to the results of \textit{one} method, for \textit{one} study setting (unique data generating process, number of training observations and dimensions) and \textit{one} replication.
+Each row of our plot should correspond to one data generating process (i.e., \code{setup}) and each row to one unique combination of \code{nsim} and \code{dim}.
 The following function refactors our dataset to a suitable format by generating
 the necessary information.
 
@@ -409,19 +457,24 @@ refactor <- function(df, method.nams) {
 This function is applied to our dataset.
 
 <<change>>=
-cols <- c("m4y" = "snow", "m4y-honest" = "snow4",
-  "hybrid" = "tan",  "hybrid-honest" = "tan4",
-  "equalized" = "darkorchid1", "equalized-honest" = "darkorchid4",
-  "cf" = "deepskyblue", "cf-honest" = "deepskyblue4",
-  "m4ycf" = "darkolivegreen1", "m4ycf-honest" = "darkolivegreen4")
-
 res <- refactor(res, method.nams =  methodnams)
 head(res)
 @
 The column \code{nd} defines the rows in the plot and the column
 \code{setup} the columns.
-Next we set up plotting functions of the \proglang{R} package \pkg{lattice}
 
+Next, we set up the plots with \pkg{lattice}.
+Each method will have an own colour coding.
+<<color>>=
+cols <- c("m4y" = "snow", "m4y-honest" = "snow4",
+  "hybrid" = "tan",  "hybrid-honest" = "tan4",
+  "equalized" = "darkorchid1", "equalized-honest" = "darkorchid4",
+  "cf" = "deepskyblue", "cf-honest" = "deepskyblue4",
+  "m4ycf" = "darkolivegreen1", "m4ycf-honest" = "darkolivegreen4",
+  "linmod" = "darkorange")
+@
+
+This colour coding is needed for further plotting options.
 <<lattice>>=
 library("lattice")
 library("latticeExtra")
@@ -459,7 +512,7 @@ mypanel <- function(x, y, groups, subscripts, ...) {
 
 # set up legend at top of plots
 mykey <- list(space="top", rectangles=list(col=cols),
-  text=list(names(cols)), columns = 5)
+  text=list(names(cols)), columns = ceiling(length(methodnams)/2))
 
 # label of y-axis, MSE
 ylab <- expression(paste(frac(1, 1000), "",
@@ -483,64 +536,57 @@ the following settings:
 \begin{itemize}
 \item Settings introduced by \cite{Wager_Athey_2018} and \cite{Athey_Tibshirani_Wager_2019}
 \begin{itemize}
-\item with overlay meaning \code{pi} is equal to 0: setups 1 to 8
+\item without overlay meaning \code{pi} is equal to 0: setups 1 to 8
 <<set1>>=
 subset1 <- subset(res, pi == 0 & setup %in% 1:16)
 @
-\item without overlay meaning \code{pi} is equal to 0.5: setups 9 to 16
+\item with overlay meaning \code{pi} is equal to 0.5: setups 9 to 16
 <<set2>>=
 subset2 <- subset(res, setup %in% 1:16 & pi == 0.5)
 @
 \end{itemize}
 \item Settings introduced by \cite{Nie_Wager_2020}
 \begin{itemize}
-\item with overlay meaning \code{pi} is equal to 0: setups 17 to 20
+\item without overlay meaning \code{pi} is equal to 0: setups 17 to 20
 <<set3>>=
 subset3 <- subset(res, setup %in% 17:24 & pi == 0)
 @
-\item without overlay meaning \code{pi} is equal to 0.5: setups 21 to 24
+\item with overlay meaning \code{pi} is equal to 0.5: setups 21 to 24
 <<set4>>=
 subset4 <- subset(res, setup %in% 17:24 & pi == 0.5)
 @
 \end{itemize}
 \end{itemize}
-A \code{pi} of 0.5 means that half of the treatment effect is added to the
+If \code{pi} is 0.5, half of the treatment effect is added to the
 prognostic effect.
-Finally we can run the plot the results
+Finally we can plot the results
 \newpage
-<<plot, fig.width=10, fig.height = 10.5, fig.width = 11>>=
+<<plot, fig.width=10, fig.height = 10.5, fig.width = 13>>=
 plot_results(subset1, sc = sc)
 @
 \newpage
-<<plot2, fig.width=10, fig.height = 10.5, fig.width = 11>>=
+<<plot2, fig.width=10, fig.height = 10.5, fig.width = 13>>=
 plot_results(subset2, sc = sc)
 @
 \newpage
-<<plot3, fig.width=10, fig.height = 10.5, fig.width = 11>>=
+<<plot3, fig.width=10, fig.height = 10.5, fig.width = 13>>=
 plot_results(subset3, sc = sc)
 @
 \newpage
-<<plot4, fig.width=10, fig.height = 10.5, fig.width = 11>>=
+<<plot4, fig.width=10, fig.height = 10.5, fig.width = 13>>=
 plot_results(subset4, sc = sc)
 @
 
-If users add another method, they only need to adjust the vector of method names
-\code{methodnams} and their color coding \code{cols}.
+If users want to visualize the result of another method, they need to attach the MSEs of their method to \code{studyres} and need to adjust the vector of method names \code{methodnams} and their color coding \code{cols}.
 All other chunks of this section should work without any adjustments.
 
 \section{Summary} \label{summary}
-This vignette introduced the package \pkg{htesim} that
-provides an extensive simulation study framework to evaluate methods to estimate
-heterogeneous treatment effects.
-It gave some illustration on how to put predefined functions for
-prognostic and predictive effects and propensity scores to generate
-a simulation data sets to put methods for treatment effects to the proof.
-Furthermore, it explained how users can integrate their own functions which hopefully
-removes hurdles to use this package for their prospective simulation studies.
-The vignette also provided the necessary functions to reproduce the
-study framework of \cite{Dandl_Hothorn_Seibold_2021} and to plot their results for
-forest-based methods.
-This should motivate users to compare their methods against it.
+This vignette introduced the package \pkg{htesim} that provides an extensive simulation study framework to evaluate methods to estimate heterogeneous treatment effects.
+It illustrated how to generate a simulation dataset from predefined functions for prognostic and predictive effects and propensity scores to put methods for treatment effects to the proof.
+Furthermore, it explained how users can integrate their own functions.
+The vignette also provided the necessary functions to reproduce the study framework of \cite{Dandl_Hothorn_Seibold_2021}.
+It also gave guidance on how to compare the results of a new method visually against the forest-based methods evaluated by \cite{Dandl_Hothorn_Seibold_2021}.
+We hope that all these examples remove hurdles to use \pkg{htesim} for prospective studies to evaluate methods for heterogeneous treatment effects.
 
 \newpage
 
