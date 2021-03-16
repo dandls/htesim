@@ -10,7 +10,7 @@
 \method{predict}{simdgp}(object, newdata)
 }
 \arguments{
-\item{object}{(dgp/simdgp) Manual for data generation (\code{dgp}) or generated dataset \code{simdgp}.}
+\item{object}{(dgp/simdgp) Manual for data generation (\code{dgp}) or generated dataset (\code{simdgp}).}
 
 \item{newdata}{(data.frame) New data to predict on.}
 }
@@ -28,4 +28,6 @@ sim1 <- simulate(dgp1, nsim = 500L, d = 2, nsimtest = 1000L)
 newdata <- attr(sim1, "testxdf")
 pred1 <- predict(dgp1, newdata)
 head(pred1)
+pred2 <- predict(sim1, newdata)
+all.equal(pred1, pred2)
 }

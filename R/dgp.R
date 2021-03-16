@@ -254,7 +254,7 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL
 #' @nane predict
 #' @rdname predict
 #' @title Predict ground truth effects for new data
-#' @param object (dgp/simdgp) Manual for data generation (\code{dgp}) or generated dataset \code{simdgp}.
+#' @param object (dgp/simdgp) Manual for data generation (\code{dgp}) or generated dataset (\code{simdgp}).
 #' @param newdata (data.frame) New data to predict on.
 #' @return data.frame with true values of
 #' pfct (pi(x)), mfct (mu(x)), tfct (tau(x)) and sdfct (sd for normal model).
