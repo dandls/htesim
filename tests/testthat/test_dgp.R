@@ -76,7 +76,6 @@ test_that("predict works properly", {
   tau <- predict.dgp(dg1, newdata = sim1)
   expect_equal(nrow(tau), 100L)
   expect_equal(ncol(tau), 4L)
-  expect_true(all(tau$pfct == 0.5))
-
+  expect_true(all(tau[, "pfct"] == 0.5))
 })
 

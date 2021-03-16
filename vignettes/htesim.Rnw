@@ -108,7 +108,7 @@ Users could define their own treatment, prognostic and propensity score function
 or they make use of multiple predefined functions (\code{tF, mF, pF}).
 These predefined functions are based on \cite{Wager_Athey_2018}, \cite{Athey_Tibshirani_Wager_2019} and \cite{Nie_Wager_2020}.
 They were also employed by \cite{Dandl_Hothorn_Seibold_2021} to compare multiple forest-based methods.
-A dedicated dataset of the study settings and performances of these methods  is part of this package (\code{data("studyres")})
+A dedicated dataset of the study settings and performances of these methods  is part of this package (\code{data("dandl")})
 so that others could reproduce this study and compare the performance of their methods with them.
 
 \proglang{R} offers a few packages that are tailored to causal treatment effect estimation. Many of them generate data based on
@@ -282,8 +282,9 @@ Therefore, the study setting and the corresponding results of the forest approac
 \pkg{htesim}.
 
 <<loadres>>=
-load(file = "../data/studyres.rda")
-head(studyres)
+load(system.file("Dandl_et_al.rda", package = "htesim"))
+dandl <- Dandl_et_al
+head(dandl)
 @
 
 The column \code{setup} corresponds to the unique data generating process defined  by \code{p}, \code{m}, \code{t}, \code{sd}, \code{pi}, \code{model}, \code{xmodel}, \code{nsim} and \code{dim}.
@@ -297,7 +298,7 @@ For illustration, we will generate a study dataset derived from the first
 row of \code{res}.
 
 <<row1>>=
-study1 <- studyres[1,]
+study1 <- dandl[1,]
 @
 
 Since the column names of \code{study1} matches the arguments of \code{dgp} and \code{simulate},
@@ -329,7 +330,7 @@ head(testdf)
 
 We receive the true effects for the test data using
 <<predtest>>=
-tau <- predict(dgp1, newdata = testdf)$tfct
+tau <- predict(dgp1, newdata = testdf)[, "tfct"]
 head(tau)
 @
 
@@ -337,7 +338,7 @@ head(tau)
 Performances of these methods were assessed by mean squared error
 $$\frac{1}{1000} \sum_{i = 1}^{1000}(\tau(\rx_i) - \hat{\tau}(\rx_i))$$
 evaluated on the test sample.
-The results for each method are also part of the given data frame \code{studyres}.
+The results for each method are also part of the given data frame \code{dandl}.
 
 <<algonams>>=
 # Method names
@@ -365,17 +366,17 @@ The performance is evaluated by the MSE
 mean((tau - tauhat)^2)
 @
 
-We can apply the linear interaction model to each of 9600 simulation settings specified in \code{studyres}.
+We can apply the linear interaction model to each of 9600 simulation settings specified in \code{dandl}.
 The following helper function creates a study dataset from a study setting,
 fits the interaction model on it, estimates the treatment effect and
 returns the MSE.
-The function is applied to each row of \code{studyres} and the results get
+The function is applied to each row of \code{dandl} and the results get
 attached to it.
 
 <<study>>=
 run_linmod <- function(i) {
   # Extract row
-  row <- studyres[i,]
+  row <- dandl[i,]
   # define dgp
   dgp1 <- do.call(dgp,
   as.list(row)[c("p", "m", "t", "sd", "pi", "model", "xmodel")])
@@ -384,7 +385,7 @@ run_linmod <- function(i) {
     as.list(row)[c("nsim", "dim", "seed", "nsimtest")]))
   testdf <- attr(sim1, "testxdf")
   # get true tau
-  tau <- predict(dgp1, newdata = testdf)$tfct
+  tau <- predict(dgp1, newdata = testdf)[, "tfct"]
   # fit linear model with one interaction term
   mod <- lm(y ~ trt + trt:X3, data = sim1)
   # get estimated treatment effect
@@ -396,10 +397,10 @@ run_linmod <- function(i) {
   mse <- mean((tau - tauhat)^2)
   return(mse)
 }
-mse <- sapply(1:nrow(studyres), FUN = run_linmod)
+mse <- sapply(1:nrow(dandl), FUN = run_linmod)
 
-# add results to studyres
-studyres$linmod <- mse
+# add results to dandl
+dandl$linmod <- mse
 
 # add name to vector of method names
 methodnams <- c(methodnams, "linmod")
@@ -409,7 +410,7 @@ With the \proglang{R} package \pkg{latttice} we compare the performance of the f
 Therefore, we need to reshape the data from a wide to long format.
 
 <<reshape>>=
-res <- reshape(studyres, direction = "long", varying = methodnams, idvar = c("p",
+res <- reshape(dandl, direction = "long", varying = methodnams, idvar = c("p",
   "m", "t", "sd", "pi", "model", "xmodel", "nsim", "dim", "nsimtest", "seed"),
   v.names = "value", timevar = "algorithm")
 rownames(res) <- NULL # reset rownames
@@ -578,7 +579,7 @@ plot_results(subset3, sc = sc)
 plot_results(subset4, sc = sc)
 @
 
-If users want to visualize the result of another method, they need to attach the MSEs of their method to \code{studyres} and need to adjust the vector of method names \code{methodnams} and their color coding \code{cols}.
+If users want to visualize the result of another method, they need to attach the MSEs of their method to \code{dandl} and need to adjust the vector of method names \code{methodnams} and their color coding \code{cols}.
 All other chunks of this section should work without any adjustments.
 
 \section{Summary} \label{summary}

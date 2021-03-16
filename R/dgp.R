@@ -184,8 +184,6 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL
     }
   }
   colnames(x) <- paste("X", 1:ncol(x), sep = "")
-  testxdf <- as.data.frame(testx)
-  testxdf$trt <- factor(c(0, 1))[2]
 
   tX <- tryCatch({object$tfct(x)},
     error = function(e) {
