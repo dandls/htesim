@@ -7,8 +7,8 @@
 #' default 0 means that there is no treatment effect.
 #' @param sd (numeric(1), character(1), function) Standard deviation of normal distribution, only
 #' has an effect if model = "normal".
-#' @param pi (numeric(1)) how much of predictive effect is added to prognostic effect.
-#' The default is pi = 0 which means that the conditional mean does not depend on treatment effect.
+#' @param ol (numeric(1)) how much of predictive effect is added to prognostic effect (overlay).
+#' The default is ol = 0 which means that the conditional mean does not depend on treatment effect.
 #' @param model ("normal"|"weibull"|"binomial"|"polr") Name of used model to simulate outcome y.
 #' @param xmodel ("normal") Name of used model to simulate covariates x.
 #' @return list of class gpd with entries:
@@ -44,7 +44,7 @@
 #' dgpD <- dgp(p = pF_exp_x1_x2, m = mF_max2_x1_x5, t = tF_max_x1_x5, model = "normal", xmodel = "normal")
 #'
 #' @export
-dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = 0, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
+dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, ol = 0, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
 
   cl <- match.call()
 
@@ -53,7 +53,7 @@ dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = 0, model = c("normal", "weib
   assert_true(is.function(m) || is.numeric(m) || is.character(m))
   assert_true(is.function(t) || is.numeric(t) || is.character(t))
   assert_number(sd, lower = 0)
-  assert_number(pi)
+  assert_number(ol)
 
   model <- tryCatch({match.arg(model)},
     error = function(e) {
@@ -70,9 +70,9 @@ dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, pi = 0, model = c("normal", "weib
   sdfct <- sanitize_fct(sd, cl$sd)
 
   ### mean effect
-  mf <- function(x) mfct(x) - pi * tfct(x)
+  mf <- function(x) mfct(x) - ol * tfct(x)
 
-  ret <- list(pfct = pfct, mfct = mf, tfct = tfct, sdfct = sdfct, pi = pi,
+  ret <- list(pfct = pfct, mfct = mf, tfct = tfct, sdfct = sdfct, ol = ol,
     model = model, xmodel = xmodel, pname = deparse(substitute(p)),
     mname = deparse(substitute(m)), tname = deparse(substitute(t)),
     sdname = deparse(substitute(sd)))
@@ -208,7 +208,7 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL
   trt <- rbinom(nsim, size = 1, prob = pX)
 
   ### effect function
-  ### NOTE: this is mfct(x) - .5 * tfct(x) + trt * tfct(x) for pi = .5
+  ### NOTE: this is mfct(x) - .5 * tfct(x) + trt * tfct(x) for ol = .5
   ### and thus the mean always depends on BOTH mX and tX
   efct <- mX + trt * tX
 

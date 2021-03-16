@@ -9,7 +9,7 @@ dgp(
   m = 0,
   t = 0,
   sd = 1,
-  pi = 0,
+  ol = 0,
   model = c("normal", "weibull", "binomial", "polr"),
   xmodel = c("normal", "unif")
 )
@@ -27,8 +27,8 @@ default 0 means that there is no treatment effect.}
 \item{sd}{(numeric(1), character(1), function) Standard deviation of normal distribution, only
 has an effect if model = "normal".}
 
-\item{pi}{(numeric(1)) how much of predictive effect is added to prognostic effect.
-The default is pi = 0 which means that the conditional mean does not depend on treatment effect.}
+\item{ol}{(numeric(1)) how much of predictive effect is added to prognostic effect (overlay).
+The default is ol = 0 which means that the conditional mean does not depend on treatment effect.}
 
 \item{model}{("normal"|"weibull"|"binomial"|"polr") Name of used model to simulate outcome y.}
 
