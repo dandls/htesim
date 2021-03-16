@@ -2,12 +2,15 @@
 % Please edit documentation in R/dgp.R
 \name{predict.dgp}
 \alias{predict.dgp}
+\alias{predict.simdgp}
 \title{Predict ground truth effects for new data}
 \usage{
 \method{predict}{dgp}(object, newdata)
+
+\method{predict}{simdgp}(object, newdata)
 }
 \arguments{
-\item{object}{(list/gpd) Manual for data generation.}
+\item{object}{(dgp/simdgp) Manual for data generation (\code{dgp}) or generated dataset \code{simdgp}.}
 
 \item{newdata}{(data.frame) New data to predict on.}
 }

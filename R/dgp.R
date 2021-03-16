@@ -251,8 +251,10 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL
 }
 
 
-#' Predict ground truth effects for new data
-#' @param object (list/gpd) Manual for data generation.
+#' @nane predict
+#' @rdname predict
+#' @title Predict ground truth effects for new data
+#' @param object (dgp/simdgp) Manual for data generation (\code{dgp}) or generated dataset \code{simdgp}.
 #' @param newdata (data.frame) New data to predict on.
 #' @return data.frame with true values of
 #' pfct (pi(x)), mfct (mu(x)), tfct (tau(x)) and sdfct (sd for normal model).
@@ -263,6 +265,8 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL
 #' newdata <- attr(sim1, "testxdf")
 #' pred1 <- predict(dgp1, newdata)
 #' head(pred1)
+#' pred2 <- predict(sim1, newdata)
+#' all.equal(pred1, pred2)
 #' @export
 predict.dgp <- function(object, newdata) {
   assert_data_frame(newdata)
@@ -270,3 +274,11 @@ predict.dgp <- function(object, newdata) {
   ret <- sapply(atr, function(f) f(newdata))
   return(data.frame(ret))
 }
+
+#' @rdname predict
+#' @export
+predict.simdgp <- function(object, newdata) {
+  objectdgp <- attributes(object)$truth
+  predict.dgp(objectdgp, newdata)
+}
+
