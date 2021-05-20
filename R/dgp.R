@@ -251,7 +251,7 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL
 }
 
 
-#' @nane predict
+#' @name predict
 #' @rdname predict
 #' @title Predict ground truth effects for new data
 #' @param object (dgp/simdgp) Manual for data generation (\code{dgp}) or generated dataset (\code{simdgp}).
