@@ -11,19 +11,19 @@
 #'   \item{repl}{Replication index (1 to 100).}
 #'   \item{p, m, t}{Propensity score, prognostic effect and treatment effect
 #'   function character names. Input for \code{dgp}.}
-#'   \item{sd, pi, model, xmodel}{Standard deviation of
-#'   normal distributed outcome, extend of treatment effect added to prognostic
+#'   \item{sd, ol, model, xmodel}{Standard deviation of
+#'   normal distributed outcome, fraction of treatment effect added to prognostic
 #'   effect and names of used model for outcome and covariates.
 #'   Input for \code{dgp}.}
 #'   \item{nsim, dim, nsimtest, seed}{Number of observations, number of
 #'   covariates, number of observations for test set and seed. Input for
 #'   \code{simulate}.}
-#'   \item{m4y, m4yhonest, hybrid, hybridhonest, equalized, equalizedhonest,
-#'   cf, cfhonest, m4ycf, m4ycfhonest}{Mean squared error of different
+#'   \item{mob, mobhonest, hybrid, hybridhonest, equalized, equalizedhonest,
+#'   cf, cfhonest, mobcf, mobcfhonest}{Mean squared error of different
 #'   methods for estimating treatment effects. See Dandl et al. (2021) for details.}
 #' }
 #' @references
-#' Dandl S, Torsten H, Heidi S (2021). Divide or Unite? A Comparison of Two
+#' Dandl S, Torsten H, Heidi S et al. (2021). Divide or Unite? A Comparison of Two
 #' Strategies to Random Forest-type Heterogeneous Treatment Effect Estimation.
 #'
 #' Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
