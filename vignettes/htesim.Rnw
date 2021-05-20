@@ -143,7 +143,7 @@ necessary: \code{dgp} to define a manual for data generation, \code{simulate.dgp
 
 In the following, we give details on these functions accompanied by an illustrative example that replicates the first experiment of \cite{Wager_Athey_2018}.
 
-<<setup2 >>=
+<<setup2>>=
 library("htesim")
 library("checkmate")
 set.seed(8008)
@@ -162,7 +162,7 @@ Currently, a normal linear regression model, a binary logistic regression model,
 a Weibull model and a 4-nomial model for the outcome are supported.
 The covariates could be either normally or uniformly distributed.
 If they are normally distributed, the user could specify a function for the standard deviation (\code{sd}).
-Furthermore, a proportion \code{pi} $\in \mathbb{R}$ of the treatment effect could be added to the prognostic effect.
+Furthermore, a proportion \code{ol} $\in \mathbb{R}$ of the treatment effect could be added to the prognostic effect.
 
 As an example, we have a look at the first data generating process of the simulation
 study of \cite{Wager_Athey_2018}.
@@ -183,7 +183,7 @@ The propensity score function of our example is implemented in \code{pF_x1}
 
 The following code generates the manual to replicate the study setting.
 <<ex:dgp>>=
-dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, pi = 0, model = "normal",
+dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, ol = 0, model = "normal",
   xmodel = "unif")
 @
 
@@ -253,7 +253,7 @@ $$ \mu(\rx) = exp(x_1 + 0.3 x_2 + 0.4 x_3).$$
 The propensity score should be $0.5$ for all observations, meaning that
 we conduct a randomized trial.
 We can setup our functions with
-<<owntE >>=
+<<owntE>>=
 tE_nu_x1_x2 <- function(x) {
   return(((x[, "X1"] + x[, "X2"])^2)/4)
 }
@@ -265,7 +265,7 @@ mE_exp_x1_x3 <- function(x) {
 To receive simulation study data we pass these functions to \code{dgp}. All other arguments were
 set to their defaults (normally distributed outcomes and uniformly distributed covariates).
 
-<<dgpowntE >>=
+<<dgpowntE>>=
 dgpown <- dgp(p = 0.5, m = mE_exp_x1_x3, t = tE_nu_x1_x2)
 @
 
@@ -282,14 +282,13 @@ Therefore, the study setting and the corresponding results of the forest approac
 \pkg{htesim}.
 
 <<loadres>>=
-load(system.file("Dandl_et_al.rda", package = "htesim"))
-dandl <- Dandl_et_al
+data("dandl")
 head(dandl)
 @
 
-The column \code{setup} corresponds to the unique data generating process defined  by \code{p}, \code{m}, \code{t}, \code{sd}, \code{pi}, \code{model}, \code{xmodel}, \code{nsim} and \code{dim}.
+The column \code{setup} corresponds to the unique data generating process defined  by \code{p}, \code{m}, \code{t}, \code{sd}, \code{ol}, \code{model}, \code{xmodel}, \code{nsim} and \code{dim}.
 Each data generating process was repeated 100 times. \code{repl} stores the rerun ids.
-Columns \code{p}, \code{m}, \code{t}, \code{sd}, \code{pi} \code{pi}, \code{model} and \code{xmodel}
+Columns \code{p}, \code{m}, \code{t}, \code{sd}, \code{ol}, \code{model} and \code{xmodel}
 comprise arguments for \code{dgp}, while \code{nsim}, \code{dim}, \code{nsimtest} and \code{seed}
 should be inserted into \code{simulate.dgp}.
 
@@ -305,12 +304,12 @@ Since the column names of \code{study1} matches the arguments of \code{dgp} and 
 we can use \code{do.call} to generate the simulated data set.
 The \code{seed} helps us to receive the exact and not approximate study data set of \cite{Dandl_Hothorn_Seibold_2021}.
 
-<<getdatar>>=
+<<getdata>>=
 dgp1 <- do.call(dgp,
-  as.list(study1)[c("p", "m", "t", "sd", "pi", "model", "xmodel")])
+  as.list(study1)[c("p", "m", "t", "sd", "ol", "model", "xmodel")])
 # equivalent to
 dgp1 <- dgp(p = study1$p, m = study1$m, t = study1$t, sd = study1$sd,
-  pi = study1$pi, model = study1$model, xmodel = study1$xmodel)
+  ol = study1$ol, model = study1$model, xmodel = study1$xmodel)
 
 sim1 <- do.call(simulate, c(list(object = dgp1),
   as.list(study1)[c("nsim", "dim", "seed", "nsimtest")]))
@@ -342,8 +341,8 @@ The results for each method are also part of the given data frame \code{dandl}.
 
 <<algonams>>=
 # Method names
-methodnams <- c("m4y", "hybrid", "equalized",  "cf", "m4ycf",
-  "m4yhonest", "hybridhonest", "equalizedhonest", "cfhonest", "m4ycfhonest")
+methodnams <- c("mob", "hybrid", "equalized",  "cf", "mobcf",
+  "mobhonest", "hybridhonest", "equalizedhonest", "cfhonest", "mobcfhonest")
 # Get results
 study1[, methodnams]
 @
@@ -379,7 +378,7 @@ run_linmod <- function(i) {
   row <- dandl[i,]
   # define dgp
   dgp1 <- do.call(dgp,
-  as.list(row)[c("p", "m", "t", "sd", "pi", "model", "xmodel")])
+  as.list(row)[c("p", "m", "t", "sd", "ol", "model", "xmodel")])
   # simulate train and test data
   sim1 <- do.call(simulate, c(list(object = dgp1),
     as.list(row)[c("nsim", "dim", "seed", "nsimtest")]))
@@ -411,7 +410,7 @@ Therefore, we need to reshape the data from a wide to long format.
 
 <<reshape>>=
 res <- reshape(dandl, direction = "long", varying = methodnams, idvar = c("p",
-  "m", "t", "sd", "pi", "model", "xmodel", "nsim", "dim", "nsimtest", "seed"),
+  "m", "t", "sd", "ol", "model", "xmodel", "nsim", "dim", "nsimtest", "seed"),
   v.names = "value", timevar = "algorithm")
 rownames(res) <- NULL # reset rownames
 res$algorithm <- methodnams[res$algorithm]
@@ -446,7 +445,7 @@ refactor <- function(df, method.nams) {
     function(x) paste(x[2], ", ", x[1]))
   df$setup <- factor(df$setup)
 
-  df <- df[, c("algorithm", "setup", "repl", "nd", "pi", "seed", "value")]
+  df <- df[, c("algorithm", "setup", "repl", "nd", "ol", "seed", "value")]
 
   df$algorithm <- factor(as.character(df$algorithm), levels = method.nams,
     labels = gsub("honest", "-honest", method.nams))
@@ -466,14 +465,37 @@ The column \code{nd} defines the rows in the plot and the column
 \code{setup} the columns.
 
 Next, we set up the plots with \pkg{lattice}.
+We change the names of the hybrid and equalized approach according to \cite{Dandl_Hothorn_Seibold_2021}:
+\begin{itemize}
+  \item hybrid: $\text{mob}(\hat{W})$
+  \item equalized: $\text{mob}(\hat{W}, \hat{Y})$
+\end{itemize}
+
+<<<hybeq>>=
+lookup <- c(
+  "mob" = "mob",
+  "hybrid" = expression("mob"(widehat(W))),
+  "equalized" = expression("mob"(widehat(W), widehat(Y))),
+  "mobcf" = "mobcf",
+  "cf" = "cf",
+  "mob-honest" = "h-mob",
+  "hybrid-honest" = expression("h-mob"(widehat(W))),
+  "equalized-honest" = expression("h-mob"(widehat(W), widehat(Y))),
+  "mobcf-honest" = "h-mobcf",
+  "cf-honest" = "h-cf",
+  "linmod" = "linmod"
+)
+@
+
 Each method will have an own colour coding.
 <<color>>=
-cols <- c("m4y" = "snow", "m4y-honest" = "snow4",
+cols <- c("mob" = "snow", "mob-honest" = "snow4",
   "hybrid" = "tan",  "hybrid-honest" = "tan4",
   "equalized" = "darkorchid1", "equalized-honest" = "darkorchid4",
   "cf" = "deepskyblue", "cf-honest" = "deepskyblue4",
-  "m4ycf" = "darkolivegreen1", "m4ycf-honest" = "darkolivegreen4",
+  "mobcf" = "darkolivegreen1", "mobcf-honest" = "darkolivegreen4",
   "linmod" = "darkorange")
+colornams <- lookup[names(cols)]
 @
 
 This colour coding is needed for further plotting options.
@@ -514,7 +536,7 @@ mypanel <- function(x, y, groups, subscripts, ...) {
 
 # set up legend at top of plots
 mykey <- list(space="top", rectangles=list(col=cols),
-  text=list(names(cols)), columns = ceiling(length(methodnams)/2))
+  text=list(colornams), columns = ceiling(length(methodnams)/2))
 
 # label of y-axis, MSE
 ylab <- expression(paste(frac(1, 1000), "",
@@ -526,7 +548,7 @@ plot_results <- function(pltdata, sc, ylim) {
     ylab = list(ylab), ylim = ylim,
     groups = repl, panel = mypanel,
     as.table = TRUE, strip = sc, key = mykey,
-    scales = list(relation = "same", x = list(rot = 60)))
+    scales = list(relation = "same", x = list(rot = 60, labels = lookup)))
   useOuterStrips(plt, strip = sc)
 }
 @
@@ -538,28 +560,28 @@ the following settings:
 \begin{itemize}
 \item Settings introduced by \cite{Wager_Athey_2018} and \cite{Athey_Tibshirani_Wager_2019}
 \begin{itemize}
-\item without overlay meaning \code{pi} is equal to 0: setups 1 to 8
+\item without overlay meaning \code{ol} is equal to 0: setups 1 to 8
 <<set1>>=
-subset1 <- subset(res, pi == 0 & setup %in% 1:16)
+subset1 <- subset(res, setup %in% 1:16 & ol == 0)
 @
-\item with overlay meaning \code{pi} is equal to 0.5: setups 9 to 16
+\item with overlay meaning \code{ol} is equal to 0.5: setups 9 to 16
 <<set2>>=
-subset2 <- subset(res, setup %in% 1:16 & pi == 0.5)
+subset2 <- subset(res, setup %in% 1:16 & ol == 0.5)
 @
 \end{itemize}
 \item Settings introduced by \cite{Nie_Wager_2020}
 \begin{itemize}
-\item without overlay meaning \code{pi} is equal to 0: setups 17 to 20
+\item without overlay meaning \code{ol} is equal to 0: setups 17 to 20
 <<set3>>=
-subset3 <- subset(res, setup %in% 17:24 & pi == 0)
+subset3 <- subset(res, setup %in% 17:24 & ol == 0)
 @
-\item with overlay meaning \code{pi} is equal to 0.5: setups 21 to 24
+\item with overlay meaning \code{ol} is equal to 0.5: setups 21 to 24
 <<set4>>=
-subset4 <- subset(res, setup %in% 17:24 & pi == 0.5)
+subset4 <- subset(res, setup %in% 17:24 & ol == 0.5)
 @
 \end{itemize}
 \end{itemize}
-If \code{pi} is 0.5, half of the treatment effect is added to the
+If \code{ol} is 0.5, half of the treatment effect is added to the
 prognostic effect.
 Finally we can plot the results
 \newpage
