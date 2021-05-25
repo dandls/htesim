@@ -282,7 +282,7 @@ Therefore, the study setting and the corresponding results of the forest approac
 \pkg{htesim}.
 
 <<loadres>>=
-data("dandl")
+load(system.file("extdata/dandl.rda", package = "htesim"))
 head(dandl)
 @
 
