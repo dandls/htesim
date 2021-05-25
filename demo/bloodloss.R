@@ -17,7 +17,7 @@ library("htesim")
 library("ggpubr")
 
 # Load data
-data(blood)
+load(system.file("extdata/blood.rda", package = "htesim"))
 
 # Helper functions
 # Draw dependency plot
