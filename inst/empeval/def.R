@@ -6,7 +6,7 @@ resname <- "results/results_study.rds"
 # number of cores
 CORES <- 30L
 # batchtool
-registry_name <- "reg_normal_honest"
+registry_name <- "reg_normal"
 
 ## forest settings
 # number of trees
