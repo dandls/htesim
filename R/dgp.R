@@ -49,11 +49,11 @@ dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, ol = 0, model = c("normal", "weib
   cl <- match.call()
 
   # sanity checks
-  assert_true(is.function(p) || is.numeric(p) || is.character(p))
-  assert_true(is.function(m) || is.numeric(m) || is.character(m))
-  assert_true(is.function(t) || is.numeric(t) || is.character(t))
-  assert_number(sd, lower = 0)
-  assert_number(ol)
+  checkmate::assert_true(is.function(p) || is.numeric(p) || is.character(p))
+  checkmate::assert_true(is.function(m) || is.numeric(m) || is.character(m))
+  checkmate::assert_true(is.function(t) || is.numeric(t) || is.character(t))
+  checkmate::assert_number(sd, lower = 0)
+  checkmate::assert_number(ol)
 
   model <- tryCatch({match.arg(model)},
     error = function(e) {
@@ -136,10 +136,10 @@ sanitize_fct <- function(fct, call) {
 simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL) {
 
   ###  input checks
-  assertIntegerish(nsim, lower = 1, len = 1, any.missing = FALSE)
-  assertIntegerish(dim, lower = 1, len = 1, any.missing = FALSE)
-  assertIntegerish(nsimtest, lower = 1, len = 1, any.missing = FALSE, null.ok = TRUE)
-  assertNumber(seed, null.ok = TRUE)
+  checkmate::assertIntegerish(nsim, lower = 1, len = 1, any.missing = FALSE)
+  checkmate::assertIntegerish(dim, lower = 1, len = 1, any.missing = FALSE)
+  checkmate::assertIntegerish(nsimtest, lower = 1, len = 1, any.missing = FALSE, null.ok = TRUE)
+  checkmate::assertNumber(seed, null.ok = TRUE)
 
   ### mlt & tram packages required for Weibull models
   if (object$model == "weibull") {
@@ -269,7 +269,7 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL
 #' all.equal(pred1, pred2)
 #' @export
 predict.dgp <- function(object, newdata) {
-  assert_data_frame(newdata)
+  checkmate::assert_data_frame(newdata)
   atr <- object[sapply(object, is.function)]
   ret <- sapply(atr, function(f) f(newdata))
   return(data.frame(ret))

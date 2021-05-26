@@ -78,7 +78,7 @@ opts_chunk$set(
 )
 @
 
-<<setup, echo = FALSE, results='hide'>>=
+<<setup, echo = FALSE, results=hide>>=
 suppressWarnings(RNGversion("3.5.2"))
 options(width = 70)
 @
