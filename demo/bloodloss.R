@@ -17,6 +17,7 @@ library("htesim")
 library("ggpubr")
 
 # Load data
+set.seed(290875)
 load(system.file("extdata/blood.rda", package = "htesim"))
 
 # Helper functions
@@ -27,9 +28,17 @@ dp_plot <- function(var, data, i, xlim = NULL, beta, ytxt = "odds ratio") {
     theme
   #
   if(is.factor(data[, var])) {
-    p <- p + geom_boxplot(varwidth = TRUE)
+    p <- p + geom_boxplot(varwidth = TRUE, fill = "lightgrey") +
+      stat_summary(fun = mean, aes(colour = "mean"), geom = "point",
+        shape = 18, size = 3) +
+      scale_color_manual(values = c("mean" = "#619CFF")) +
+      theme(legend.position = "none")
   } else {
-    p <- p + geom_point(alpha = 0.2) + geom_smooth(se = FALSE)
+    p <- p + geom_point(alpha = 0.2) + geom_smooth(se = FALSE, aes(color = "smooth curve")) +
+      scale_color_manual(values = c("smooth curve" = "#619CFF")) +
+      theme(legend.position = "none")
+      # theme(legend.title = element_blank(),
+      #   legend.position=c(1,1), legend.justification=c(1,1))
   }
   if (!is.null(xlim)) {
     p <- p + xlim(xlim)
@@ -62,7 +71,7 @@ tm2 <- with(blood, ifelse(MBL >= 1000, MBL + 2 * off, MBL + off)) # SD: upper in
 blood$MBLsurv <- Surv(time = tm1, time2 = tm2, type = "interval2")
 
 # define which patient characteristics used as splitting variables
-x <- c("GA", "AGE", "MULTIPAR", "BMI", "TWIN", "NW", "IOL", "AIS")
+x <- c("GA", "AGE", "MULTIPAR", "BMI", "MULTIFET", "NW", "IOL", "AIS") # prepartum variables
 xfm <- paste(x, collapse = "+") # prepartum variables
 
 # define formula
@@ -81,6 +90,9 @@ blood <- blood[-mid, ]
 # limits of MBL
 qy  <- 0:max(blood$MBL)
 MBLlim <- c(0, 2700)
+var_shown <- x
+propnams <- str_replace(var_shown, pattern = "\\.", replacement = "_")
+nvar <- length(var_shown)
 
 # ggplot theme
 theme <- theme_classic()
@@ -96,7 +108,6 @@ min_size_group <- 7L
 min_node_size <- min_size_group*2L
 
 # Additional setups for model-based forest to be equal to causal forest
-min_update <- min_node_size
 ctrl <- ctree_control(testtype = "Univ", minsplit = 2,
   minbucket = min_node_size,
   mincriterion = 0, saveinfo = FALSE)
@@ -112,7 +123,19 @@ converged_crit <- function(data, weights, control) {
     }
   }
 }
+
+min_update <- min_node_size
 prt <- list(replace = FALSE, fraction = .5)
+prt_honest <- list(replace = FALSE, fraction = c(0.25, 0.25))
+
+
+#--- Plot kernel density of Y ---
+p_dp <- ggplot(blood, aes(MBL)) +
+  geom_density() +
+  theme +
+  xlim(MBLlim) +
+  xlab("MBL")
+ p_dp
 
 #--- Causal forest ----
 # Dummy encode splitting variables
@@ -126,39 +149,37 @@ cf <- causal_forest(X = as.matrix(x_dummy),
   mtry = mtry,
   num.trees = NumTrees, honesty = FALSE)
 W.hat <- cf$W.hat
-
-# Center treatment indicator
-blood$VCmodecenter <- blood$VCmodedummy - W.hat
-
-#--- Base Model ---
-lin_MBL <- lm(MBL ~ VCmodecenter, data = blood)
-summary(lin_MBL)
-tau_lin <- coef(lin_MBL)["VCmodecenter"]
-alpha_lin <- coef(lin_MBL)["(Intercept)"]
+Y.hat <- cf$Y.hat
 
 # save(W.hat, Y.hat, file = "What_Yhat.rda")
 pred <- predict(cf, estimate.variance = TRUE)  # OUT-OF-BAG
 pred_df <- data.frame(pred)
+
+#--- Base Model ---
+blood$VCmodecenter <- blood$VCmodedummy - W.hat
+blood$MBLcenter <- blood$MBL - Y.hat
+lin_MBL <- lm(MBLcenter ~ VCmodecenter - 1, data = blood)
+summary(lin_MBL)
+tau_lin <- coef(lin_MBL)["VCmodecenter"]
 
 p_cf <- ggplot(pred_df, aes(predictions)) +
   geom_density() +
   theme +
   xlab(expression(hat(tau)(x[i]))) +
   geom_vline(aes(xintercept=tau_lin, linetype = "base model"), colour = "red") +
-  scale_linetype_manual(name = "", values = 2, guide = guide_legend(override.aes = list(color = c("red")))) +
+  scale_linetype_manual(name = "", values = 2,
+    guide = guide_legend(override.aes = list(color = c("red")))) +
   theme(legend.position = c(0.25, 0.8), legend.title = element_blank())
 p_cf
 
 #--- Dependence plots ----
 # Replace . by _ in splitting variable names
-var_shown <- x
-propnams <- str_replace(var_shown, pattern = "\\.", replacement = "_")
-nvar <- length(var_shown)
-
 dpcf <- cbind(pred, blood)
 
-ps <- lapply(seq_len(nvar), function(i) dp_plot(var_shown[i], dpcf, i = "", beta = "predictions", ytxt = expression(hat(tau))))
+ps <- lapply(seq_len(nvar), function(i) dp_plot(var_shown[i], dpcf, i = "",
+  beta = "predictions", ytxt = expression(hat(tau))))
 propnams <- str_replace(var_shown, pattern = "\\.", replacement = "_")
+
 ps
 
 #---- Plot estimated propensity scores and estimated centered treatments-----
@@ -175,7 +196,9 @@ pwhat <- ggplot(blood, aes(x = W.hat, color = VCmode)) +
   stat_density(geom = "line", position = "identity") +
   theme +
   theme(legend.position = "none", legend.title = element_blank()) +
-  ylim(c(0, 9)) + xlab(expression(hat(pi)(x[i]))) +
+  ylim(c(0, 9)) +
+  xlim(c(-0.001, 1.001)) +
+  xlab(expression(hat(pi)(x[i]))) +
   scale_color_manual(values = cols)
 
 # plot density of estimated centered treatments
@@ -194,6 +217,8 @@ ppi
 ### Fit base model & analyse treatment effect estimate
 m_MBL <- BoxCox(MBLsurv ~ VCmodecenter, data = blood,
   bounds = c(0, Inf), support = c(250, 2000))
+noobs <- sum(complete.cases(model.frame(m_MBL)))
+summary(m_MBL)
 logLik(m_MBL)
 coef(m_MBL)
 confint(m_MBL)
@@ -237,12 +262,11 @@ ptau <- ggplot(pmd, aes(tau)) +
 ptau
 
 # Get likelihood
-lk <- logLik(rf, OOB = FALSE) # -3539.598
+lk <- logLik(rf, OOB = FALSE)
 
 #---- Dependence Plots of treatment effect tau----
 dp <- cbind(pmd, blood)
 
-print(var_shown)
 ps <- lapply(seq_len(nvar), function(i) dp_plot(var_shown[i], dp, i = "", beta = "tau",
   ytxt = expression(hat(tau))))
 ps
