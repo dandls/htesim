@@ -5,11 +5,16 @@ test_that("throw comprehensible errors for wrong inputs", {
 
 
 test_that("simulate returns correct output for normal model", {
-  sx <- simulate(dgp(m = mF_x1, model = "normal", xmodel = "unif"), nsim = 500, dim = 2)
+  sx <- simulate(dgp(m = mF_x1, model = "normal", xmodel = "unif"), nsim = 500L,
+    nsimtest = 100L, dim = 2)
   expect_s3_class(sx, c("simdgp", "data.frame"))
   expect_identical(nrow(sx), 500L)
   expect_identical(ncol(sx), 4L) # x1, x2, y, trt
   expect_true(all(sx$X1 >= 0 & sx$X1 <= 1))
+  test <- attributes(sx)$testxdf
+  expect_identical(nrow(test), 100L)
+  expect_identical(ncol(test), 3L) # x1, x2, trt
+  expect_true(all(test$X1 >= 0 & test$X1 <= 1))
 
   sx2 <- simulate(dgp(), nsim = 500, dim = 5)
   expect_identical(nrow(sx2), 500L)
@@ -82,3 +87,10 @@ test_that("predict works properly", {
   expect_equal(tau, tau2)
 })
 
+test_that("character function call properly handled", {
+  sx <- simulate(dgp(p = "0.5", model = "normal", xmodel = "unif"), nsim = 500L,
+    nsimtest = 100L, dim = 2)
+  tau <- predict(sx, newdata = sx)
+  expect_true(all(tau[, "pfct"] == 0.5))
+  expect_error(simulate(dgp(p = "ax")))
+})
