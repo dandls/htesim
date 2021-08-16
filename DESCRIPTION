@@ -2,29 +2,37 @@ Package: htesim
 Title: Conducting Extensive Simulation Studies of Heterogeneous Treatment Effect Estimation 
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "Susanne",
+    c(person(given = "Susanne",
            family = "Dandl",
            role = c("aut", "cre"),
            email = "dandl.susanne@gmail.com",
-           comment = c(ORCID = "0000-0003-4324-4163"))
+           comment = c(ORCID = "0000-0003-4324-4163")),
+           person(given = "Torsten", family = "Hothorn", role = c("aut"), email = "Torsten.Hothorn@R-project.org",
+                    comment = c(ORCID = "0000-0001-8301-0471")))
 Maintainer: Susanne Dandl <dandl.susanne@gmail.com>
 Description: Framework to simulate data for simulation studies to evaluate methods for estimating heterogeneous treatment effects.  
-License: MIT + file LICENSE
-URL: 
-BugReports: 
+License: GPL-2 | GPL-3
+URL: https://github.com/susanne-207/htesim
+BugReports: https://github.com/susanne-207/htesim/issues
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Depends:
+    R (>= 3.5.0)
 Imports: 
-    checkmate
+    checkmate,
+    stats
 Suggests: 
     testthat (>= 3.0.0),
-    mlt,
-    trtf,
+    basefun,
     tram,
+    trtf,
+    mlt,
     survival,
     knitr,
-    rmarkdown
+    rmarkdown,
+    lattice,
+    latticeExtra
 Config/testthat/edition: 3
 VignetteBuilder: knitr

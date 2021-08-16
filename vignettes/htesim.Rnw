@@ -8,6 +8,9 @@
 \usepackage{rotating}
 %% need no \usepackage{Sweave}
 
+%% index file
+%\VignetteIndexEntry{htesim: Simulation Study Framework}
+
 %% additional commands
 \newcommand{\squote}[1]{`{#1}'}
 \newcommand{\dquote}[1]{``{#1}''}
@@ -499,7 +502,7 @@ colornams <- lookup[names(cols)]
 @
 
 This colour coding is needed for further plotting options.
-<<lattice>>=
+<<lattice, warnings = FALSE>>=
 library("lattice")
 library("latticeExtra")
 

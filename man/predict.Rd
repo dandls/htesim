@@ -6,14 +6,16 @@
 \alias{predict.simdgp}
 \title{Predict ground truth effects for new data}
 \usage{
-\method{predict}{dgp}(object, newdata)
+\method{predict}{dgp}(object, newdata, ...)
 
-\method{predict}{simdgp}(object, newdata)
+\method{predict}{simdgp}(object, newdata, ...)
 }
 \arguments{
 \item{object}{(dgp/simdgp) Manual for data generation (\code{dgp}) or generated dataset (\code{simdgp}).}
 
 \item{newdata}{(data.frame) New data to predict on.}
+
+\item{...}{Additional optional arguments.}
 }
 \value{
 data.frame with true values of

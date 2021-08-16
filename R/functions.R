@@ -13,7 +13,6 @@
 #' and \code{tF_max_x1_x5} to \deqn{\max{x_1 + x_2 + x_3, 0} - \max{x_4 + x_5, 0}}{max(x1 + x2 + x3, 0) - max(x4 + x5, 0).}
 #'
 #' @param x (data.frame)
-#' @param h (function) Helper function.
 #'
 #' @return vector of corresponding treatment effects
 #'

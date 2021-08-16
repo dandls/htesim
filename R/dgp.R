@@ -41,7 +41,8 @@
 #' dgpC <- dgp(p = pF_x2_x3, m = mF_log_x1_x3, t = 1, model = "normal", xmodel = "normal")
 #'
 #' # Nie and Wager (2020) - Setup D
-#' dgpD <- dgp(p = pF_exp_x1_x2, m = mF_max2_x1_x5, t = tF_max_x1_x5, model = "normal", xmodel = "normal")
+#' dgpD <- dgp(p = pF_exp_x1_x2, m = mF_max2_x1_x5, t = tF_max_x1_x5,
+#' model = "normal", xmodel = "normal")
 #'
 #' @export
 dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, ol = 0, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
@@ -103,6 +104,7 @@ sanitize_fct <- function(fct, call) {
 
 
 #' @title Simulate from a given dgp object
+#' @import stats
 #' @description Simulate data from a given \code{dgp} object.
 #' @param object (list/gpd) Manual for data generation.
 #' @param nsim (numeric(1)) Number of observations (n), default 1.
@@ -110,6 +112,7 @@ sanitize_fct <- function(fct, call) {
 #' @param dim (numeric(1)) Dimension, number of predictors (p), default 4.
 #' @param nsimtest (numeric(1)) Number of observations (n) for test dataset.
 #' Default NULL means that no test dataset is generated.
+#' @param ... Additional optional arguments.
 #' @seealso \code{\link{dgp}}
 #' @return data.frame of class simdpg with columns: x, y and trt and attributes
 #'  * \code{truth}: the  \code{object}
@@ -133,7 +136,7 @@ sanitize_fct <- function(fct, call) {
 #' head(testdf)
 #'
 #' @export
-simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL) {
+simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4, nsimtest = NULL, ...) {
 
   ###  input checks
   checkmate::assertIntegerish(nsim, lower = 1, len = 1, any.missing = FALSE)
@@ -228,7 +231,7 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL
   if (model == "weibull") {
     ### sample censoring times from the _marginal_ distribution
     ### => Prob(cens < y) ~ .5
-    cens <- simulate(mlt::as.mlt(tram::Coxph(y ~ 1, data = data.frame(y = y),
+    cens <- stats::simulate(mlt::as.mlt(tram::Coxph(y ~ 1, data = data.frame(y = y),
       log_first = TRUE)))
     cens <- trtf:::.R2vec(cens)
     y <- survival::Surv(ifelse(y < cens, y, cens), ifelse(y < cens, 1, 0))
@@ -256,6 +259,7 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL
 #' @title Predict ground truth effects for new data
 #' @param object (dgp/simdgp) Manual for data generation (\code{dgp}) or generated dataset (\code{simdgp}).
 #' @param newdata (data.frame) New data to predict on.
+#' @param ... Additional optional arguments.
 #' @return data.frame with true values of
 #' pfct (pi(x)), mfct (mu(x)), tfct (tau(x)) and sdfct (sd for normal model).
 #' @examples
@@ -268,7 +272,7 @@ simulate.dgp <- function(object, nsim = 1, dim = 4, nsimtest = NULL, seed = NULL
 #' pred2 <- predict(sim1, newdata)
 #' all.equal(pred1, pred2)
 #' @export
-predict.dgp <- function(object, newdata) {
+predict.dgp <- function(object, newdata, ...) {
   checkmate::assert_data_frame(newdata)
   atr <- object[sapply(object, is.function)]
   ret <- sapply(atr, function(f) f(newdata))
@@ -277,7 +281,7 @@ predict.dgp <- function(object, newdata) {
 
 #' @rdname predict
 #' @export
-predict.simdgp <- function(object, newdata) {
+predict.simdgp <- function(object, newdata, ...) {
   objectdgp <- attributes(object)$truth
   predict.dgp(objectdgp, newdata)
 }

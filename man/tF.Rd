@@ -21,8 +21,6 @@ tF_max_x1_x5(x)
 }
 \arguments{
 \item{x}{(data.frame)}
-
-\item{h}{(function) Helper function.}
 }
 \value{
 vector of corresponding treatment effects
