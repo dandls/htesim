@@ -44,8 +44,8 @@ HONESTY <- FALSE # set to TRUE to show also the results for honest forests
 source("helpers.R")
 
 #---- Plots ----
-plot_results(normalA, scA, ylim = c(-.1, 1.66))
-plot_results(normalB, scB, ylim = c(-.1, 1.66))
+plot_results(normalA, scA, ylim = c(-.1, 1.61), cexstrip = 1)
+plot_results(normalB, scB, ylim = c(-.1, 1.61), cexstrip = 1)
 
 #---- Results table ----
 lev <- c("pF_eta_x1_x2.mF_sin_x1_x5.tF_div_x1_x2" = "Setup A",

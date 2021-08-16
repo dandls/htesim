@@ -30,7 +30,7 @@ if ("grf" %in% installed.packages() & packageVersion("grf") >= "1.2.0") {
   library("grf")
 }
 
-devtools::install_github("susanne-207/htesim", auth_token = "56699e45d01135ca797b7e14209eb23d4eeee4b8")
+# devtools::install_github("susanne-207/htesim")
 library("htesim")
 
 packages <- c(packages, "htesim", "model4you", "partykit", "grf")

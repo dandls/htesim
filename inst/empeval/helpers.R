@@ -77,6 +77,9 @@ scB <- function(which.given, ..., factor.levels) {
 mypanel <- function(x, y, groups, subscripts, ...) {
   fill <- cols[intersect(levels(x), unique(x))]
   panel.bwplot(x = x, y = y, fill = fill, ...)
+  if (exists("use_diff") && use_diff) {
+    panel.abline(h=0, lty = "dotted")
+  }
   tapply(1:length(y), groups[subscripts], function(i) {
     xi <- 1:nlevels(x)
     yi <- y[i][match(xi, unclass(x[i]))]
@@ -139,24 +142,42 @@ if (HONESTY) {
 Nna <- sum(is.na(res$result.res))
 res <- refactor(res, method.nams =  methodnams)
 
+ylab <- expression(paste(frac(1, 1000), "",
+  sum((tau(x[i]) - hat(tau)(x[i]))^2, i == 1, 1000)))
+
+# If use_diff = TRUE, display MSE difference to cf: MSE(...) - MSE(cf)
+if (exists("use_diff") && use_diff) {
+	res <- res %>% 
+	  group_by(problem, repl, i, nd, ol, seed) %>% 
+	  arrange(algorithm) %>% 
+	  mutate(value = `value` - `value`[algorithm == "cf"])
+
+	res <- res[res$algorithm != "cf", ]
+	res$algorithm <- droplevels(res$algorithm)
+
+	ylab <- "MSE(...) - MSE(cf)"
+}
 
 ### w/o overlap: W
 normalA <- subset(res, ol == 0)
 ### w overlap: W - .5
 normalB <- subset(res, ol == 0.5)
 
-ylab <- expression(paste(frac(1, 1000), "",
-  sum((tau(x[i]) - hat(tau)(x[i]))^2, i == 1, 1000)))
-
-
-
 ## Omit color coding in figures for methods not shown
 colsub <- cols[as.character(levels(res$algorithm))]
 if (HONESTY) colsub <- cols[c("mob",  "mob-honest", "hybrid",  "hybrid-honest",
   "equalized", "equalized-honest", "mobcf", "mobcf-honest", "cf",  "cf-honest")]
 
+nrcols <- 5L
+
+if (exists("use_diff") && use_diff) {
+  colsub <- colsub[-5]
+  colornams <- colornams[-5]
+  nrcols <- 4L
+}
+
 mykey <- list(space="top", rectangles=list(col=colsub),
-  text=list(colornams), columns = 5)
+  text=list(colornams), columns = nrcols)
 
 ### plots
 plot_results <- function(pltdata, sc, ylim, cexstrip = 0.5, rot = 60) {
