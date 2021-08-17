@@ -35,6 +35,9 @@
 \newcommand{\Xspace}{\mathcal{X}}
 \DeclareMathOperator{\ND}{N}
 
+%\VignetteEngine{knitr::knitr}
+%\VignetteEncoding{UTF-8}
+
 %% for internal use
 \newcommand{\fixme}[1]{\emph{\marginpar{FIXME} (#1)}}
 \newcommand{\readme}[1]{\emph{\marginpar{README} (#1)}}
@@ -81,7 +84,7 @@ opts_chunk$set(
 )
 @
 
-<<setup, echo = FALSE, results=hide>>=
+<<setup, echo = FALSE>>=
 suppressWarnings(RNGversion("3.5.2"))
 options(width = 70)
 @
@@ -588,19 +591,19 @@ If \code{ol} is 0.5, half of the treatment effect is added to the
 prognostic effect.
 Finally we can plot the results
 \newpage
-<<plot, fig.width=10, fig.height = 10.5, fig.width = 13>>=
+<<plot, results = "asis", fig.height = 14.5, fig.width = 14>>=
 plot_results(subset1, sc = sc)
 @
 \newpage
-<<plot2, fig.width=10, fig.height = 10.5, fig.width = 13>>=
+<<plot2, results = "asis", fig.height = 14.5, fig.width = 14>>=
 plot_results(subset2, sc = sc)
 @
 \newpage
-<<plot3, fig.width=10, fig.height = 10.5, fig.width = 13>>=
+<<plot3, results = "asis", fig.height = 14.5, fig.width = 14>>=
 plot_results(subset3, sc = sc)
 @
 \newpage
-<<plot4, fig.width=10, fig.height = 10.5, fig.width = 13>>=
+<<plot4, results = "asis", fig.height = 14.5, fig.width = 14>>=
 plot_results(subset4, sc = sc)
 @
 

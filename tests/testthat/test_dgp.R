@@ -27,21 +27,21 @@ test_that("simulate returns correct output for normal model", {
 })
 
 
-# test_that("simulate returns correct output for diverse models", {
-#   library("tram")
-#
-#   # weibull
-#   sw <- simulate(dgp(model = "weibull"), nsim = 500, dim = 2)
-#   expect_s3_class(sw$y, "Surv")
-#
-#   # polr
-#   sp <- simulate(dgp(model = "polr"), nsim = 500, dim = 2)
-#   expect_s3_class(sp$y, c("ordered", "factor"))
-#
-#   # binomial
-#   sb <- simulate(dgp(model = "binomial"), nsim = 500, dim = 2)
-#   expect_s3_class(sb$y, "factor")
-# })
+test_that("simulate returns correct output for diverse models", {
+  library("tram")
+
+  # weibull
+  sw <- simulate(dgp(model = "weibull"), nsim = 500, dim = 2)
+  expect_s3_class(sw$y, "Surv")
+
+  # polr
+  sp <- simulate(dgp(model = "polr"), nsim = 500, dim = 2)
+  expect_s3_class(sp$y, c("ordered", "factor"))
+
+  # binomial
+  sb <- simulate(dgp(model = "binomial"), nsim = 500, dim = 2)
+  expect_s3_class(sb$y, "factor")
+})
 
 
 test_that("setting seed works", {
