@@ -6,9 +6,9 @@
 \alias{predict.simdgp}
 \title{Predict ground truth effects for new data}
 \usage{
-\method{predict}{dgp}(object, newdata, ...)
+\method{predict}{dgp}(object, newdata = NULL, ...)
 
-\method{predict}{simdgp}(object, newdata, ...)
+\method{predict}{simdgp}(object, newdata = NULL, ...)
 }
 \arguments{
 \item{object}{(dgp/simdgp) Manual for data generation (\code{dgp}) or generated dataset (\code{simdgp}).}

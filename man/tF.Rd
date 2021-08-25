@@ -3,6 +3,7 @@
 \name{tF}
 \alias{tF}
 \alias{tF_exp_x1_x2}
+\alias{h_exp}
 \alias{tF_exp2_x1_x2}
 \alias{tF_div_x1_x2}
 \alias{tF_log_x1_x2}
@@ -10,6 +11,8 @@
 \title{Treatment effect functions}
 \usage{
 tF_exp_x1_x2(x)
+
+h_exp(x)
 
 tF_exp2_x1_x2(x)
 

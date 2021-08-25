@@ -233,7 +233,7 @@ simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4, nsimtest = NULL
     ### => Prob(cens < y) ~ .5
     cens <- stats::simulate(mlt::as.mlt(tram::Coxph(y ~ 1, data = data.frame(y = y),
       log_first = TRUE)))
-    cens <- trtf:::.R2vec(cens)
+    cens <- as.double(mlt::R(cens))
     y <- survival::Surv(ifelse(y < cens, y, cens), ifelse(y < cens, 1, 0))
   }
   df <- data.frame(x, y = y, trt = factor(trt))
@@ -272,7 +272,7 @@ simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4, nsimtest = NULL
 #' pred2 <- predict(sim1, newdata)
 #' all.equal(pred1, pred2)
 #' @export
-predict.dgp <- function(object, newdata, ...) {
+predict.dgp <- function(object, newdata = NULL, ...) {
   checkmate::assert_data_frame(newdata)
   atr <- object[sapply(object, is.function)]
   ret <- sapply(atr, function(f) f(newdata))
@@ -281,7 +281,10 @@ predict.dgp <- function(object, newdata, ...) {
 
 #' @rdname predict
 #' @export
-predict.simdgp <- function(object, newdata, ...) {
+predict.simdgp <- function(object, newdata = NULL, ...) {
+  if (is.null(newdata)) {
+    newdata <- data.frame(object)
+  }
   objectdgp <- attributes(object)$truth
   predict.dgp(objectdgp, newdata)
 }

@@ -26,6 +26,8 @@ tF_exp_x1_x2 <- function(x) {
   return(h_exp(x[,"X1"]) * h_exp(x[,"X2"]))
 }
 
+#' @rdname tF
+#' @export
 h_exp <- function(x) {
   return(1 + 1 / (1 + exp(-20 * (x - 1/3))))
 }
