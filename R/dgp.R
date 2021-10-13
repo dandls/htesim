@@ -45,7 +45,7 @@
 #' model = "normal", xmodel = "normal")
 #'
 #' @export
-dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, ol = 0, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif")) {
+dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, ol = 0, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif"), rmvar = NULL) {
 
   cl <- match.call()
 
@@ -76,7 +76,7 @@ dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, ol = 0, model = c("normal", "weib
   ret <- list(pfct = pfct, mfct = mf, tfct = tfct, sdfct = sdfct, ol = ol,
     model = model, xmodel = xmodel, pname = deparse(substitute(p)),
     mname = deparse(substitute(m)), tname = deparse(substitute(t)),
-    sdname = deparse(substitute(sd)))
+    sdname = deparse(substitute(sd)), rmvar = rmvar)
   class(ret) <- "dgp"
   return(ret)
 }
@@ -236,11 +236,24 @@ simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4, nsimtest = NULL
     cens <- as.double(mlt::R(cens))
     y <- survival::Surv(ifelse(y < cens, y, cens), ifelse(y < cens, 1, 0))
   }
+  ncolx <- ncol(x)
+
+  # remove variables if specified
+  rmvar <- object$rmvar
+  if (!is.null(rmvar)) {
+    x <- x[, !colnames(x) %in% rmvar]
+  }
+
+  # training data set
   df <- data.frame(x, y = y, trt = factor(trt))
   attributes(df)$truth <- object
+
   ### test data set (predictor variables only)
   if (!is.null(nsimtest)) {
-    colnames(testx) <- paste("X", 1:ncol(x), sep = "")
+    colnames(testx) <- paste("X", 1:ncolx, sep = "")
+    if (!is.null(rmvar)) {
+      testx <- testx[, !colnames(testx) %in% rmvar]
+    }
     testxdf <- as.data.frame(testx)
     testxdf$trt <- factor(c(0, 1))[2]
     attributes(df)$testxdf <- testxdf

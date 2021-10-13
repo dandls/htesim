@@ -92,3 +92,20 @@ test_that("character function call properly handled", {
   expect_true(all(tau[, "pfct"] == 0.5))
   expect_error(simulate(dgp(p = "ax")))
 })
+
+test_that("removing variables after sampling works", {
+  test_if_included <- function(sim, x) {
+    expect_true(all(!x %in% names(sim)))
+    testxdf <- attributes(sim)$testxdf
+    expect_true(all(!x %in% names(testxdf)))
+    expect_true(all(names(testxdf) %in% names(sim)))
+  }
+  # one variable
+  dg1 <- dgp(rmvar = "X2")
+  sim1 <- simulate(dg1, nsim = 100, dim = 10, nsimtest = 100)
+  test_if_included(sim1, "X2")
+  # multiple variables
+  dg2 <- dgp(rmvar =  c("X2", "X4", "X6"))
+  sim2 <- simulate(dg2, nsim = 100, dim = 10, nsimtest = 100)
+  test_if_included(sim2, c("X2", "X4", "X6"))
+})
