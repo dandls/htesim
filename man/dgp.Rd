@@ -11,7 +11,8 @@ dgp(
   sd = 1,
   ol = 0,
   model = c("normal", "weibull", "binomial", "polr"),
-  xmodel = c("normal", "unif")
+  xmodel = c("normal", "unif"),
+  rmvar = NULL
 )
 }
 \arguments{
@@ -33,11 +34,15 @@ The default is ol = 0 which means that the conditional mean does not depend on t
 \item{model}{("normal"|"weibull"|"binomial"|"polr") Name of used model to simulate outcome y.}
 
 \item{xmodel}{("normal") Name of used model to simulate covariates x.}
+
+\item{rmvar}{(character) Name(s) of variable(s) to be removed after simulation of the training data,
+variables names always start with X plus a number, e.g., "X5".
+The default NULL means no variable is removed.}
 }
 \value{
 list of class gpd with entries:
-pfct (pi(x)), mfct (mu(x)), tfct (tau(x)), sdfct (sd for normal model),
-model (model used)).
+pfct (\eqn{\pi(x)}), mfct (\eqn{\mu(x)}), tfct (\eqn{\tau(x)}), sdfct (sd for normal model),
+model (model used), etc.
 }
 \description{
 Create manual for data generation
@@ -69,7 +74,7 @@ model = "normal", xmodel = "normal")
 \references{
 Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
 
-Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Ef- fects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076, https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, URL https://doi.org/10.1093/biomet/asaa076.
+Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Effects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076.
 }
 \seealso{
 \code{\link{pF}}, \code{\link{mF}} and \code{\link{tF}}

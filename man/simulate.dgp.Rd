@@ -24,7 +24,8 @@ Default NULL means that no test dataset is generated.}
 data.frame of class simdpg with columns: x, y and trt and attributes
 \itemize{
 \item \code{truth}: the  \code{object}
-\item \code{testxdf}: the test data with \code{nsimtest} rows and \code{dim} columns
+\item \code{testxdf}: the test data with \code{nsimtest} rows and \code{dim} columns.
+Test datasets are not affected from specification of \code{rmvar} in \code{object} (see \link{dgp}).
 \item \code{runseed}: an additional seed (e.g., to run a method)
 }
 }

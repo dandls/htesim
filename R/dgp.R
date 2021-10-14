@@ -11,15 +11,18 @@
 #' The default is ol = 0 which means that the conditional mean does not depend on treatment effect.
 #' @param model ("normal"|"weibull"|"binomial"|"polr") Name of used model to simulate outcome y.
 #' @param xmodel ("normal") Name of used model to simulate covariates x.
+#' @param rmvar (character) Name(s) of variable(s) to be removed after simulation of the training data,
+#' variables names always start with X plus a number, e.g., "X5".
+#' The default NULL means no variable is removed.
 #' @return list of class gpd with entries:
-#' pfct (pi(x)), mfct (mu(x)), tfct (tau(x)), sdfct (sd for normal model),
-#' model (model used)).
+#' pfct (\eqn{\pi(x)}), mfct (\eqn{\mu(x)}), tfct (\eqn{\tau(x)}), sdfct (sd for normal model),
+#' model (model used), etc.
 #' @seealso \code{\link{pF}}, \code{\link{mF}} and \code{\link{tF}}
 #' for predefined functions for \code{p}, \code{m} and \code{t}.
 #' @references
 #' Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
 #'
-#' Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Ef- fects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076, https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, URL https://doi.org/10.1093/biomet/asaa076.
+#' Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Effects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076.
 #'
 #' @examples
 #' # Wager and Athey (2018) - first experiment
@@ -116,7 +119,8 @@ sanitize_fct <- function(fct, call) {
 #' @seealso \code{\link{dgp}}
 #' @return data.frame of class simdpg with columns: x, y and trt and attributes
 #'  * \code{truth}: the  \code{object}
-#'  * \code{testxdf}: the test data with \code{nsimtest} rows and \code{dim} columns
+#'  * \code{testxdf}: the test data with \code{nsimtest} rows and \code{dim} columns.
+#'  Test datasets are not affected from specification of `rmvar` in `object` (see \link{dgp}).
 #'  * \code{runseed}: an additional seed (e.g., to run a method)
 #' @examples
 #'
@@ -241,6 +245,7 @@ simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4, nsimtest = NULL
   # remove variables if specified
   rmvar <- object$rmvar
   if (!is.null(rmvar)) {
+    checkmate::assertTRUE(all(rmvar %in% colnames(x)))
     x <- x[, !colnames(x) %in% rmvar]
   }
 
@@ -251,9 +256,6 @@ simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4, nsimtest = NULL
   ### test data set (predictor variables only)
   if (!is.null(nsimtest)) {
     colnames(testx) <- paste("X", 1:ncolx, sep = "")
-    if (!is.null(rmvar)) {
-      testx <- testx[, !colnames(testx) %in% rmvar]
-    }
     testxdf <- as.data.frame(testx)
     testxdf$trt <- factor(c(0, 1))[2]
     attributes(df)$testxdf <- testxdf

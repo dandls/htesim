@@ -97,8 +97,7 @@ test_that("removing variables after sampling works", {
   test_if_included <- function(sim, x) {
     expect_true(all(!x %in% names(sim)))
     testxdf <- attributes(sim)$testxdf
-    expect_true(all(!x %in% names(testxdf)))
-    expect_true(all(names(testxdf) %in% names(sim)))
+    expect_true(all(x %in% names(testxdf)))
   }
   # one variable
   dg1 <- dgp(rmvar = "X2")
@@ -108,4 +107,11 @@ test_that("removing variables after sampling works", {
   dg2 <- dgp(rmvar =  c("X2", "X4", "X6"))
   sim2 <- simulate(dg2, nsim = 100, dim = 10, nsimtest = 100)
   test_if_included(sim2, c("X2", "X4", "X6"))
+
+})
+
+
+test_that("error occurs of name of variable to remove > dim", {
+  dg <- dgp(rmvar = "X9")
+  expect_error(simulate(dg, nsim = 100, dim = 5, nsimtest = 5))
 })
