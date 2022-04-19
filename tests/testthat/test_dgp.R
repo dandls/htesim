@@ -115,3 +115,11 @@ test_that("error occurs of name of variable to remove > dim", {
   dg <- dgp(rmvar = "X9")
   expect_error(simulate(dg, nsim = 100, dim = 5, nsimtest = 5))
 })
+
+
+test_that("correlated features are produces", {
+  dgp1 <- dgp(p = pF_x1, m = mF_x1, t = 0, model = "normal", xmodel = "correlated")
+  sim1 <- simulate(dgp1, nsim = 1000L, d = 2L, nsimtest = 1000L) # in paper d = {2, 5, 10, 15, 20, 30}
+  predict(sim1)
+  expect_true(all(cor(sim1[, 1:2]) > 0.85))
+})

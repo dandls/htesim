@@ -11,7 +11,7 @@ dgp(
   sd = 1,
   ol = 0,
   model = c("normal", "weibull", "binomial", "polr"),
-  xmodel = c("normal", "unif"),
+  xmodel = c("normal", "unif", "correlated"),
   rmvar = NULL
 )
 }
@@ -33,7 +33,9 @@ The default is ol = 0 which means that the conditional mean does not depend on t
 
 \item{model}{("normal"|"weibull"|"binomial"|"polr") Name of used model to simulate outcome y.}
 
-\item{xmodel}{("normal") Name of used model to simulate covariates x.}
+\item{xmodel}{("normal"|"unif"|"correlated") Name of used model to simulate covariates x.
+Currently implemented are normal distribution, uniform distribution and
+correlated multivariate normal distribution (correlation is 0.9 between variables).}
 
 \item{rmvar}{(character) Name(s) of variable(s) to be removed after simulation of the training data,
 variables names always start with X plus a number, e.g., "X5".

@@ -10,7 +10,9 @@
 #' @param ol (numeric(1)) how much of predictive effect is added to prognostic effect (overlay).
 #' The default is ol = 0 which means that the conditional mean does not depend on treatment effect.
 #' @param model ("normal"|"weibull"|"binomial"|"polr") Name of used model to simulate outcome y.
-#' @param xmodel ("normal") Name of used model to simulate covariates x.
+#' @param xmodel ("normal"|"unif"|"correlated") Name of used model to simulate covariates x.
+#' Currently implemented are normal distribution, uniform distribution and
+#' correlated multivariate normal distribution (correlation is 0.9 between variables).
 #' @param rmvar (character) Name(s) of variable(s) to be removed after simulation of the training data,
 #' variables names always start with X plus a number, e.g., "X5".
 #' The default NULL means no variable is removed.
@@ -48,7 +50,7 @@
 #' model = "normal", xmodel = "normal")
 #'
 #' @export
-dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, ol = 0, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif"), rmvar = NULL) {
+dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, ol = 0, model = c("normal", "weibull", "binomial", "polr"), xmodel = c("normal", "unif", "correlated"), rmvar = NULL) {
 
   cl <- match.call()
 
@@ -65,7 +67,7 @@ dgp <- function(p = 0.5, m = 0, t = 0, sd = 1, ol = 0, model = c("normal", "weib
     })
   xmodel <- tryCatch({match.arg(xmodel)},
     error = function(e) {
-      stop("Assertion on 'xmodel' failed: Must be element of set {'normal', 'unif'}")
+      stop("Assertion on 'xmodel' failed: Must be element of set {'normal', 'unif', 'correlated'}")
     })
 
   pfct <- sanitize_fct(p, cl$p)
@@ -188,6 +190,17 @@ simulate.dgp <- function(object, nsim = 1, seed = NULL, dim = 4, nsimtest = NULL
     x <- matrix(runif(nsim * dim), nrow = nsim, ncol = dim)
     if (!is.null(nsimtest)) {
       testx <- matrix(runif(nsimtest * dim), nrow = nsimtest, ncol = dim)
+    }
+  } else if (object$xmodel == "correlated") {
+    if (!requireNamespace("mvtnorm", quietly = TRUE)) {
+      stop("Package 'mvtnorm' needed to sample 'correlated' features. Please install it.", call. = FALSE)
+    }
+    sigma <- matrix(rep(0.9, dim^2), ncol = dim)
+    diag(sigma) <- 1L
+    mean <- rep(0, dim)
+    x <- mvtnorm::rmvnorm(nsim, mean, sigma)
+    if (!is.null(nsimtest)) {
+      testx <- mvtnorm::rmvnorm(nsimtest, mean, sigma)
     }
   }
   colnames(x) <- paste("X", 1:ncol(x), sep = "")
