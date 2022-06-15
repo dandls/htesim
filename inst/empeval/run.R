@@ -37,8 +37,6 @@ run <- function(
   honesty = FALSE,
   ### see progress bar
   TRACE = TRUE,
-  ### return tau as restricted mean survival time (only for survival data)
-  RMST = FALSE,
   ### return object not MSE
   object = FALSE,
   ### stabilize splits in grf::causal_forests
@@ -209,67 +207,67 @@ fun.cfmobhonest <- function(instance, ...) {
     prognostic_effect = TRUE, honesty = TRUE)
 }
 
-fun.mob <- function(instance, RMST = FALSE, ...) {
+fun.mob <- function(instance, ...) {
   mob <- run(instance, propensities = FALSE, causal_forest = FALSE,
-    honesty = FALSE, RMST = RMST, ...)
+    honesty = FALSE, ...)
   return(mob)
 }
 
-fun.mobhonest <- function(instance, RMST = FALSE, ...) {
+fun.mobhonest <- function(instance, ...) {
   mob <- run(instance, propensities = FALSE,
-    causal_forest = FALSE, honesty = TRUE, RMST = RMST, ...)
+    causal_forest = FALSE, honesty = TRUE, ...)
   return(mob)
 }
 
-fun.hybrid <- function(instance, RMST = FALSE, ...) {
+fun.hybrid <- function(instance, ...) {
   mob <- run(instance, propensities = TRUE, causal_forest = FALSE,
-    honesty = FALSE, RMST = RMST, ...)
+    honesty = FALSE, ...)
   return(mob)
 }
 
-fun.hybridhonest <- function(instance, RMST = FALSE, ...) {
+fun.hybridhonest <- function(instance, ...) {
   mob <- run(instance,  propensities = TRUE, causal_forest = FALSE,
-      honesty = TRUE, RMST = RMST, ...)
+      honesty = TRUE, ...)
   return(mob)
 }
 
-fun.equalized <- function(instance, RMST = FALSE, ...) {
+fun.equalized <- function(instance, ...) {
   mob <- run(instance, propensities = TRUE, marginal_mean = TRUE,
-    causal_forest = FALSE, honesty = FALSE, RMST = RMST, ...)
+    causal_forest = FALSE, honesty = FALSE, ...)
   return(mob)
 }
 
 
-fun.equalizedhonest <- function(instance, RMST = FALSE, ...) {
+fun.equalizedhonest <- function(instance, ...) {
   mob <- run(instance, propensities = TRUE, marginal_mean = TRUE,
-    causal_forest = FALSE, honesty = TRUE, RMST = RMST, ...)
+    causal_forest = FALSE, honesty = TRUE, ...)
   return(mob)
 }
 
-fun.mobcf <- function(instance, RMST = FALSE, ...) {
+fun.mobcf <- function(instance, ...) {
     mob <- run(instance, propensities = TRUE, marginal_mean = TRUE,
       prognostic_effect = FALSE, causal_forest = FALSE, honesty = FALSE,
-      RMST = RMST, ...)
+     ...)
     return(mob)
   }
 
 
-fun.mobcfhonest <- function(instance, RMST = FALSE, ...) {
+fun.mobcfhonest <- function(instance, ...) {
   mob <- run(instance, propensities = TRUE, marginal_mean = TRUE,
     prognostic_effect = FALSE, causal_forest = FALSE, honesty = TRUE,
-    RMST = RMST, ...)
+   ...)
   return(mob)
 }
 
 # Average Treatment Effect Methods: get coef from base model
 # original treatment indicator
-fun.bm <- function(instance, RMST = FALSE, ...) {
+fun.bm <- function(instance, ...) {
  run(instance, propensities = FALSE, causal_forest = FALSE,
-    honesty = FALSE, RMST = RMST, ATE = TRUE, ...)
+    honesty = FALSE, ATE = TRUE, ...)
 }
 
 # orthogonalized treatment indicator
-fun.bmhybrid <-  function(instance, RMST = FALSE, ...) {
+fun.bmhybrid <-  function(instance, ...) {
   run(instance, propensities = TRUE, causal_forest = FALSE,
-  honesty = FALSE, RMST = RMST, ATE = TRUE, ...)
+  honesty = FALSE, ATE = TRUE, ...)
 }
