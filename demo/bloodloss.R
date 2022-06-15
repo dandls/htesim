@@ -60,7 +60,7 @@ blood$mode <- factor(blood$mode, levels = 1:3,
 blood$VCmode <- blood$mode
 levels(blood$VCmode) <- c("vaginal", "cesarean", "cesarean")
 
-# VCmode as dummy variable (necessary for causal forests)
+# VCmode as dummy variable (necessary for causal forests to estimate What)
 blood$VCmodedummy <- c(0, 1)[blood$VCmode]
 
 # create intervals of blood loss
@@ -107,7 +107,7 @@ NumTrees <- 500
 min_size_group <- 7L
 min_node_size <- min_size_group*2L
 
-# Additional setups for model-based forest to be equal to causal forest
+# Setup for model-based forest
 ctrl <- ctree_control(testtype = "Univ", minsplit = 2,
   minbucket = min_node_size,
   mincriterion = 0, saveinfo = FALSE)
@@ -137,11 +137,10 @@ p_dp <- ggplot(blood, aes(MBL)) +
   xlab("MBL")
  p_dp
 
-#--- Causal forest ----
+
+#--- What  ---
 # Dummy encode splitting variables
 x_dummy <- dummy_cols(blood[, x], remove_first_dummy = TRUE, remove_selected_columns = TRUE)
-
-#--- Personalized Model ---
 set.seed(1234L)
 cf <- causal_forest(X = as.matrix(x_dummy),
   Y = blood$MBL, W = blood$VCmodedummy,
@@ -149,70 +148,28 @@ cf <- causal_forest(X = as.matrix(x_dummy),
   mtry = mtry,
   num.trees = NumTrees, honesty = FALSE)
 W.hat <- cf$W.hat
-Y.hat <- cf$Y.hat
 
-# save(W.hat, Y.hat, file = "What_Yhat.rda")
-pred <- predict(cf, estimate.variance = TRUE)  # OUT-OF-BAG
-pred_df <- data.frame(pred)
 
-#--- Base Model ---
-blood$VCmodecenter <- blood$VCmodedummy - W.hat
-blood$MBLcenter <- blood$MBL - Y.hat
-lin_MBL <- lm(MBLcenter ~ VCmodecenter - 1, data = blood)
-summary(lin_MBL)
-tau_lin <- coef(lin_MBL)["VCmodecenter"]
-
-p_cf <- ggplot(pred_df, aes(predictions)) +
-  geom_density() +
-  theme +
-  xlab(expression(hat(tau)(x[i]))) +
-  geom_vline(aes(xintercept=tau_lin, linetype = "base model"), colour = "red") +
-  scale_linetype_manual(name = "", values = 2,
-    guide = guide_legend(override.aes = list(color = c("red")))) +
-  theme(legend.position = c(0.25, 0.8), legend.title = element_blank())
-p_cf
-
-#--- Dependence plots ----
-# Replace . by _ in splitting variable names
-dpcf <- cbind(pred, blood)
-
-ps <- lapply(seq_len(nvar), function(i) dp_plot(var_shown[i], dpcf, i = "",
-  beta = "predictions", ytxt = expression(hat(tau))))
-propnams <- str_replace(var_shown, pattern = "\\.", replacement = "_")
-
-ps
-
-#---- Plot estimated propensity scores and estimated centered treatments-----
-#
-# Estimate centered treatments
-update.What <- causal_forest(X = as.matrix(x_dummy),
-  Y = blood$MBL, W = blood$VCmodecenter,
-  min.node.size = min_size_group,
-  mtry = mtry,
-  num.trees = NumTrees, honesty = FALSE)$W.hat
-
-# plot density of propensity scores
 pwhat <- ggplot(blood, aes(x = W.hat, color = VCmode)) +
   stat_density(geom = "line", position = "identity") +
   theme +
   theme(legend.position = "none", legend.title = element_blank()) +
   ylim(c(0, 9)) +
   xlim(c(-0.001, 1.001)) +
-  xlab(expression(hat(pi)(x[i]))) +
+  xlab(expression(hat(pi)(bold(x)))) +
   scale_color_manual(values = cols)
 
-# plot density of estimated centered treatments
-pwhatup <- ggplot(blood, aes(x = update.What, color = VCmode)) +
-  # geom_density(show_guide = FALSE) +
-  stat_density(geom = "line", position = "identity") +
-  theme + theme(legend.title = element_blank()) +
-  ylim(c(0, 9)) + xlab(expression(paste("estimated ", w[i]-hat(pi)(x[i])))) +
-  scale_color_manual(values = cols)
-
-ppi <- ggarrange(pwhat, pwhatup, common.legend = TRUE)
-ppi
+if (SAVE_PLOTS) {
+  if (SAVE_PLOTS) {
+    ggsave(filename = file.path(res_dir, "what_plots.pdf"), plot = pwhat,  width = 3.5, height = 2)
+  } else {
+    pwhat
+  }
+}
 
 #--- Model-based forests ----
+### Conduct local centering of treatment indicator
+blood$VCmodecenter <- blood$VCmodedummy - W.hat
 
 ### Fit base model & analyse treatment effect estimate
 m_MBL <- BoxCox(MBLsurv ~ VCmodecenter, data = blood,
@@ -255,7 +212,7 @@ names(pmd)[length(names(pmd))] <- "tau"
 ptau <- ggplot(pmd, aes(tau)) +
   geom_density() +
   theme +
-  xlab(expression(hat(tau)(x[i]))) +
+  xlab(expression(hat(tau)(bold(x)))) +
   geom_vline(aes(xintercept=coef(m_MBL), linetype = "base model"), colour = "red") +
   scale_linetype_manual(name = "", values = 2, guide = guide_legend(override.aes = list(color = c("red")))) +
   theme(legend.position = c(0.2, 0.8), legend.title = element_blank())

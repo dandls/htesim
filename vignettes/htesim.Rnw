@@ -47,12 +47,12 @@
 \title{\pkg{htesim}: A Simulation Study Framework for Heterogeneous Treatment Effect Estimation}
 \Plaintitle{htesim: A Simulation Study Framework for Heterogeneous Treatment Effect Estimation}
 
-\author{Susanne Dandl\\Ludwig-Maximilians-Universit\"at M\"unchen
-\And Torsten Hothorn\\University of Z\"urich}
+\author{Susanne Dandl\\LMU Munich
+\And Torsten Hothorn\\Universit\"at Z\"urich}
 \Plainauthor{Susanne Dandl, Torsten Hothorn}
 
 \Abstract{
-The \pkg{htestim} package provides an extensive simulation study framework to
+The \pkg{htesim} package provides an extensive simulation study framework to
 evaluate methods to estimate heterogeneous treatment effects.
 }
 \Keywords{heterogeneous treatment effect estimation, simulation study, randomized and observational data}
@@ -113,8 +113,8 @@ study observations with known ground truth treatment effects from them (\code{si
 Users could define their own treatment, prognostic and propensity score functions,
 or they make use of multiple predefined functions (\code{tF, mF, pF}).
 These predefined functions are based on \cite{Wager_Athey_2018}, \cite{Athey_Tibshirani_Wager_2019} and \cite{Nie_Wager_2020}.
-They were also employed by \cite{Dandl_Hothorn_Seibold_2021} to compare multiple forest-based methods.
-A dedicated dataset of the study settings and performances of these methods  is part of this package (\code{data("dandl")})
+Settings of \cite{Nie_Wager_2020}, were also employed by \cite{Dandl_Hothorn_Seibold_2022} to compare multiple forest-based methods.
+A dedicated dataset with the study settings and method performances is part of this package (\code{data("dandl")})
 so that others could reproduce this study and compare the performance of their methods with them.
 
 \proglang{R} offers a few packages that are tailored to causal treatment effect estimation. Many of them generate data based on
@@ -122,7 +122,7 @@ structural equation models (packages \pkg{simcausal} \citep{Sofrygin_Laan_Neugeb
 Other packages only cover special cases like generalized multistate models or survival models
 (packages \pkg{survsim} \citep{Morina_Navarro_2014}, \pkg{gems} \citep{Blaser_Salazar_Estill_2015}).
 
-The package \pkg{causalToolbox} provides the most similar functionalities to
+The package \pkg{causalToolbox} provides the most similar functionality to
 \pkg{htesim}. It mainly focuses on estimation methods, but also includes a function
 to conduct experiments. It offers predefined underlying effect functions but
 no flexibility to use own functions like \pkg{htesim}. Furthermore, it only covers normally distributed outcomes and no other distributions.
@@ -134,12 +134,12 @@ that cover simple scenarios like normally distributed outcomes or covariates but
 also more complex scenarios like Weibull-distributed outcomes to imitate survival data.
 \item[(2)] it gives the user the flexibility to define own effect functions.
 \item[(3)] it provides the necessary functionality to replicate the study of
-\cite{Dandl_Hothorn_Seibold_2021}.
+\cite{Dandl_Hothorn_Seibold_2022}.
 \end{enumerate}
 
 In the upcoming section, the most important functions of \pkg{htesim} are presented
 followed by some examples on how to employ own effect functions and how to
-replicate the study framework of \cite{Dandl_Hothorn_Seibold_2021}.
+replicate the study framework of \cite{Dandl_Hothorn_Seibold_2022}.
 
 \section{Basic Usage} \label{sec:functions}
 
@@ -244,10 +244,10 @@ conditional mean or prognostic effect, \code{tfct} to the treatment effect and
 \section{Advanced Usage}
 \pkg{htesim} also offers the flexibility for users to specify and simulate from their own functions and provides the necessary functionality to replicate previous studies.
 This is demonstrated in this chapter.
-For the former, we use a self-chosen example and for the latter, we replicate the first study setting of \cite{Dandl_Hothorn_Seibold_2021}.
+For the former, we use a self-chosen example and for the latter, we replicate the first study setting of \cite{Dandl_Hothorn_Seibold_2022}.
 
 
-\subsection{Use your own Functions} \label{subsec:ownfunc}
+\subsection{Use Your Own Functions} \label{subsec:ownfunc}
 In Section~\ref{sec:functions} we saw that \code{simulate.dgp} generates a dataset of
 covariates by drawing random numbers from a uniform  or normal distribution.
 These variables are labelled as \code{X1}, \code{X2}, and so on.
@@ -268,7 +268,7 @@ mE_exp_x1_x3 <- function(x) {
   return(exp(x[, "X1"] + 0.3 * x[, "X2"] + 0.4 * x[, "X3"]))
 }
 @
-To receive simulation study data we pass these functions to \code{dgp}. All other arguments were
+To receive simulation study data, we pass these functions to \code{dgp}. All other arguments were
 set to their defaults (normally distributed outcomes and uniformly distributed covariates).
 
 <<dgpowntE>>=
@@ -283,7 +283,7 @@ head(simown)
 
 \subsection{Replicate Study Setting of Dandl et al. (2021)} \label{subsec:dandl}
 We want to motivate readers to compare the results of their methods to the methods investigated in
-\cite{Dandl_Hothorn_Seibold_2021}.
+\cite{Dandl_Hothorn_Seibold_2022}.
 Therefore, the study setting and the corresponding results of the forest approaches are available in
 \pkg{htesim}.
 
@@ -308,7 +308,7 @@ study1 <- dandl[1,]
 
 Since the column names of \code{study1} matches the arguments of \code{dgp} and \code{simulate},
 we can use \code{do.call} to generate the simulated data set.
-The \code{seed} helps us to receive the exact and not approximate study data set of \cite{Dandl_Hothorn_Seibold_2021}.
+The \code{seed} helps us to receive the exact and not approximate study data set of \cite{Dandl_Hothorn_Seibold_2022}.
 
 <<getdata>>=
 dgp1 <- do.call(dgp,
@@ -339,7 +339,7 @@ tau <- predict(dgp1, newdata = testdf)[, "tfct"]
 head(tau)
 @
 
-\cite{Dandl_Hothorn_Seibold_2021} compared different forest-based methods to estimate treatment effects.
+\cite{Dandl_Hothorn_Seibold_2022} compared different forest-based methods to estimate treatment effects.
 Performances of these methods were assessed by mean squared error
 $$\frac{1}{1000} \sum_{i = 1}^{1000}(\tau(\rx_i) - \hat{\tau}(\rx_i))$$
 evaluated on the test sample.
@@ -471,7 +471,7 @@ The column \code{nd} defines the rows in the plot and the column
 \code{setup} the columns.
 
 Next, we set up the plots with \pkg{lattice}.
-We change the names of the hybrid and equalized approach according to \cite{Dandl_Hothorn_Seibold_2021}:
+We change the names of the hybrid and equalized approach according to \cite{Dandl_Hothorn_Seibold_2022}:
 \begin{itemize}
   \item hybrid: $\text{mob}(\hat{W})$
   \item equalized: $\text{mob}(\hat{W}, \hat{Y})$
@@ -559,52 +559,41 @@ plot_results <- function(pltdata, sc, ylim) {
 }
 @
 
-Since there is not enough space to show the results of all setups in one plot,
-we follow \cite{Dandl_Hothorn_Seibold_2021} and distinguish between
-the following settings:
+% Since there is not enough space to show the results of all setups in one plot,
+% we follow \cite{Dandl_Hothorn_Seibold_2022} and distinguish between
+% the following settings:
+%
+% \begin{itemize}
+% \item Settings introduced by \cite{Wager_Athey_2018} and \cite{Athey_Tibshirani_Wager_2019}
+% \begin{itemize}
+% \item without overlay meaning \code{ol} is equal to 0: setups 1 to 8
+% <<set1>>=
+% subset1 <- subset(res, setup %in% 1:16 & ol == 0)
+% @
+% \item with overlay meaning \code{ol} is equal to 0.5: setups 9 to 16
+% <<set2>>=
+% subset2 <- subset(res, setup %in% 1:16 & ol == 0.5)
+% @
+% \end{itemize}
+% \item Settings introduced by \cite{Nie_Wager_2020}
+% \begin{itemize}
+% \item without overlay meaning \code{ol} is equal to 0: setups 17 to 20
+% <<set3>>=
+% subset3 <- subset(res, setup %in% 17:24 & ol == 0)
+% @
+% \item with overlay meaning \code{ol} is equal to 0.5: setups 21 to 24
+% <<set4>>=
+% subset4 <- subset(res, setup %in% 17:24 & ol == 0.5)
+% @
+% \end{itemize}
+% \end{itemize}
+% If \code{ol} is 0.5, half of the treatment effect is added to the
+% prognostic effect.
 
-\begin{itemize}
-\item Settings introduced by \cite{Wager_Athey_2018} and \cite{Athey_Tibshirani_Wager_2019}
-\begin{itemize}
-\item without overlay meaning \code{ol} is equal to 0: setups 1 to 8
-<<set1>>=
-subset1 <- subset(res, setup %in% 1:16 & ol == 0)
-@
-\item with overlay meaning \code{ol} is equal to 0.5: setups 9 to 16
-<<set2>>=
-subset2 <- subset(res, setup %in% 1:16 & ol == 0.5)
-@
-\end{itemize}
-\item Settings introduced by \cite{Nie_Wager_2020}
-\begin{itemize}
-\item without overlay meaning \code{ol} is equal to 0: setups 17 to 20
-<<set3>>=
-subset3 <- subset(res, setup %in% 17:24 & ol == 0)
-@
-\item with overlay meaning \code{ol} is equal to 0.5: setups 21 to 24
-<<set4>>=
-subset4 <- subset(res, setup %in% 17:24 & ol == 0.5)
-@
-\end{itemize}
-\end{itemize}
-If \code{ol} is 0.5, half of the treatment effect is added to the
-prognostic effect.
 Finally we can plot the results
 \newpage
 <<plot, results = "asis", fig.height = 14.5, fig.width = 14>>=
-plot_results(subset1, sc = sc)
-@
-\newpage
-<<plot2, results = "asis", fig.height = 14.5, fig.width = 14>>=
-plot_results(subset2, sc = sc)
-@
-\newpage
-<<plot3, results = "asis", fig.height = 14.5, fig.width = 14>>=
-plot_results(subset3, sc = sc)
-@
-\newpage
-<<plot4, results = "asis", fig.height = 14.5, fig.width = 14>>=
-plot_results(subset4, sc = sc)
+plot_results(res, sc = sc)
 @
 
 If users want to visualize the result of another method, they need to attach the MSEs of their method to \code{dandl} and need to adjust the vector of method names \code{methodnams} and their color coding \code{cols}.
@@ -614,8 +603,8 @@ All other chunks of this section should work without any adjustments.
 This vignette introduced the package \pkg{htesim} that provides an extensive simulation study framework to evaluate methods to estimate heterogeneous treatment effects.
 It illustrated how to generate a simulation dataset from predefined functions for prognostic and predictive effects and propensity scores to put methods for treatment effects to the proof.
 Furthermore, it explained how users can integrate their own functions.
-The vignette also provided the necessary functions to reproduce the study framework of \cite{Dandl_Hothorn_Seibold_2021}.
-It also gave guidance on how to compare the results of a new method visually against the forest-based methods evaluated by \cite{Dandl_Hothorn_Seibold_2021}.
+The vignette also provided the necessary functions to reproduce the study framework of \cite{Dandl_Hothorn_Seibold_2022}.
+It also gave guidance on how to compare the results of a new method visually against the forest-based methods evaluated by \cite{Dandl_Hothorn_Seibold_2022}.
 We hope that all these examples remove hurdles to use \pkg{htesim} for prospective studies to evaluate methods for heterogeneous treatment effects.
 
 \newpage

@@ -4,20 +4,19 @@ min_size_group <- 7L
 min_node_size <- min_size_group*2L
 ### for splitting, no early stopping, large trees
 ctrl <- ctree_control(testtype = "Univ", minsplit = 2,
-  minbucket = min_node_size,
-  mincriterion = 0, saveinfo = FALSE)
-ctrl$converged <- function(mod, data, subset) {
+  minbucket = 2, splittry = 20, minprob = 0, mincriterion = 0,
+  lookahead = TRUE, saveinfo = FALSE)
+ctrl$converged = function(mod, data, subset) {
+  # The following should be added to avoid nodes with only treated or control samples
+  if (length(unique(data$trt[subset])) == 1) return(FALSE)
   ### W - W.hat is not a factor
   if (!is.factor(data$trt)) {
-    return(all(table(data$trt[subset] > 0) > min_size_group))
+    return(all(table(data$trt[subset] > 0) >= min_size_group))
   } else {
     ### at least min_size_group obs in both treatment arms
-    return(all(table(data$trt[subset]) > min_size_group))
+    return(all(table(data$trt[subset]) >= min_size_group))
   }
 }
-## try to update model parameters for nodes with more than
-## 20 observations. Reuse parameters in smaller nodes
-min_update <- 20
 
 prt <- list(replace = FALSE, fraction = .5)
 prt_honest <- list(replace = FALSE, fraction = c(0.25, 0.25))
@@ -75,22 +74,22 @@ run <- function(
     perturb <- prt
   }
 
-  ### make a copy of the data but remove treatment indicator
-  # tmp <- d
-  # tmp$trt <- NULL
+  ### update splittry
+  ctrl$splittry <- ncol(d[, grep("^X", colnames(d))])
+
+  ### initialize
   offset <- NULL
   y.hat <- NULL
   fixed <- NULL
   nm <- nmt <- "trt1"
 
-  ### replace treatment indicator by treatment indicator - propensities
-  W.hat <- if (!propensities && causal_forest) .5 else NULL
+  ### replace treatment indicator by in randomized trial
+  W.hat <- if (identical(unique(predict(d, newdata = d)[, "pfct"]), .5)) .5 else NULL
   trt <- d$trt
 
   if ((causal_forest && !prognostic_effect) | propensities | marginal_mean) {
     ### call causal_forest to compute W.hat and Y.hat
     ### make sure all forests center in the same way
-    if (attributes(d)$truth$mod == "normal") {
       cf <- causal_forest(X = as.matrix(d[, grep("^X", colnames(d))]),
         Y = d$y, W = (0:1)[d$trt], W.hat = W.hat, # W.hat = W.hat if necessary!
         stabilize.splits = stabilize.splits,
@@ -99,14 +98,6 @@ run <- function(
         num.trees = NumTrees, honesty = honesty)
       myW.hat <- cf$W.hat
       myY.hat <- cf$Y.hat
-    } else {
-      forest.W <- grf::regression_forest(X = as.matrix(d[, grep("^X", colnames(d))]),
-        Y = (0:1)[d$trt], num.trees = max(50, NumTrees/4),
-        mtry = mtry, honesty = TRUE, min.node.size = 5L,
-        sample.fraction = prt$fraction,
-        ci.group.size = 1)
-      myW.hat <- predict(forest.W)$predictions
-    }
   } else if (causal_forest && prognostic_effect) {
     cf <- multi_arm_causal_forest(X = as.matrix(d[, grep("^X", colnames(d))]),
       Y = d$y, W = d$trt, W.hat = W.hat, split.on.intercept = TRUE,
@@ -137,7 +128,6 @@ run <- function(
 
   ### Setup up models according to the underlying model
   ### normally distributed response
-  if (attributes(d)$truth$mod == "normal") {
     if (causal_forest) {
       ret <- predict(cf,
         newdat = testxdf[grep("^X", colnames(testxdf))])$predictions
@@ -154,97 +144,22 @@ run <- function(
         m <- lm(y ~ trt, data = d)
       }
     }
-  } else if (attributes(d)$truth$mod == "weibull") {
-    if (causal_forest) { ##SD
-      survobj <- as.data.frame(as.matrix(d$y))
-      cf <- causal_survival_forest(X = as.matrix(d[, grep("^X", colnames(d))]),
-        Y = survobj$time, W = (0:1)[trt], D = survobj$status,
-        min.node.size = min_node_size, sample.fraction = perturb$fraction,
-        mtry = mtry, # ci.group.size = 1,
-        num.trees = NumTrees, honesty = honesty)
-      ret <- predict(cf,
-        newdat = testxdf[grep("^X", colnames(testxdf))])$predictions
-      ### tau is restricted mean survival time difference in this case
-      return(mean((tau[, "rmst"] - ret)^2))
-    }
-    else {
-      if (Cox) {
-        ### set-up Cox model
-        m <- coxph(y ~ trt, data = d)
-      } else {
-        ### set-up Weibull model
-        m <- as.mlt(Survreg(y ~ trt, data = d, offset = offset))
-      }
-    }
-  }
-  else if (attributes(d)$truth$mod == "polr") {
-    ### set-up ordinal regression model
-    m <- polr(y ~ trt, data = d)
-  } else {
-    m <- glm(y ~ trt, data = d, family = binomial)
-  }
-  
-  if (ATE) {
-    if(attributes(d)$truth$mod == "weibull" & !Cox) {
-      ret <- m$coef[nmt]
-    } else {
-      ret <- m$coefficients[nmt]
-    } 
-    if (Cox) {
-      ret <- -ret
-    }
-    mse <- mean((tau[, "tfct"] - ret)^2)
-    return(mse)
-  }
+
   
   ### fit forest and partition wrt to BOTH intercept and treatment effect
-  if (attributes(d)$truth$mod == "weibull" & !Cox) {
-    rf <- trtf::traforest(m, formula = y | trt ~ ., data = d, ntree = NumTrees,
-      perturb = perturb, mtry = mtry, control = ctrl, parm = nm, min_update = min_update,
-      mltargs = list(fixed = fixed, offset = offset),
-      trace = TRACE)
-  } else {
     rf <- model4you::pmforest(m, data = d, ntree = NumTrees, perturb = perturb,
       mtry = mtry, control = ctrl, trace = TRACE)
-  }
-
-  rmstdiff <- NA
 
   if (object) return(rf)
 
   ### estimate model coefficients on test set
-  if (attributes(d)$truth$mod == "weibull" & !Cox) {
-    cf <- predict(rf, newdata = testxdf, type = "coef")
-    cf <- do.call("rbind", cf)
-
-    ### extract treatment effect (on log-hazard ratio scale)
-    ret <- cf[, nmt]
-    mse <- mean((tau[, "tfct"] - ret)^2)
-
-    if (RMST) {
-      time <- max(d$y[d$y[,2] > 0, 1])
-      ### compute restricted mean survival time
-      mX <- cf[, "(Intercept)"]
-      sc <- cf[, "log(y)"]
-      tX <- cf[, nmt]
-      tm <- matrix(seq(from = 0, to = time, length.out = 100),
-        nrow = length(mX), ncol = 100, byrow = TRUE)
-      rmstdiff <- rowSums(exp(-exp(sc * tm - (mX + tX)))) * (time / ncol(tm)) -
-        rowSums(exp(-exp(sc * tm - mX))) * (time / ncol(tm))
-      rmstmse <- (mean((tau[, "rmst"] - rmstdiff)^2))
-      attr(mse, "rmst") <- rmstmse
-    }
-    return(mse)
-  } else {
-    cf <- model4you::pmodel(rf, newdata = testxdf)
-  }
+  
+  cf <- model4you::pmodel(rf, newdata = testxdf)
   mod <- attributes(d)$truth$mod
-  if (mod == "weibull" & Cox) {
-    ret <- -c(cf)
-  } else if (mod == "polr" | (mod == "normal" & !prognostic_effect)) {
-    ret <- c(cf)
-  } else if (mod %in% c("weibull", "binomial", "normal")) {
+  if (prognostic_effect) {
     ret <- cf[, nmt]
+  } else {
+    ret <- c(cf)
   }
   mse <- mean((tau[, "tfct"] - ret)^2)
   return(mse)
@@ -257,7 +172,11 @@ coef.nomu <- function(object, ...) {
 
 estfun.nomu <- function(object, ...) {
   class(object) <- class(object)[-1L]
-  estfun(object)[,"trt", drop = FALSE]
+  ef <- tryCatch({estfun(object)[,"trt", drop = FALSE]},
+    error = function(e) {
+      return(rep(0, length(object$model$y)))
+    })
+  return(ef)
 }
 
 update.nomu <- function(object, ...) {
@@ -292,19 +211,19 @@ fun.cfmobhonest <- function(instance, ...) {
 
 fun.mob <- function(instance, RMST = FALSE, ...) {
   mob <- run(instance, propensities = FALSE, causal_forest = FALSE,
-             honesty = FALSE, RMST = RMST, ...)
+    honesty = FALSE, RMST = RMST, ...)
   return(mob)
 }
 
 fun.mobhonest <- function(instance, RMST = FALSE, ...) {
   mob <- run(instance, propensities = FALSE,
-     causal_forest = FALSE, honesty = TRUE, RMST = RMST, ...)
+    causal_forest = FALSE, honesty = TRUE, RMST = RMST, ...)
   return(mob)
 }
 
 fun.hybrid <- function(instance, RMST = FALSE, ...) {
   mob <- run(instance, propensities = TRUE, causal_forest = FALSE,
-      honesty = FALSE, RMST = RMST, ...)
+    honesty = FALSE, RMST = RMST, ...)
   return(mob)
 }
 
@@ -342,27 +261,6 @@ fun.mobcfhonest <- function(instance, RMST = FALSE, ...) {
   return(mob)
 }
 
-# Special treatments for cox model!
-fun.mobcox <- function(instance, ...) {
-  run(instance, propensities = FALSE, causal_forest = FALSE, Cox = TRUE, ...)
-}
-
-fun.mobcoxhonest <- function(instance, ...) {
-  run(instance, propensities = FALSE, causal_forest = FALSE, Cox = TRUE,
-     honesty = TRUE, ...)
-}
-
-fun.hybridcox <- function(instance, ...) {
-  run(instance, propensities = TRUE, causal_forest = FALSE, Cox = TRUE,
-     honesty = FALSE, ...)
-}
-
-fun.hybridcoxhonest <- function(instance, ...) {
-  run(instance, propensities = TRUE, causal_forest = FALSE, Cox = TRUE,
-     honesty = TRUE, ...)
-}
-
-
 # Average Treatment Effect Methods: get coef from base model
 # original treatment indicator
 fun.bm <- function(instance, RMST = FALSE, ...) {
@@ -370,18 +268,8 @@ fun.bm <- function(instance, RMST = FALSE, ...) {
     honesty = FALSE, RMST = RMST, ATE = TRUE, ...)
 }
 
-fun.bmcox <- function(instance, ...) {
-  run(instance, propensities = FALSE, causal_forest = FALSE, Cox = TRUE,
-    ATE = TRUE, ...)
-}
-
 # orthogonalized treatment indicator
 fun.bmhybrid <-  function(instance, RMST = FALSE, ...) {
   run(instance, propensities = TRUE, causal_forest = FALSE,
   honesty = FALSE, RMST = RMST, ATE = TRUE, ...)
-}
-
-fun.bmhybridcox <- function(instance, ...) {
-  run(instance, propensities = TRUE, causal_forest = FALSE, Cox = TRUE,
-    honesty = FALSE, ATE = TRUE, ...)
 }
