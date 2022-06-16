@@ -2,8 +2,8 @@
 
 #---- packages
 
-packages = c("survival", "tram", "MASS", "trtf", "partykit", "sandwich",
-  "ggplot2", "batchtools", "parallelMap", "stringr", "checkmate")
+packages = c("survival", "tram", "MASS", "trtf", "partykit", "sandwich", "mboost", "gbm",
+  "ggplot2", "batchtools", "parallelMap", "stringr", "checkmate", "tbm", "glmnet")
 new.packages = packages[!(packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 sapply(packages, require, character.only = TRUE)
