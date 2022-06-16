@@ -2,16 +2,22 @@
 
 The study frameworks are based on the following papers: 
 
-<!--- * Dandl S, Hothorn T, Heidi S (2020). Divide or Unite? A Comparison of Two Strategies to Random Forests-type Heterogeneous Treatment Effect Estimation. --->
-* Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
-* Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Ef-
-fects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076,
-https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, 
-URL https://doi.org/10.1093/biomet/asaa076.
+* Wager S and Athey S. Estimation and inference of heterogeneous treatment effects using random
+forests. Journal of the American Statistical Association 2018. 113(523): 1228–1242.
+* Athey S, Tibshirani J and Wager S. Generalized random forests. The Annals of Statistics 2019.
+47(2): 1148–1178.
+* Nie X and Wager S. Quasi-oracle estimation of heterogeneous treatment effects. Biometrika 2021.
+108: 299–319.
+
+The package also includes the code for reproducing all findings of the paper in the respective folder [inst/empeval](https://github.com/dandls/htesim/tree/master/inst/empeval): 
+
+Dandl S, Hothorn T, Seibold H, Sverdrup E., Wager S., Zeileis A. (2022). What Make Forest-based Heterogeneous Treatment
+Estimators Work?. 
+
 
 ## Project Status
 
-Code is now on Github, our publication will be available soon. 
+Code is now on Github, our preprint will be available soon. 
 
 ## Installation
 
@@ -33,10 +39,16 @@ sdg <- simulate(dg, nsim = 1000L, dim = 12)
 head(sdg) 
 ```
 
+Our [vignette](https://github.com/dandls/htesim/tree/master/vignettes) gives a broad overview on the functionality: 
+- for sampling from predefined data generating processes (DGP)
+- for sampling from user-defined DGP
+- for replicating the empirical study of Dandl et al. (2022) 
+- for comparing the results of Dandl et al. (2022) with an own treatment effect estimation method on the same simulated data.
+
 ## Citation
 
 * not yet determined 
 
 ## License
 
-MIT License
+GPL-2 | GPL-3
