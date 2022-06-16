@@ -17,7 +17,7 @@ Estimators Work?.
 
 ## Project Status
 
-Code is now on Github, our publication will be available soon. 
+Code is now on Github, our preprint will be available soon. 
 
 ## Installation
 
