@@ -59,12 +59,12 @@ NULL
 
 
 
-#' Study Setting and Results of Dandl et al. (2021)
+#' Study Setting and Results of Dandl et al. (2022)
 #'
 #' A dataset containing the study setting and performance results of 8 different
-#' tree-based methods for estimating treatment effects based on Dandl et al. (2021).
+#' tree-based methods for estimating treatment effects based on Dandl et al. (2022).
 #' Mean squared error of estimated to true treatment effect measured the performance.
-#' Study settings were based on Wager and Athey (2018) and Nie and Wager (2020).
+#' Study settings were based on Nie and Wager (2020).
 #'
 #' @name dandl
 #'
@@ -86,12 +86,59 @@ NULL
 #'   methods for estimating treatment effects. See Dandl et al. (2021) for details.}
 #' }
 #' @references
-#' Dandl S, Torsten H, Heidi S et al. (2021). Divide or Unite? A Comparison of Two
-#' Strategies to Random Forest-type Heterogeneous Treatment Effect Estimation.
+#' Dandl S, Hothorn T, Seibold H, Sverdrup E, Wager S (2022). What Makes
+#' Forest-based Heterogeneous Treatment Effect Estimators Work?.
 #'
 #' Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
 #'
 #' Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Effects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076, https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, URL https://doi.org/10.1093/biomet/asaa076.
 #'
+NULL
+
+
+#' Study Setting and Results of Dandl et al. (2022b)
+#'
+#' A dataset containing the study setting and performance results of five different
+#' tree-based methods for estimating treatment effects based on Dandl et al. (2022b).
+#' Mean squared error of estimated to true treatment effect measured the performance.
+#' Study settings were based on Athey and  Nie and Wager (2020).
+#'
+#' @name dandl2
+#'
+#' @format A data frame with 41600 rows and 24 variables:
+#' \describe{
+#'   \item{setup}{Identifier for data generating process defined by p, m, t, sd, pi, model, xmodel.}
+#'   \item{repl}{Replication index (1 to 100).}
+#'   \item{p, m, t}{Propensity score, prognostic effect and treatment effect
+#'   function character names. Input for \code{dgp}.}
+#'   \item{sd, ol, model, xmodel, rmvar}{Standard deviation of
+#'   normal distributed outcome, fraction of treatment effect added to prognostic
+#'   effect, names of used model for outcome and covariates and variable name
+#'   to be removed after simulating data.
+#'   Input for \code{dgp}.}
+#'   \item{nsim, dim, nsimtest, seed}{Number of observations, number of
+#'   covariates, number of observations for test set and seed. Input for
+#'   \code{simulate}.}
+#'   \item{mob, hybrid, equalized, equalizedgao, hybridgao, mobcox,
+#'   hybridcox, equalizedcox, equalizedgaocox, hybridgaocox}{Mean squared error of different
+#'   methods for estimating treatment effects. See Dandl et al. (2022b) for details.}
+#' }
+#' @references
+#' Dandl S, Bender A, Hothorn T (2022b). Heterogeneous
+#' treatment effect estimation for observational data using model-based forests.
+#'
+#' Dandl S, Hothorn T, Seibold H, Sverdrup E, Wager S (2022a). What Makes
+#' Forest-based Heterogeneous Treatment Effect Estimators Work?.
+#'
+#' Wager S and Athey S. Estimation and inference of heterogeneous treatment
+#' effects using random forests. Journal of the American Statistical Association
+#' 2018. 113(523): 1228–1242.
+#'
+#' Athey S, Tibshirani J and Wager S. Generalized random forests. The Annals of
+#' Statistics 2019. 47(2): 1148–1178.
+#'
+#' Nie X and Wager S. Quasi-oracle estimation of heterogeneous treatment effects.
+#' Biometrika 2021. 108: 299–319.
+
 NULL
 
