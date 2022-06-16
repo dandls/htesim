@@ -2,13 +2,20 @@
 
 The study frameworks are based on the following papers: 
 
-<!--- * Dandl S, Hothorn T, Seibold H, Sverdrup E., Wager S., Zeileis A. (2022). WHAT MAKES FOREST-BASED HETEROGENEOUS TREATMENT EFFECT
-ESTIMATORS WORK?. --->
 * Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
 * Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Ef-
 fects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076,
 https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, 
 URL https://doi.org/10.1093/biomet/asaa076.
+
+
+The package also includes the code for reproducing all findings of the paper in the respective folder [inst/empeval](https://github.com/dandls/htesim/tree/master/inst/empeval): 
+
+Dandl S, Hothorn T, Seibold H, Sverdrup E., Wager S., Zeileis A. (2022). WHAT MAKES FOREST-BASED HETEROGENEOUS TREATMENT EFFECT
+ESTIMATORS WORK?. 
+
+
+
 
 ## Project Status
 
@@ -40,4 +47,4 @@ head(sdg)
 
 ## License
 
-MIT License
+GPL-2 | GPL-3
