@@ -39,6 +39,12 @@ sdg <- simulate(dg, nsim = 1000L, dim = 12)
 head(sdg) 
 ```
 
+Our [vignette](https://github.com/dandls/htesim/tree/master/vignettes) gives a broad overview on the functionality: 
+- for sampling from predefined data generating processes (DGP)
+- for sampling from user-defined DGP
+- for replicating the empirical study of Dandl et al. (2022) 
+- for comparing the results of Dandl et al. (2022) with an own treatment effect estimation method on the same simulated data.
+
 ## Citation
 
 * not yet determined 
