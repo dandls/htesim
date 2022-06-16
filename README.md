@@ -2,12 +2,12 @@
 
 The study frameworks are based on the following papers: 
 
-* Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
-* Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Ef-
-fects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076,
-https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, 
-URL https://doi.org/10.1093/biomet/asaa076.
-
+* Wager S and Athey S. Estimation and inference of heterogeneous treatment effects using random
+forests. Journal of the American Statistical Association 2018. 113(523): 1228–1242.
+Athey S, Tibshirani J and Wager S. Generalized random forests. The Annals of Statistics 2019.
+47(2): 1148–1178.
+* Nie X and Wager S. Quasi-oracle estimation of heterogeneous treatment effects. Biometrika 2021.
+108: 299–319.
 
 The package also includes the code for reproducing all findings of the paper in the respective folder [inst/empeval](https://github.com/dandls/htesim/tree/master/inst/empeval): 
 
