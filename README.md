@@ -4,7 +4,7 @@ The study frameworks are based on the following papers:
 
 * Wager S and Athey S. Estimation and inference of heterogeneous treatment effects using random
 forests. Journal of the American Statistical Association 2018. 113(523): 1228–1242.
-Athey S, Tibshirani J and Wager S. Generalized random forests. The Annals of Statistics 2019.
+* Athey S, Tibshirani J and Wager S. Generalized random forests. The Annals of Statistics 2019.
 47(2): 1148–1178.
 * Nie X and Wager S. Quasi-oracle estimation of heterogeneous treatment effects. Biometrika 2021.
 108: 299–319.
