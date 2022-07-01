@@ -12,7 +12,7 @@ forests. Journal of the American Statistical Association 2018. 113(523): 1228–
 The package also includes the code for reproducing all findings of the paper in the respective folder [inst/empeval](https://github.com/dandls/htesim/tree/master/inst/empeval): 
 
 Dandl S, Hothorn T, Seibold H, Sverdrup E., Wager S., Zeileis A. (2022). What Make Forest-based Heterogeneous Treatment
-Estimators Work?. 
+Estimators Work? Technical report, arXiv 2206.10323. URL https://arxiv.org/abs/2206.10323.
 
 
 ## Project Status
