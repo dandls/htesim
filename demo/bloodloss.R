@@ -242,3 +242,30 @@ ps_alpha <- lapply(seq_len(nvar), function(i) dp_plot(var_shown[i], data = dp, i
   beta = "median", ytxt = "Median(MBL|w = vaginal)"))
 propnams <- str_replace(var_shown, pattern = "\\.", replacement = "_")
 ps_alpha
+
+
+#--- Prediction for "normal" pregnancy ----
+nd <- blood[1,]
+nd$GA <- 280
+(nd$AGE <- mean(blood$AGE))
+nd$MULTIPAR <- "no"
+(nd$BMI <- mean(blood$BMI))
+nd$MULTIFET <- "no"
+nd$NW <- 3200
+nd$IOL <- "no"
+nd$AIS <- "no"
+
+# median
+predict(rf, newdata = nd, OOB = TRUE,
+  mnewdata = data.frame(VCmodecenter = c(0, 1)),
+  type = "quantile", prob = 0.5)
+
+# 10%
+predict(rf, newdata = nd, OOB = TRUE,
+  mnewdata = data.frame(VCmodecenter = c(0, 1)),
+  type = "quantile", prob = 0.1)
+
+# 90%
+predict(rf, newdata = nd, OOB = TRUE,
+  mnewdata = data.frame(VCmodecenter = c(0, 1)),
+  type = "quantile", prob = 0.9)
