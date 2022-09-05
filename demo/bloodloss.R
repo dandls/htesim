@@ -46,6 +46,30 @@ dp_plot <- function(var, data, i, xlim = NULL, beta, ytxt = "odds ratio") {
   return(p)
 }
 
+# Compute forest for estimating propensities
+# Code replicates internals of grf::causal_forest
+get_W_forest <- function (X,Y, W, Y.hat = NULL, W.hat = NULL,
+  sample.weights = NULL,
+  sample.fraction = 0.5, mtry = min(ceiling(sqrt(ncol(X)) +
+      20), ncol(X)), seed = runif(1, 0, .Machine$integer.max))
+{
+  args.orthog <- list(X = X, num.trees = 125,
+    sample.weights = NULL, clusters = numeric(0),
+    equalize.cluster.weights = FALSE,
+    sample.fraction = sample.fraction, mtry = mtry, min.node.size = 5,
+    honesty = TRUE, honesty.fraction = 0.5, honesty.prune.leaves = TRUE,
+    alpha = 0.05, imbalance.penalty = 0,
+    ci.group.size = 1, tune.parameters = "none",
+    num.threads = 0, seed = seed)
+  if (is.null(Y.hat)) {
+    forest.Y <- do.call(regression_forest, c(Y = list(Y),args.orthog))
+  }
+  if (is.null(W.hat)) {
+    forest.W <- do.call(regression_forest, c(Y = list(W), args.orthog))
+  }
+  return(forest.W)
+}
+
 #--- Data Processing ----
 
 # set NA in Dauer to 0
@@ -141,14 +165,10 @@ p_dp <- ggplot(blood, aes(MBL)) +
 #--- What  ---
 # Dummy encode splitting variables
 x_dummy <- dummy_cols(blood[, x], remove_first_dummy = TRUE, remove_selected_columns = TRUE)
+# Fit forest for What
 set.seed(1234L)
-cf <- causal_forest(X = as.matrix(x_dummy),
-  Y = blood$MBL, W = blood$VCmodedummy,
-  min.node.size = min_size_group,
-  mtry = mtry,
-  num.trees = NumTrees, honesty = FALSE)
-W.hat <- cf$W.hat
-
+wf <- get_W_forest(X = as.matrix(x_dummy), Y = blood$MBL, W = blood$VCmodedummy, mtry = mtry)
+W.hat <- predict(wf)$predictions
 
 pwhat <- ggplot(blood, aes(x = W.hat, color = VCmode)) +
   stat_density(geom = "line", position = "identity") +
@@ -158,14 +178,6 @@ pwhat <- ggplot(blood, aes(x = W.hat, color = VCmode)) +
   xlim(c(-0.001, 1.001)) +
   xlab(expression(hat(pi)(bold(x)))) +
   scale_color_manual(values = cols)
-
-if (SAVE_PLOTS) {
-  if (SAVE_PLOTS) {
-    ggsave(filename = file.path(res_dir, "what_plots.pdf"), plot = pwhat,  width = 3.5, height = 2)
-  } else {
-    pwhat
-  }
-}
 
 #--- Model-based forests ----
 ### Conduct local centering of treatment indicator
@@ -230,13 +242,14 @@ ps
 
 
 #--- Dependency plots of prognostic effect/intercept alpha ----
-mnd <- data.frame(trt = 0)
-names(mnd) <- "VCmodecenter"
-
-# get median MBL for each observation
-med <- predict(rf, newdata = blood, OOB = TRUE,
-  mnewdata = mnd, type = "quantile", prob = 0.5)
-dp$median <- c(do.call(rbind, med))
+mnd <- data.frame(VCmodecenter = 0 - W.hat)
+# get median MBL for each observation; OOB doesn't work here
+set.seed(290875L)
+med <- do.call("c", sapply(1:nrow(blood), function(i)
+  predict(rf, newdata = blood[i,,drop = FALSE], OOB = FALSE,
+    mnewdata = mnd[i,,drop = FALSE], type = "quantile", prob = 0.5)))
+plot(dp$median ~ med)
+dp$median <- med
 
 ps_alpha <- lapply(seq_len(nvar), function(i) dp_plot(var_shown[i], data = dp, i = "",
   beta = "median", ytxt = "Median(MBL|w = vaginal)"))
@@ -246,26 +259,29 @@ ps_alpha
 
 #--- Prediction for "normal" pregnancy ----
 nd <- blood[1,]
-nd$GA <- 280
+nd$GA <- 270
 (nd$AGE <- mean(blood$AGE))
 nd$MULTIPAR <- "no"
 (nd$BMI <- mean(blood$BMI))
 nd$MULTIFET <- "no"
-nd$NW <- 3200
+nd$NW <- 3050
 nd$IOL <- "no"
 nd$AIS <- "no"
 
+xx_dummy <- dummy_cols(nd[, x], remove_first_dummy = TRUE, remove_selected_columns = TRUE)
+what <- predict(wf, newdata = xx_dummy)$predictions
+
 # median
 predict(rf, newdata = nd, OOB = TRUE,
-  mnewdata = data.frame(VCmodecenter = c(0, 1)),
+  mnewdata = data.frame(VCmodecenter = c(0, 1) - what),
   type = "quantile", prob = 0.5)
 
 # 10%
 predict(rf, newdata = nd, OOB = TRUE,
-  mnewdata = data.frame(VCmodecenter = c(0, 1)),
+  mnewdata = data.frame(VCmodecenter = c(0, 1) - what),
   type = "quantile", prob = 0.1)
 
 # 90%
 predict(rf, newdata = nd, OOB = TRUE,
-  mnewdata = data.frame(VCmodecenter = c(0, 1)),
+  mnewdata = data.frame(VCmodecenter = c(0, 1) - what),
   type = "quantile", prob = 0.9)
