@@ -245,11 +245,9 @@ ps
 mnd <- data.frame(VCmodecenter = 0 - W.hat)
 # get median MBL for each observation; OOB doesn't work here
 set.seed(290875L)
-med <- do.call("c", sapply(1:nrow(blood), function(i)
+dp$median <- do.call("c", sapply(1:nrow(blood), function(i)
   predict(rf, newdata = blood[i,,drop = FALSE], OOB = FALSE,
     mnewdata = mnd[i,,drop = FALSE], type = "quantile", prob = 0.5)))
-plot(dp$median ~ med)
-dp$median <- med
 
 ps_alpha <- lapply(seq_len(nvar), function(i) dp_plot(var_shown[i], data = dp, i = "",
   beta = "median", ytxt = "Median(MBL|w = vaginal)"))
