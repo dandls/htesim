@@ -270,16 +270,16 @@ xx_dummy <- dummy_cols(nd[, x], remove_first_dummy = TRUE, remove_selected_colum
 what <- predict(wf, newdata = xx_dummy)$predictions
 
 # median
-predict(rf, newdata = nd, OOB = TRUE,
+predict(rf, newdata = nd, OOB = FALSE,
   mnewdata = data.frame(VCmodecenter = c(0, 1) - what),
   type = "quantile", prob = 0.5)
 
 # 10%
-predict(rf, newdata = nd, OOB = TRUE,
+predict(rf, newdata = nd, OOB = FALSE,
   mnewdata = data.frame(VCmodecenter = c(0, 1) - what),
   type = "quantile", prob = 0.1)
 
 # 90%
-predict(rf, newdata = nd, OOB = TRUE,
+predict(rf, newdata = nd, OOB = FALSE,
   mnewdata = data.frame(VCmodecenter = c(0, 1) - what),
   type = "quantile", prob = 0.9)
