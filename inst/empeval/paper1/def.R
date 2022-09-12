@@ -19,5 +19,5 @@ methods <- c("cf","cfhonest", "mob","mobhonest", "hybrid", "hybridhonest", "equa
 # use older study setting? --> provide path to study results of previous study
 oldresdf <- NULL # e.g. oldresdf <- "results/results_study.rds"
 # only run subset of studies? --> provide study IDs (based on DGP.R)
-StudyIDs <- NULL  # e.g. c(1, 2)
+StudyIDs <- 21:24 # e.g. c(1, 2)
 
