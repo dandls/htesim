@@ -9,10 +9,13 @@ forests. Journal of the American Statistical Association 2018. 113(523): 1228–
 * Nie X and Wager S. Quasi-oracle estimation of heterogeneous treatment effects. Biometrika 2021.
 108: 299–319.
 
-The package also includes the code for reproducing all findings of the paper in the respective folder [inst/empeval](https://github.com/dandls/htesim/tree/master/inst/empeval): 
+The package also includes the code for reproducing all findings of 
 
 Dandl S, Hothorn T, Seibold H, Sverdrup E., Wager S., Zeileis A. (2022). What Make Forest-based Heterogeneous Treatment
 Estimators Work? Technical report, arXiv 2206.10323. URL https://arxiv.org/abs/2206.10323.
+
+* Empirical study [inst/empeval/paper1](https://github.com/dandls/htesim/tree/master/inst/empeval/paper1)
+* Blood loss study [demo/bloodloss.R](https://github.com/dandls/htesim/blob/master/demo/bloodloss.R)
 
 
 ## Project Status
