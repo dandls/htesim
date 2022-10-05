@@ -1,1 +1,4 @@
 bloodloss		Estimation of effect of cesarean section on postpartum blood loss in comparison to vaginal deliveries using a causal forest and a model-based causal forest
+als			Estimation of effect of Riluzole on survival time (als_survival.R) and handwriting ability score (als_handwriting.R) using model-based forest with and without orthogonalization.
+			Please download the data from https://nctu.partners.org/ProACT and run the corresponding demo from the R package TH.data (`demo("PROACT", package = "TH.data")`).
+			Store the data in a subfolder called /data.
