@@ -61,7 +61,7 @@ NULL
 
 #' Study Setting and Results of Dandl et al. (2022)
 #'
-#' A dataset containing the study setting and performance results of 8 different
+#' Dataset containing the study setting and performance results of 8 different
 #' tree-based methods for estimating treatment effects based on Dandl et al. (2022).
 #' Mean squared error of estimated to true treatment effect measured the performance.
 #' Study settings were based on Nie and Wager (2020).
@@ -86,10 +86,8 @@ NULL
 #'   methods for estimating treatment effects. See Dandl et al. (2021) for details.}
 #' }
 #' @references
-#' Dandl S, Hothorn T, Seibold H, Sverdrup E, Wager S (2022). What Makes
+#' Dandl S, Haslinger C, Hothorn T, Seibold H, Sverdrup E, Wager S, Zeileis A (2022). What Makes
 #' Forest-based Heterogeneous Treatment Effect Estimators Work?.
-#'
-#' Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
 #'
 #' Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Effects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076, https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, URL https://doi.org/10.1093/biomet/asaa076.
 #'
@@ -101,7 +99,7 @@ NULL
 #' A dataset containing the study setting and performance results of five different
 #' tree-based methods for estimating treatment effects based on Dandl et al. (2022b).
 #' Mean squared error of estimated to true treatment effect measured the performance.
-#' Study settings were based on Athey and  Nie and Wager (2020).
+#' Study settings were based on Athey and Wager (2018) and  Nie and Wager (2020).
 #'
 #' @name dandl2
 #'
@@ -125,9 +123,9 @@ NULL
 #' }
 #' @references
 #' Dandl S, Bender A, Hothorn T (2022b). Heterogeneous
-#' treatment effect estimation for observational data using model-based forests.
+#' Treatment Effect Estimation for Observational Data using Model-based Forests.
 #'
-#' Dandl S, Hothorn T, Seibold H, Sverdrup E, Wager S (2022a). What Makes
+#' Dandl S, Haslinger C, Hothorn T, Seibold H, Sverdrup E, Wager S, Zeileis A (2022a). What Makes
 #' Forest-based Heterogeneous Treatment Effect Estimators Work?.
 #'
 #' Wager S and Athey S. Estimation and inference of heterogeneous treatment

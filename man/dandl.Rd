@@ -2,7 +2,7 @@
 % Please edit documentation in R/extdata.R
 \name{dandl}
 \alias{dandl}
-\title{Study Setting and Results of Dandl et al. (2021)}
+\title{Study Setting and Results of Dandl et al. (2022)}
 \format{
 A data frame with 9600 rows and 23 variables:
 \describe{
@@ -23,16 +23,14 @@ methods for estimating treatment effects. See Dandl et al. (2021) for details.}
 }
 }
 \description{
-A dataset containing the study setting and performance results of 8 different
-tree-based methods for estimating treatment effects based on Dandl et al. (2021).
+Dataset containing the study setting and performance results of 8 different
+tree-based methods for estimating treatment effects based on Dandl et al. (2022).
 Mean squared error of estimated to true treatment effect measured the performance.
-Study settings were based on Wager and Athey (2018) and Nie and Wager (2020).
+Study settings were based on Nie and Wager (2020).
 }
 \references{
-Dandl S, Torsten H, Heidi S et al. (2021). Divide or Unite? A Comparison of Two
-Strategies to Random Forest-type Heterogeneous Treatment Effect Estimation.
-
-Wager S, and Athey S (2018). "Estimation and Inference of Heterogeneous Treatment Effects using Random Forests". Journal of the American Statistical Association, 113(523).
+Dandl S, Haslinger C, Hothorn T, Seibold H, Sverdrup E, Wager S, Zeileis A (2022). What Makes
+Forest-based Heterogeneous Treatment Effect Estimators Work?.
 
 Nie X, Wager S (2020). “Quasi-Oracle Estimation of Heterogeneous Treatment Effects.” Biometrika. ISSN 0006-3444. doi:10.1093/biomet/asaa076. Asaa076, https://academic.oup.com/biomet/advance-article-pdf/doi/10.1093/biomet/asaa076/33788449/asaa076.pdf, URL https://doi.org/10.1093/biomet/asaa076.
 }

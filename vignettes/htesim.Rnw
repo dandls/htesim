@@ -113,9 +113,9 @@ study observations with known ground truth treatment effects from them (\code{si
 Users could define their own treatment, prognostic and propensity score functions,
 or they make use of multiple predefined functions (\code{tF, mF, pF}).
 These predefined functions are based on \cite{Wager_Athey_2018}, \cite{Athey_Tibshirani_Wager_2019} and \cite{Nie_Wager_2020}.
-Settings of \cite{Nie_Wager_2020}, were also employed by \cite{Dandl_Hothorn_Seibold_2022} to compare multiple forest-based methods.
-A dedicated dataset with the study settings and method performances is part of this package (\code{data("dandl")})
-so that others could reproduce this study and compare the performance of their methods with them.
+Settings of \cite{Nie_Wager_2020}, were also employed by \cite{Dandl_Hothorn_Seibold_2022} and \cite{Dandl_Bender_Hothorn_2022} to compare multiple forest-based methods.
+A dedicated dataset with the study settings and method performances is part of this package (\code{data("dandl")} for \cite{Dandl_Hothorn_Seibold_2022} and \code{data("dandl2")} for \cite{Dandl_Bender_Hothorn_2022})
+so that others could reproduce their empirical studies and compare the performance of their methods with them.
 
 \proglang{R} offers a few packages that are tailored to causal treatment effect estimation. Many of them generate data based on
 structural equation models (packages \pkg{simcausal} \citep{Sofrygin_Laan_Neugebauer_2017}, \pkg{lavaan} \citep{Rosseel_2012} and \pkg{simsem} \citep{Pornprasertmanit_Miller_Schoemann_2020}) but not parametric distribution functions like \pkg{htesim}.
@@ -139,7 +139,8 @@ also more complex scenarios like Weibull-distributed outcomes to imitate surviva
 
 In the upcoming section, the most important functions of \pkg{htesim} are presented
 followed by some examples on how to employ own effect functions and how to
-replicate the study framework of \cite{Dandl_Hothorn_Seibold_2022}.
+replicate the study frameworks of \cite{Dandl_Hothorn_Seibold_2022} and
+\cite{Dandl_Bender_Hothorn_2022}.
 
 \section{Basic Usage} \label{sec:functions}
 
@@ -151,7 +152,6 @@ In the following, we give details on these functions accompanied by an illustrat
 
 <<setup2>>=
 library("htesim")
-library("checkmate")
 set.seed(8008)
 @
 
@@ -185,7 +185,7 @@ All propensity score functions, prognostic effect functions and treatment effect
 Please consult the documentation of \code{pF}, \code{mF} and \code{tF}
 for an overview and in-depth definition of these functions.
 The propensity score function of our example is implemented in \code{pF_x1}
- and the prognostic effect function in \code{mF_x1}.
+and the prognostic effect function in \code{mF_x1}.
 
 The following code generates the manual to replicate the study setting.
 <<ex:dgp>>=
@@ -281,7 +281,7 @@ simown <- simulate(dgpown, nsim = 500, dim = 5)
 head(simown)
 @
 
-\subsection{Replicate Study Setting of Dandl et al. (2021)} \label{subsec:dandl}
+\subsection{Replicate Study Setting of Dandl, Haslinger, Hothorn et al. (2022)} \label{subsec:dandl}
 We want to motivate readers to compare the results of their methods to the methods investigated in
 \cite{Dandl_Hothorn_Seibold_2022}.
 Therefore, the study setting and the corresponding results of the forest approaches are available in
@@ -371,7 +371,7 @@ The performance is evaluated by the MSE
 mean((tau - tauhat)^2)
 @
 
-We can apply the linear interaction model to each of 9600 simulation settings specified in \code{dandl}.
+We can apply the linear interaction model to each of 1600 simulation settings specified in \code{dandl}.
 The following helper function creates a study dataset from a study setting,
 fits the interaction model on it, estimates the treatment effect and
 returns the MSE.
@@ -379,12 +379,12 @@ The function is applied to each row of \code{dandl} and the results get
 attached to it.
 
 <<study>>=
-run_linmod <- function(i) {
+run_linmod <- function(i, data) {
   # Extract row
-  row <- dandl[i,]
+  row <- data[i,]
   # define dgp
   dgp1 <- do.call(dgp,
-  as.list(row)[c("p", "m", "t", "sd", "ol", "model", "xmodel")])
+    as.list(row)[c("p", "m", "t", "sd", "ol", "model", "xmodel")])
   # simulate train and test data
   sim1 <- do.call(simulate, c(list(object = dgp1),
     as.list(row)[c("nsim", "dim", "seed", "nsimtest")]))
@@ -402,7 +402,7 @@ run_linmod <- function(i) {
   mse <- mean((tau - tauhat)^2)
   return(mse)
 }
-mse <- sapply(1:nrow(dandl), FUN = run_linmod)
+mse <- sapply(1:nrow(dandl), FUN = run_linmod, data = dandl)
 
 # add results to dandl
 dandl$linmod <- mse
@@ -451,7 +451,15 @@ refactor <- function(df, method.nams) {
     function(x) paste(x[2], ", ", x[1]))
   df$setup <- factor(df$setup)
 
-  df <- df[, c("algorithm", "setup", "repl", "nd", "ol", "seed", "value")]
+  if ("mobcox" %in% method.nams) {
+    library("stringr")
+    df$model[stringr::str_detect(df$algorithm, "cox")] <- "cox"
+    df$algorithm <- stringr::str_remove(df$algorithm, "cox")
+    df <- df[!is.na(df$value),]
+    method.nams <- method.nams[!str_detect(method.nams, "cox")]
+  }
+
+  df <- df[, c("algorithm", "model", "setup", "repl", "nd", "ol", "seed", "value")]
 
   df$algorithm <- factor(as.character(df$algorithm), levels = method.nams,
     labels = gsub("honest", "-honest", method.nams))
@@ -473,8 +481,8 @@ The column \code{nd} defines the rows in the plot and the column
 Next, we set up the plots with \pkg{lattice}.
 We change the names of the hybrid and equalized approach according to \cite{Dandl_Hothorn_Seibold_2022}:
 \begin{itemize}
-  \item hybrid: $\text{mob}(\hat{W})$
-  \item equalized: $\text{mob}(\hat{W}, \hat{Y})$
+\item hybrid: $\text{mob}(\hat{W})$
+\item equalized: $\text{mob}(\hat{W}, \hat{Y})$
 \end{itemize}
 
 <<<hybeq>>=
@@ -500,7 +508,7 @@ cols <- c("mob" = "snow", "mob-honest" = "snow4",
   "equalized" = "darkorchid1", "equalized-honest" = "darkorchid4",
   "cf" = "deepskyblue", "cf-honest" = "deepskyblue4",
   "mobcf" = "darkolivegreen1", "mobcf-honest" = "darkolivegreen4",
-  "linmod" = "darkorange")
+  "linmod" = "darkgreen")
 colornams <- lookup[names(cols)]
 @
 
@@ -592,12 +600,165 @@ plot_results <- function(pltdata, sc, ylim) {
 
 Finally we can plot the results
 \newpage
-<<plot, results = "asis", fig.height = 14.5, fig.width = 14>>=
+<<plot, results = "asis", fig.height = 9.5, fig.width = 9.5>>=
 plot_results(res, sc = sc)
 @
 
 If users want to visualize the result of another method, they need to attach the MSEs of their method to \code{dandl} and need to adjust the vector of method names \code{methodnams} and their color coding \code{cols}.
 All other chunks of this section should work without any adjustments.
+
+
+
+\subsection{Replicate Study Setting of Dandl, Bender, Hothorn (2022)} \label{subsec:dandl2}
+The \pkg{htesim} package also includes the empirical study settings of \cite{Dandl_Bender_Hothorn_2022}.
+
+<<loadres2>>=
+load(system.file("extdata/dandl2.rda", package = "htesim"))
+head(dandl2)
+@
+%
+% The columns \code{setup}, \code{repl}, \code{p}, \code{m}, \code{t}, \code{sd}, \code{ol}, \code{model}, \code{xmodel}, \code{nsim} and \code{dim}, \code{nsimtest} and \code{seed} have the same meaning as before.
+All other columns -- \code{mob}, \code{hybrid}, \code{equalized}, etc. -- store the
+mean squared error of the different forest-based methods.
+It should be noted that the strategies against non-collapsibility based on
+\cite{Gao_Hastie_2022} were only computed for the binomial and Cox \code{model}.
+
+As in Section~\ref{subsec:dandl}, we could replicate the study settings, for example,
+the first setup for the Weibull model.
+
+<<row1cox>>=
+study2 <- dandl2[24001,]
+@
+
+Since the column names of \code{study1} matches the arguments of \code{dgp} and \code{simulate},
+we can use \code{do.call} to generate the simulated data set.
+The \code{seed} helps us to receive the exact and not approximate study data set of \cite{Dandl_Hothorn_Seibold_2022}.
+
+<<getdata2>>=
+dgp2 <- do.call(dgp,
+  as.list(study2)[c("p", "m", "t", "sd", "ol", "model", "xmodel")])
+# equivalent to
+dgp2 <- dgp(p = study2$p, m = study2$m, t = study2$t, sd = study2$sd,
+  ol = study2$ol, model = study2$model, xmodel = study2$xmodel)
+
+sim2 <- do.call(simulate, c(list(object = dgp2),
+  as.list(study2)[c("nsim", "dim", "seed", "nsimtest")]))
+# equivalent to
+sim2 <- simulate(dgp2, nsim = study2$nsim, dim = study2$dim,
+  seed = study2$seed, nsimtest = study2$nsimtest)
+
+head(sim2)
+@
+
+
+In the following, we replicate Figure 1 of \cite{Dandl_Bender_Hothorn_2022} and
+add the results for the linear interaction model of Section~\ref{subsec:dandl2}
+to the results for the normal \code{model}.
+We, therefore, reuse the helper function \code{run_linmod} of Section~\ref{subsec:dandl}
+
+<<study2>>=
+normal <- dandl2[dandl2$model == "normal",]
+mse2 <- sapply(1:nrow(normal), FUN = run_linmod, data = normal)
+dandl2$linmod <- NA
+dandl2[dandl2$model == "normal",]$linmod <- mse2
+@
+
+As in Section~\ref{subsec:dandl}, we need to reshape the data from a wide to long format
+before we can visualize the results.
+
+<<reshape2>>=
+res2 <- dandl2[dandl2$setup %in% c(22, 24:26),]
+methodnams2 <- c("mob", "hybrid", "equalized", "mobcox", "hybridcox", "equalizedcox", "linmod")
+res2 <- reshape(res2, direction = "long", varying = methodnams2, idvar = c("p",
+  "m", "t", "sd", "ol", "model", "xmodel", "nsim", "dim", "nsimtest", "seed"),
+  v.names = "value", timevar = "algorithm")
+rownames(res2) <- NULL
+res2$algorithm <- methodnams2[res2$algorithm]
+head(res2)
+@
+
+Next, we refactor the dataset to a suitable format by generating
+the necessary information by reusing the \code{refactor} function defined above.
+
+<<change2>>=
+res2 <- refactor(res2, method.nams =  methodnams2)
+res2$model <- factor(res2$model, levels = c("normal", "binomial", "polr", "weibull", "cox"))
+methodnams2 <-  methodnams2[!str_detect(methodnams2, "cox")]
+head(res2)
+@
+
+Now we can set up the plots with \pkg{lattice} similar to the section before.
+%
+<<<lattice2>>=
+library("tactile")
+
+lookup2 <- c(
+  "mob" = "Naive",
+  "hybrid" = expression("Robinson"[widehat(W)]),
+  "equalized" = "Robinson",
+  "linmod" = "linmod"
+)
+
+cols2 <- c(
+  "mob" = "darkorange",
+  "hybrid" = "darkorange4",
+  "equalized" = "darkblue",
+  "linmod" = "darkgreen")
+colornams2 <- lookup2[names(cols2)]
+
+# Lattice options and plot appearance
+trellis.par.set(list(plot.symbol = list(col="black",pch=18, cex=0.75),
+  box.rectangle = list(col=1),
+  box.umbrella = list(lty=1, col=1),
+  strip.background = list(col = "white")))
+ltheme <- canonical.theme(color = FALSE)     # black and white theme
+ltheme$strip.background$col <- "transparent" # change strip background
+lattice.options(default.theme = ltheme)
+
+# set up legend at top of plots
+mykey2 <- list(space="top", rectangles=list(col=cols2),
+  text=list(colornams2), columns = length(methodnams2))
+
+colRec <- list(superpose.polygon = list(col = cols2),
+  superpose.symbol = list(fill = cols2))
+
+ex <- c("22" = "A",
+  "24" = "B",
+  "25" = "C",
+  "26" = "D")
+
+sc <- function(which.given, ..., factor.levels) {
+  if (which.given == 2) {
+    strip.default(which.given = which.given, ..., factor.levels)
+  } else {
+    strip.default(which.given = 1, ...,
+      factor.levels = ex[factor.levels])
+  }
+}
+
+# plotting function
+plot_results_all <- function(pltdata, sc, ylim) {
+  plt <- bwplot2(value ~ nd | setup + model, data = pltdata,
+    subset = value < quantile(value, .999, na.rm = TRUE),
+    ylab = ylab,
+    as.table=TRUE,
+    groups = algorithm,
+    scales=list(x = list(rot = 60), y=list(alternating=c(1,1), tck=c(1,0),
+      rot = 0),
+      relation="free"),
+    par.strip.text = list(cex = 0.5),
+    strip = sc, key = mykey2,
+    par.settings = c(colRec, list(layout.heights = list(strip = 1.5))))
+  useOuterStrips(combineLimits(plt, extend=FALSE), strip = sc)
+}
+
+@
+
+Finally we can plot the results
+\newpage
+<<plot2, results = "asis", fig.height = 9.5, fig.width = 9.5>>=
+plot_results_all(res2, sc = sc, ylim = c(0, 1.5))
+@
 
 \section{Summary} \label{summary}
 This vignette introduced the package \pkg{htesim} that provides an extensive simulation study framework to evaluate methods to estimate heterogeneous treatment effects.
