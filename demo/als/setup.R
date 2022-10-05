@@ -17,7 +17,7 @@ set.seed(2007)
 dir.create("results", showWarnings = FALSE)
 
 #--- Setups for trees/forests ----
-NumTrees <- 10
+NumTrees <- 500L
 min_size_group <- 7L
 min_node_size <- min_size_group*2L
 ctrl <- ctree_control(testtype = "Univ", minsplit = 2,
