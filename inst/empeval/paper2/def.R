@@ -16,11 +16,11 @@ REPL <- 100L
 # only use subset of problems/DGP? --> remove/add model names from/to following vector
 dgps <- c("normal", "binomial", "polr", "weibull")
 # only use subset of methods? --> remove/add method names from/to following vector
-methods <- c("mob", "hybrid", "equalized", "hybridgao", "equalizedgao", "mobcox", 
-  "hybridcox", "equalizedcox", "hybridgaocox", "equalizedgaocox") 
+methods <- c("mob", "hybrid", "equalized", "hybridgao", "equalizedgao", "mobcox",
+  "hybridcox", "equalizedcox", "hybridgaocox", "equalizedgaocox")
 # specific binomial methods
 binomialmethods <- methods[grep("gao$", methods)]
-# specify cox methods 
+# specify cox methods
 coxmethods <- methods[grep("cox$", methods)]
 # use older study setting? --> provide path to study results of previous study
 oldresdf <- NULL # e.g. oldresdf <- "results/results_study.rds"

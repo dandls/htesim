@@ -5,20 +5,19 @@ rm(list = ls())
 TEST <- FALSE
 
 # Setup
-if (TEST) {
-  source("def_test.R")
-} else {
-  source("def.R")
-}
-code.path <- "../../code"
-source(file.path(code.path, "libs.R"))
-source(file.path(code.path, "DGP.R"))
-source(file.path(code.path, "run.R"))
+source("def.R")
+
+# Load packages and helper functions
+source("../libs.R")
+source("DGP.R")
+source("run.R")
 
 if (exists("NUMTREES") && !is.null(NUMTREES)) {
   NumTrees <- NUMTREES
 }
 paste(NumTrees, CORES,  REPL, sep = ", ")
+
+
 
 #-------
 # 1) Setup DGP
