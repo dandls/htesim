@@ -8,7 +8,7 @@ source("def.R")
 paste(NumTrees, CORES,  REPL, sep = ", ")
 
 # Load packages and helper functions
-source("libs.R")
+source("../libs.R")
 source("DGP.R")
 source("run.R")
 

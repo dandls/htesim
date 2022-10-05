@@ -136,6 +136,7 @@ if (HONESTY) {
     "mobhonest", "hybridhonest", "equalizedhonest", "mobcfhonest",
     "cfhonest"
     )
+
   colornams <- lookup[names(cols)]
 }
 
@@ -147,15 +148,28 @@ ylab <- expression(paste(frac(1, 1000), "",
 
 # If use_diff = TRUE, display MSE difference to cf: MSE(...) - MSE(cf)
 if (exists("use_diff") && use_diff) {
-	res <- res %>% 
-	  group_by(problem, repl, i, nd, ol, seed) %>% 
-	  arrange(algorithm) %>% 
-	  mutate(value = `value` - `value`[algorithm == "cf"])
-
-	res <- res[res$algorithm != "cf", ]
+  if (HONESTY) {
+    res$honesty <- grepl("honest", res$algorithm)
+    res$algo <- gsub("-honest", "", res$algorithm)
+    res <- res %>% 
+      group_by(problem, repl, i, nd, ol, seed, honesty) %>% 
+      arrange(algo) %>% 
+      mutate(value = `value` - `value`[algo == "cf"]) %>% 
+      ungroup()
+    res$algo <- NULL
+    res$honesty <- NULL
+    ylab <- "MSE(...) - MSE((h-)cf)"
+  } else {
+    res <- res %>% 
+      group_by(problem, repl, i, nd, ol, seed) %>% 
+      arrange(algorithm) %>% 
+      mutate(value = `value` - `value`[algorithm == "cf"]) 
+    ylab <- "MSE(...) - MSE(cf)"
+  }
+  stopifnot(all(res$value[res$algorithm == "cf"] == 0))
+  stopifnot(all(res$value[res$algorithm == "cf-honest"] == 0))
+	res <- res[!res$algorithm %in% c("cf", "cf-honest"), ]
 	res$algorithm <- droplevels(res$algorithm)
-
-	ylab <- "MSE(...) - MSE(cf)"
 }
 
 ### w/o overlap: W
@@ -171,9 +185,17 @@ if (HONESTY) colsub <- cols[c("mob",  "mob-honest", "hybrid",  "hybrid-honest",
 nrcols <- 5L
 
 if (exists("use_diff") && use_diff) {
-  colsub <- colsub[-5]
-  colornams <- colornams[-5]
-  nrcols <- 4L
+  if (!HONESTY) {
+    colsub <- colsub[-5]
+    colsub <- colsub[-5]
+    colornams <- colornams[-5]
+    nrcols <- 4L
+  } else {
+    colsub <- colsub[c(-9, -10)]
+    colornams <- colornams[c(-9, -10)]
+    lookup <- lookup[c(-5, -10)]
+    nrcols <- 4L
+  }
 }
 
 mykey <- list(space="top", rectangles=list(col=colsub),
@@ -239,34 +261,34 @@ calculate_ci <- function(data, lev) {
   cf <- coef(mA)
   KA <- diag(length(cf))
   rownames(KA) <- names(cf)
-  # Hypothesis 1:
+  # Research Question 1:
   Kcf_mob <- KA[grep("algorithmcf$", names(cf)),] - KA[grep("algorithmmob$", names(cf)),]
   rownames(Kcf_mob) <- gsub(":algorithmcf", "", rownames(Kcf_mob))
 
-  # Hypothesis 2:
+  # Research Question 2:
   Kmc_eq <- KA[grep("algorithmmobcf$", names(cf)),] - KA[grep("algorithmequalized$", names(cf)),]
 
-  # Hypothesis 3:
+  # Research Question 3:
   Kcf_mc <- KA[grep("algorithmcf$", names(cf)),] - KA[grep("algorithmmobcf$", names(cf)),]
 
-  # Hypothesis 4:
+  # Research Question 4:
   Khb_mob <- KA[grep("algorithmhybrid$", names(cf)),] - KA[grep("algorithmmob$", names(cf)),]
 
-  # Hypothesis 5:
-  Kcf_hb <- KA[grep("algorithmcf$", names(cf)),] - KA[grep("algorithmhybrid$", names(cf)),]
+  # Research Question 5:
+  Khb_mc <- KA[grep("algorithmhybrid$", names(cf)),] - KA[grep("algorithmmobcf$", names(cf)),]
 
-  # Hypothesis 5:
+  # Research Question 5:
   Khb_eq <-  KA[grep("algorithmhybrid$", names(cf)),] - KA[grep("algorithmequalized$", names(cf)),]
 
-  ci <- confint(glht(mA, linfct = rbind(Kcf_mob, Khb_mob, Kcf_hb, Kcf_mc, Khb_eq, Kmc_eq)))
+  ci <- confint(glht(mA, linfct = rbind(Kcf_mob, Kmc_eq, Kcf_mc, Khb_mob, Khb_mc, Khb_eq)))
   ci1 <- exp(ci$confint[1:nrow(Kcf_mob),])
   ci2 <- exp(ci$confint[1:nrow(Kmc_eq) + nrow(Kcf_mob),])
   ci3 <- exp(ci$confint[1:nrow(Kcf_mc) + nrow(Kcf_mob) + nrow(Kmc_eq),])
   ci4 <- exp(ci$confint[1:nrow(Khb_mob) + nrow(Kcf_mob) + nrow(Kmc_eq) + nrow(Kcf_mc),])
-  ci5 <- exp(ci$confint[1:nrow(Kcf_hb) + nrow(Kcf_mob) + nrow(Kmc_eq) + nrow(Kcf_mc) + nrow(Khb_mob),])
-  ci6 <- exp(ci$confint[1:nrow(Khb_eq) + nrow(Kcf_hb) + nrow(Kcf_mob) + nrow(Kmc_eq) + nrow(Kcf_mc) + nrow(Khb_mob),])
+  ci5 <- exp(ci$confint[1:nrow(Khb_mc) + nrow(Kcf_mob) + nrow(Kmc_eq) + nrow(Kcf_mc) + nrow(Khb_mob),])
+  ci6 <- exp(ci$confint[1:nrow(Khb_eq) + nrow(Khb_mc) + nrow(Kcf_mob) + nrow(Kmc_eq) + nrow(Kcf_mc) + nrow(Khb_mob),])
 
-  colnams <- c("cf:mob", "hybrid:mob", "cf:hybrid", "cf:mobcf", "hybrid:equalized", "my4cf:equalized")
+  colnams <- c("cf:mob", "mobcf:equalized", "cf:mobcf", "hybrid:mob", "hybrid:mobcf", "hybrid:equalized")
 
   tabA <- cbind(f(ci1), f(ci2)[,4], f(ci3)[,4], f(ci4)[,4], f(ci5)[,4], f(ci6)[,4])
 
@@ -287,37 +309,54 @@ calculate_ci <- function(data, lev) {
   return(ndA)
 }
 
-create_table <- function(dataA, dataB, levA, levB, honesty = FALSE) {
+create_table <- function(dataA, dataB = NULL, levA, levB, honesty = FALSE) {
   if (honesty) {
     dataA <- dataA[stringr::str_detect(dataA$algorithm, "-honest"),]
-    dataB <- dataB[stringr::str_detect(dataB$algorithm, "-honest"),]
     dataA$algorithm <- stringr::str_remove_all(dataA$algorithm, "-honest")
-    dataB$algorithm <- stringr::str_remove_all(dataB$algorithm, "-honest")
+    if (!is.null(dataB)) {
+      dataB <- dataB[stringr::str_detect(dataB$algorithm, "-honest"),]
+      dataB$algorithm <- stringr::str_remove_all(dataB$algorithm, "-honest")
+    }
   }
 
   # Get results latex table
   ndA <- calculate_ci(dataA, levA)
-  ndB <- calculate_ci(dataB, levB)
+  if (!is.null(dataB)) {
+    ndB <- calculate_ci(dataB, levB)
+    x <- rbind(ndA, ndB)
+  } else {
+    x <- ndA
+  }
 
   # Combine both
-  x <- rbind(ndA, ndB)
   all(unique(x$LP) == levels(x$LP))
 
   # Create results table
-  hypcolnams <- c("(H1)", "(H4)", "(H4/5)", "(H3)", "(H5)", "(H2)")
-  tabcolnams <- c("\\shortstack{(H1) \\\\ cf vs. mob}", "\\shortstack{(H4) \\\\ mob($\\hat{W}$) vs. mob}", "\\shortstack{(H4/5) \\\\ cf vs. mob($\\hat{W}$)}",
-    "\\shortstack{(H3) \\\\ cf vs. mobcf}", "\\shortstack{(H5) \\\\ mob($\\hat{W}$) vs. mob($\\hat{W}, \\hat{Y}$)}", "\\shortstack{(H2) \\\\ mobcf vs. mob($\\hat{W}, \\hat{Y}$)}")
+  hypcolnams <- c("(RQ 1)", "(RQ 2)", "(RQ 3)", "(RQ 4)", "(RQ 5)", "(RQ 5)")
+  tabcolnams <- c("\\shortstack{(RQ 1) \\\\ cf vs. mob \\textcolor{white}{$\\hat{0}$}}", 
+    "\\shortstack{(RQ 2) \\\\ mobcf vs. mob($\\hat{W}, \\hat{Y}$)}", 
+    "\\shortstack{(RQ 3) \\\\ cf vs. mobcf\\textcolor{white}{$\\hat{0}$}}", 
+    "\\shortstack{(RQ 4) \\\\ mob($\\hat{W}$) vs. mob}", 
+    "\\shortstack{(RQ 5) \\\\ mob($\\hat{W}$) vs. mobcf}", 
+    "\\shortstack{(RQ 5) \\\\ mob($\\hat{W}$) vs. mob($\\hat{W}, \\hat{Y}$)}")
   nrowtab <- length(levA) - 1
+
   ftab <- as.matrix(x[, 4:9])
   class(ftab) <- "ftable"
-  attributes(ftab)$row.vars <- list("\\rule{0pt}{6ex} Part \\hspace{.4cm} DGP" =
-      paste(c("A \\hspace{.8cm}",
-        replicate(nrowtab, "\\hspace{1.1cm}"),
-        "\\hline B \\hspace{.8cm}",
-        replicate(nrowtab, "\\hspace{1.1cm}")),
-        levels(x$LP)),
-    "N" = levels(x$N),
-    "P" = levels(x$P))
+  if (!is.null(dataB)) {
+    attributes(ftab)$row.vars <- list("\\rule{0pt}{6ex} Part \\hspace{.4cm} DGP" =
+        paste(c("A \\hspace{.8cm}",
+          replicate(nrowtab, "\\hspace{1.1cm}"),
+          "\\hline B \\hspace{.8cm}",
+          replicate(nrowtab, "\\hspace{1.1cm}")),
+          levels(x$LP)),
+      "N" = levels(x$N),
+      "P" = levels(x$P))
+  } else {
+    attributes(ftab)$row.vars <- list("DGP" = levels(x$LP),
+      "N" = levels(x$N),
+      "P" = levels(x$P))
+  }
   attributes(ftab)$col.vars <- list("Mean squared error ratio" = tabcolnams)
   rownames(ftab) <- NULL
 
