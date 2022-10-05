@@ -11,16 +11,17 @@ forests. Journal of the American Statistical Association 2018. 113(523): 1228–
 
 The package also includes the code for reproducing all findings of 
 
-Dandl S, Hothorn T, Seibold H, Sverdrup E., Wager S., Zeileis A. (2022). What Make Forest-based Heterogeneous Treatment
+Dandl S, Hothorn T, Seibold H, Sverdrup E, Wager S, Zeileis A (2022). What Make Forest-based Heterogeneous Treatment
 Estimators Work? Technical report, arXiv 2206.10323. URL https://arxiv.org/abs/2206.10323.
 
-* Empirical study [inst/empeval/paper1](https://github.com/dandls/htesim/tree/master/inst/empeval/paper1)
-* Blood loss study [demo/bloodloss.R](https://github.com/dandls/htesim/blob/master/demo/bloodloss.R)
+* Empirical study: [inst/empeval/paper1](https://github.com/dandls/htesim/tree/master/inst/empeval/paper1)
+* Blood loss study: [demo/bloodloss.R](https://github.com/dandls/htesim/blob/master/demo/bloodloss.R)
 
+Dandl S, Bender A, Hothorn T (2022). Heterogeneous Treatment Effect Estimation for
+Observational Data using Model-based Forests. Preprint will be available soon.
 
-## Project Status
-
-Code is now on Github, our preprint will be available soon. 
+* Empirical study: [inst/empeval/paper2](https://github.com/dandls/htesim/tree/master/inst/empeval/paper2)
+* ALS study: for [survival time](https://github.com/dandls/htesim/blob/master/demo/als/als_survival.R) and [handwriting ability score](https://github.com/dandls/htesim/blob/master/demo/als/als_handwriting.R) as outcomes
 
 ## Installation
 
@@ -45,8 +46,8 @@ head(sdg)
 Our [vignette](https://github.com/dandls/htesim/tree/master/vignettes) gives a broad overview on the functionality: 
 - for sampling from predefined data generating processes (DGP)
 - for sampling from user-defined DGP
-- for replicating the empirical study of Dandl et al. (2022) 
-- for comparing the results of Dandl et al. (2022) with an own treatment effect estimation method on the same simulated data.
+- for replicating the empirical study of Dandl et al. (2022a, 2022b) 
+- for comparing the results of Dandl et al. (2022a, 2022b) with an own treatment effect estimation method on the same simulated data.
 
 ## Citation
 
