@@ -16,7 +16,7 @@
 #' @param rmvar (character) Name(s) of variable(s) to be removed after simulation of the training data,
 #' variables names always start with X plus a number, e.g., "X5".
 #' The default NULL means no variable is removed.
-#' @return list of class gpd with entries:
+#' @return list of class dgp with entries:
 #' pfct (\eqn{\pi(x)}), mfct (\eqn{\mu(x)}), tfct (\eqn{\tau(x)}), sdfct (sd for normal model),
 #' model (model used), etc.
 #' @seealso \code{\link{pF}}, \code{\link{mF}} and \code{\link{tF}}
@@ -111,7 +111,7 @@ sanitize_fct <- function(fct, call) {
 #' @title Simulate from a given dgp object
 #' @import stats
 #' @description Simulate data from a given \code{dgp} object.
-#' @param object (list/gpd) Manual for data generation.
+#' @param object (list/dgp) Manual for data generation.
 #' @param nsim (numeric(1)) Number of observations (n), default 1.
 #' @param seed (numeric(1)) Seed for data generation, default NULL.
 #' @param dim (numeric(1)) Dimension, number of predictors (p), default 4.

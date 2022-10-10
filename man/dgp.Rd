@@ -42,7 +42,7 @@ variables names always start with X plus a number, e.g., "X5".
 The default NULL means no variable is removed.}
 }
 \value{
-list of class gpd with entries:
+list of class dgp with entries:
 pfct (\eqn{\pi(x)}), mfct (\eqn{\mu(x)}), tfct (\eqn{\tau(x)}), sdfct (sd for normal model),
 model (model used), etc.
 }

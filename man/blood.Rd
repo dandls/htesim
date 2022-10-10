@@ -9,7 +9,7 @@ A data frame with 1309 and 35 variables:
 \item{Hb.prae}{prepartum hemoglobin}
 \item{MBL}{measured blood loss}
 \item{EC}{erythrocyte concentrate}
-\item{HOSP.7d}{length of hospitalisation after delivery}
+\item{HOSP.7d}{length of hospitalization after delivery}
 \item{COLLOIDS}{number of colloids}
 \item{SPONTANEOUS}{spontaneous delivery}
 \item{VE}{vacuum delivery}
@@ -31,7 +31,7 @@ A data frame with 1309 and 35 variables:
 \item{PLAC.RET}{retained placenta}
 \item{PLAC.REST}{retained placental material}
 \item{PLAC.MAP}{morbidly adherent placenta}
-\item{PLAC.PRAE}{placenta previa}
+\item{PLAC.PRAE}{placenta praevia}
 \item{RISS}{bleeding from laceration}
 \item{PLAC.LSG}{placental abruption}
 \item{F2.prae}{prepartum F. II}

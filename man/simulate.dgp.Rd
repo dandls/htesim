@@ -7,7 +7,7 @@
 \method{simulate}{dgp}(object, nsim = 1, seed = NULL, dim = 4, nsimtest = NULL, ...)
 }
 \arguments{
-\item{object}{(list/gpd) Manual for data generation.}
+\item{object}{(list/dgp) Manual for data generation.}
 
 \item{nsim}{(numeric(1)) Number of observations (n), default 1.}
 

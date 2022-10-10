@@ -22,7 +22,7 @@ remotes::install_github("susanne-207/htesim")
 ```
 
 ## Example 
-The following code immitates Setup A of Nie and Wager (2020)  
+The following code imitates Setup A of Nie and Wager (2020)  
 ```r 
 # Initialize manual for data generating process
 # Functions for treatment effect, prognostic effect and treatment propensity 

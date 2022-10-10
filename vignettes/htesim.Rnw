@@ -165,7 +165,7 @@ constant values.
 Furthermore, the underlying model for the outcome (\code{model}) and covariates
 (\code{xmodel}) need to be specified.
 Currently, a normal linear regression model, a binary logistic regression model,
-a Weibull model and a 4-nomial model for the outcome are supported.
+a Weibull model and a fournomial model for the outcome are supported.
 The covariates could be either normally or uniformly distributed.
 If they are normally distributed, the user could specify a function for the standard deviation (\code{sd}).
 Furthermore, a proportion \code{ol} $\in \mathbb{R}$ of the treatment effect could be added to the prognostic effect.
@@ -250,7 +250,7 @@ For the former, we use a self-chosen example and for the latter, we replicate th
 \subsection{Use your own Functions} \label{subsec:ownfunc}
 In Section~\ref{sec:functions} we saw that \code{simulate.dgp} generates a dataset of
 covariates by drawing random numbers from a uniform  or normal distribution.
-These variables are labelled as \code{X1}, \code{X2}, and so on.
+These variables are labeled as \code{X1}, \code{X2}, and so on.
 A dataset with these variables is the input for a new function.
 As an example, we want our treatment effect function to have the form
 $$ \tau(\rx) = (x_1 + x_2)^2/4 $$
@@ -411,7 +411,7 @@ dandl$linmod <- mse
 methodnams <- c(methodnams, "linmod")
 @
 
-With the \proglang{R} package \pkg{latttice} we compare the performance of the forest-based methods and the linear model visually.
+With the \proglang{R} package \pkg{lattice} we compare the performance of the forest-based methods and the linear model visually.
 Therefore, we need to reshape the data from a wide to long format.
 
 <<reshape>>=
@@ -493,7 +493,7 @@ lookup <- c(
 )
 @
 
-Each method will have an own colour coding.
+Each method will have an own color coding.
 <<color>>=
 cols <- c("mob" = "snow", "mob-honest" = "snow4",
   "hybrid" = "tan",  "hybrid-honest" = "tan4",
@@ -504,7 +504,7 @@ cols <- c("mob" = "snow", "mob-honest" = "snow4",
 colornams <- lookup[names(cols)]
 @
 
-This colour coding is needed for further plotting options.
+This color coding is needed for further plotting options.
 <<lattice, warnings = FALSE>>=
 library("lattice")
 library("latticeExtra")
