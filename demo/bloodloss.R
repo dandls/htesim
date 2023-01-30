@@ -283,3 +283,55 @@ predict(rf, newdata = nd, OOB = FALSE,
 predict(rf, newdata = nd, OOB = FALSE,
   mnewdata = data.frame(VCmodecenter = c(0, 1) - what),
   type = "quantile", prob = 0.9)
+
+#--- Sensitivity to mtry parameter ----
+# 8 different values for mtry
+# prediction error
+# repeat each 5 times
+library("parallel")
+set.seed(280985, "L'Ecuyer")
+CORES <- 32
+
+mtry_values <- 1:8
+repl <- 1:5
+# results <- vector(mode = "list", length = 8)
+
+res = expand.grid(repl = repl, mtry = mtry_values)
+
+results <- mclapply(seq_len(nrow(res)), function(row) {
+  mtry = res$mtry[row]
+  mobf <- traforest(
+    as.mlt(m_MBL), formula = xfm_MBL, data = blood, ntree = NumTrees,
+    perturb = prt, trace = TRUE, converged = converged_crit,
+    mtry = mtry, control = ctrl, min_update = min_update
+  )
+  llik <- logLik(mobf, OOB = FALSE)
+  predy <- predict(mobf, newdata = blood, OOB = FALSE,
+    mnewdata = data.frame(VCmodecenter = blood$VCmodecenter),
+    type = "quantile", prob = 0.5)
+  predblood <- unlist(lapply(seq_len(length(predy)), function(i) {predy[[i]][[i]]}))
+  mse <- mean((predblood - blood$MBL)^2)
+  return(c(mse = mse, loglik = llik))
+}, mc.cores = CORES)
+
+# for (mtry in mtry_values) {
+#   print(mtry)
+#    results[[mtry]] <- mclapply(repl, function(r) {
+#     mobf <- traforest(
+#       as.mlt(m_MBL), formula = xfm_MBL, data = blood, ntree = NumTrees,
+#       perturb = prt, trace = TRUE, converged = converged_crit,
+#       mtry = mtry, control = ctrl, min_update = min_update
+#     )
+#     llik <- logLik(mobf, OOB = FALSE)
+#     predy <- predict(mobf, newdata = blood, OOB = FALSE,
+#       mnewdata = data.frame(VCmodecenter = blood$VCmodecenter),
+#       type = "quantile", prob = 0.5)
+#     predblood <- unlist(lapply(seq_len(length(predy)), function(i) {predy[[i]][[i]]}))
+#     mse <- mean((predblood - blood$MBL)^2)
+#     return(c(mse = mse, loglik = llik))
+#   }, mc.cores = CORES)
+# }
+
+
+
+
