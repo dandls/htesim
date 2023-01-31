@@ -290,11 +290,11 @@ predict(rf, newdata = nd, OOB = FALSE,
 # repeat each 5 times
 library("parallel")
 set.seed(280985, "L'Ecuyer")
-CORES <- 32
+CORES <- 22
 
 mtry_values <- 1:8
 repl <- 1:5
-# results <- vector(mode = "list", length = 8)
+OOB <- TRUE
 
 res = expand.grid(repl = repl, mtry = mtry_values)
 
@@ -305,8 +305,8 @@ results <- mclapply(seq_len(nrow(res)), function(row) {
     perturb = prt, trace = TRUE, converged = converged_crit,
     mtry = mtry, control = ctrl, min_update = min_update
   )
-  llik <- logLik(mobf, OOB = FALSE)
-  predy <- predict(mobf, newdata = blood, OOB = FALSE,
+  llik <- logLik(mobf, OOB = OOB)
+  predy <- predict(mobf, newdata = blood, OOB = OOB,
     mnewdata = data.frame(VCmodecenter = blood$VCmodecenter),
     type = "quantile", prob = 0.5)
   predblood <- unlist(lapply(seq_len(length(predy)), function(i) {predy[[i]][[i]]}))
@@ -314,23 +314,21 @@ results <- mclapply(seq_len(nrow(res)), function(row) {
   return(c(mse = mse, loglik = llik))
 }, mc.cores = CORES)
 
-# for (mtry in mtry_values) {
-#   print(mtry)
-#    results[[mtry]] <- mclapply(repl, function(r) {
-#     mobf <- traforest(
-#       as.mlt(m_MBL), formula = xfm_MBL, data = blood, ntree = NumTrees,
-#       perturb = prt, trace = TRUE, converged = converged_crit,
-#       mtry = mtry, control = ctrl, min_update = min_update
-#     )
-#     llik <- logLik(mobf, OOB = FALSE)
-#     predy <- predict(mobf, newdata = blood, OOB = FALSE,
-#       mnewdata = data.frame(VCmodecenter = blood$VCmodecenter),
-#       type = "quantile", prob = 0.5)
-#     predblood <- unlist(lapply(seq_len(length(predy)), function(i) {predy[[i]][[i]]}))
-#     mse <- mean((predblood - blood$MBL)^2)
-#     return(c(mse = mse, loglik = llik))
-#   }, mc.cores = CORES)
-# }
+saveRDS(results, "demo/bloodloss_mtry_oob.rds")
+
+res <- cbind(res, do.call(rbind, results))
+res$mtry <- factor(res$mtry)
+
+mtryplot1 <- ggplot(res, aes(x = mtry, y = mse)) +
+  geom_boxplot() +
+  theme +
+  ylab("mean squared error")
+mtryplot2 <- ggplot(res, aes(x = mtry, y = loglik)) +
+  geom_boxplot() +
+  theme +
+  ylab("log-likelihood")
+
+ggarrange(mtryplot1, mtryplot2, ncol = 2)
 
 
 
