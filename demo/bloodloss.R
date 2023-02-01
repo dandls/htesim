@@ -122,8 +122,7 @@ nvar <- length(var_shown)
 theme <- theme_classic()
 
 # colors
-tcols <- diverge_hcl(50, h = c(246, 40), c = 96, l = c(65, 90), alpha = .5)
-cols <- qualitative_hcl(3, palette = "Harmonic")
+cols <- as.vector(palette.colors(n = 2))
 
 #--- Setups for trees/forests ----
 mtry <- min(floor(sqrt(length(x)) + 20), length(x))
@@ -173,7 +172,8 @@ W.hat <- predict(wf)$predictions
 pwhat <- ggplot(blood, aes(x = W.hat, color = VCmode)) +
   stat_density(geom = "line", position = "identity") +
   theme +
-  theme(legend.position = "none", legend.title = element_blank()) +
+  theme(legend.title=element_blank(),
+    legend.position = c(0.8, 0.8)) +
   ylim(c(0, 9)) +
   xlim(c(-0.001, 1.001)) +
   xlab(expression(hat(pi)(bold(x)))) +
@@ -319,17 +319,15 @@ saveRDS(results, "demo/bloodloss_mtry_oob.rds")
 res <- cbind(res, do.call(rbind, results))
 res$mtry <- factor(res$mtry)
 
-mtryplot1 <- ggplot(res, aes(x = mtry, y = mse)) +
+ggplot(res, aes(x = mtry, y = mse)) +
   geom_boxplot() +
   theme +
   ylab("mean squared error")
-mtryplot2 <- ggplot(res, aes(x = mtry, y = loglik)) +
+
+ggplot(res, aes(x = mtry, y = loglik)) +
   geom_boxplot() +
   theme +
-  ylab("log-likelihood")
-
-ggarrange(mtryplot1, mtryplot2, ncol = 2)
-
+  ylim(-3650, -3550)
 
 
 
