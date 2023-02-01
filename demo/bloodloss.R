@@ -31,14 +31,12 @@ dp_plot <- function(var, data, i, xlim = NULL, beta, ytxt = "odds ratio") {
     p <- p + geom_boxplot(varwidth = TRUE, fill = "lightgrey") +
       stat_summary(fun = mean, aes(colour = "mean"), geom = "point",
         shape = 18, size = 3) +
-      scale_color_manual(values = c("mean" = "#619CFF")) +
+      scale_color_manual(values = c("mean" = "#0072B2")) +
       theme(legend.position = "none")
   } else {
     p <- p + geom_point(alpha = 0.2) + geom_smooth(se = FALSE, aes(color = "smooth curve")) +
-      scale_color_manual(values = c("smooth curve" = "#619CFF")) +
+      scale_color_manual(values = c("smooth curve" = "#0072B2")) +
       theme(legend.position = "none")
-      # theme(legend.title = element_blank(),
-      #   legend.position=c(1,1), legend.justification=c(1,1))
   }
   if (!is.null(xlim)) {
     p <- p + xlim(xlim)
@@ -122,7 +120,7 @@ nvar <- length(var_shown)
 theme <- theme_classic()
 
 # colors
-cols <- as.vector(palette.colors(n = 2))
+cols <- c("#E69F00", "#117733")
 
 #--- Setups for trees/forests ----
 mtry <- min(floor(sqrt(length(x)) + 20), length(x))
@@ -306,12 +304,7 @@ results <- mclapply(seq_len(nrow(res)), function(row) {
     mtry = mtry, control = ctrl, min_update = min_update
   )
   llik <- logLik(mobf, OOB = OOB)
-  predy <- predict(mobf, newdata = blood, OOB = OOB,
-    mnewdata = data.frame(VCmodecenter = blood$VCmodecenter),
-    type = "quantile", prob = 0.5)
-  predblood <- unlist(lapply(seq_len(length(predy)), function(i) {predy[[i]][[i]]}))
-  mse <- mean((predblood - blood$MBL)^2)
-  return(c(mse = mse, loglik = llik))
+  return(c(loglik = llik))
 }, mc.cores = CORES)
 
 saveRDS(results, "demo/bloodloss_mtry_oob.rds")
@@ -319,15 +312,11 @@ saveRDS(results, "demo/bloodloss_mtry_oob.rds")
 res <- cbind(res, do.call(rbind, results))
 res$mtry <- factor(res$mtry)
 
-ggplot(res, aes(x = mtry, y = mse)) +
-  geom_boxplot() +
-  theme +
-  ylab("mean squared error")
-
 ggplot(res, aes(x = mtry, y = loglik)) +
   geom_boxplot() +
   theme +
-  ylim(-3650, -3550)
+  ylim(-3650, -3550) +
+  ylab("log-likelihood")
 
 
 

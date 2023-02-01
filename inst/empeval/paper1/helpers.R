@@ -19,14 +19,13 @@ if (HONESTY) {
 }
 
 # Color scheme
-cols <-
-  c(
-  "mob" = "snow", "mob-honest" = "snow4",
-  "hybrid" = "tan",  "hybrid-honest" = "tan4",
-  "equalized" = "darkorchid1", "equalized-honest" = "darkorchid4",
-  "mobcf" = "darkolivegreen1", "mobcf-honest" = "darkolivegreen4",
-   "cf" = "deepskyblue", "cf-honest" = "deepskyblue4"
-  )
+c(
+  "mob" = "snow", "mob-honest" = "#888888", # white
+  "hybrid" = "#E69F00",  "hybrid-honest" = "#D55E00", #red
+  "equalized" = "#CC79A7", "equalized-honest" = "#882255", #rosa
+  "mobcf" = "#999933", "mobcf-honest" = "#117733", # green
+  "cf" = "#56B4E9", "cf-honest" = "#0072B2" # blue
+)
 
 # Naming convention
 exA <- c("pF_x3.mF_x3.0" = expression(mu(x[3]) + 0 %.% W(x[3])),
@@ -151,19 +150,19 @@ if (exists("use_diff") && use_diff) {
   if (HONESTY) {
     res$honesty <- grepl("honest", res$algorithm)
     res$algo <- gsub("-honest", "", res$algorithm)
-    res <- res %>% 
-      group_by(problem, repl, i, nd, ol, seed, honesty) %>% 
-      arrange(algo) %>% 
-      mutate(value = `value` - `value`[algo == "cf"]) %>% 
+    res <- res %>%
+      group_by(problem, repl, i, nd, ol, seed, honesty) %>%
+      arrange(algo) %>%
+      mutate(value = `value` - `value`[algo == "cf"]) %>%
       ungroup()
     res$algo <- NULL
     res$honesty <- NULL
     ylab <- "MSE(...) - MSE((h-)cf)"
   } else {
-    res <- res %>% 
-      group_by(problem, repl, i, nd, ol, seed) %>% 
-      arrange(algorithm) %>% 
-      mutate(value = `value` - `value`[algorithm == "cf"]) 
+    res <- res %>%
+      group_by(problem, repl, i, nd, ol, seed) %>%
+      arrange(algorithm) %>%
+      mutate(value = `value` - `value`[algorithm == "cf"])
     ylab <- "MSE(...) - MSE(cf)"
   }
   stopifnot(all(res$value[res$algorithm == "cf"] == 0))
@@ -333,11 +332,11 @@ create_table <- function(dataA, dataB = NULL, levA, levB, honesty = FALSE) {
 
   # Create results table
   hypcolnams <- c("(RQ 1)", "(RQ 2)", "(RQ 3)", "(RQ 4)", "(RQ 5)", "(RQ 5)")
-  tabcolnams <- c("\\shortstack{(RQ 1) \\\\ cf vs. mob \\textcolor{white}{$\\hat{0}$}}", 
-    "\\shortstack{(RQ 2) \\\\ mobcf vs. mob($\\hat{W}, \\hat{Y}$)}", 
-    "\\shortstack{(RQ 3) \\\\ cf vs. mobcf\\textcolor{white}{$\\hat{0}$}}", 
-    "\\shortstack{(RQ 4) \\\\ mob($\\hat{W}$) vs. mob}", 
-    "\\shortstack{(RQ 5) \\\\ mob($\\hat{W}$) vs. mobcf}", 
+  tabcolnams <- c("\\shortstack{(RQ 1) \\\\ cf vs. mob \\textcolor{white}{$\\hat{0}$}}",
+    "\\shortstack{(RQ 2) \\\\ mobcf vs. mob($\\hat{W}, \\hat{Y}$)}",
+    "\\shortstack{(RQ 3) \\\\ cf vs. mobcf\\textcolor{white}{$\\hat{0}$}}",
+    "\\shortstack{(RQ 4) \\\\ mob($\\hat{W}$) vs. mob}",
+    "\\shortstack{(RQ 5) \\\\ mob($\\hat{W}$) vs. mobcf}",
     "\\shortstack{(RQ 5) \\\\ mob($\\hat{W}$) vs. mob($\\hat{W}, \\hat{Y}$)}")
   nrowtab <- length(levA) - 1
 
