@@ -223,8 +223,8 @@ ptau <- ggplot(pmd, aes(tau)) +
   geom_density() +
   theme +
   xlab(expression(hat(tau)(bold(x)))) +
-  geom_vline(aes(xintercept=coef(m_MBL), linetype = "base model"), colour = "red") +
-  scale_linetype_manual(name = "", values = 2, guide = guide_legend(override.aes = list(color = c("red")))) +
+  geom_vline(aes(xintercept=coef(m_MBL), linetype = "base model"), colour = "black") +
+  scale_linetype_manual(name = "", values = 2, guide = guide_legend(override.aes = list(color = c("black")))) +
   theme(legend.position = c(0.2, 0.8), legend.title = element_blank())
 ptau
 
