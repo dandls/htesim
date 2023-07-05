@@ -92,8 +92,8 @@ run <- function(
         Y = d$y, W = (0:1)[d$trt], W.hat = W.hat, # W.hat = W.hat if necessary!
         stabilize.splits = stabilize.splits,
         min.node.size = min_size_group, sample.fraction = prt$fraction,
-        mtry = mtry, # ci.group.size = 1,
-        num.trees = NumTrees, honesty = honesty)
+        mtry = mtry, ci.group.size = 1,
+        num.trees = NumTrees, honesty = honesty, num.threads = 32L)
       myW.hat <- cf$W.hat
       myY.hat <- cf$Y.hat
   } else if (causal_forest && prognostic_effect) {
@@ -102,7 +102,7 @@ run <- function(
       stabilize.splits = stabilize.splits,
       min.node.size = min_size_group, sample.fraction = prt$fraction,
       mtry = mtry,
-      num.trees = NumTrees, honesty = honesty)
+      num.trees = NumTrees, honesty = honesty, num.threads = 32L)
   }
 
   if (propensities & !causal_forest) {
@@ -143,7 +143,7 @@ run <- function(
       }
     }
 
-  
+
   ### fit forest and partition wrt to BOTH intercept and treatment effect
     rf <- model4you::pmforest(m, data = d, ntree = NumTrees, perturb = perturb,
       mtry = mtry, control = ctrl, trace = TRACE)
@@ -151,7 +151,7 @@ run <- function(
   if (object) return(rf)
 
   ### estimate model coefficients on test set
-  
+
   cf <- model4you::pmodel(rf, newdata = testxdf)
   mod <- attributes(d)$truth$mod
   if (prognostic_effect) {
@@ -188,12 +188,12 @@ update.nomu <- function(object, ...) {
 # Specify functions for batchtools
 
 fun.cf <- function(instance, ...) {
-  run(instance, causal_forest = TRUE, 
+  run(instance, causal_forest = TRUE,
     prognostic_effect = FALSE, honesty = FALSE)
 }
 
 fun.cfhonest <- function(instance, ...) {
-  run(instance, causal_forest = TRUE, 
+  run(instance, causal_forest = TRUE,
     prognostic_effect = FALSE, honesty = TRUE)
 }
 

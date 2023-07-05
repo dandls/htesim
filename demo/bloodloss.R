@@ -58,7 +58,7 @@ get_W_forest <- function (X,Y, W, Y.hat = NULL, W.hat = NULL,
     honesty = TRUE, honesty.fraction = 0.5, honesty.prune.leaves = TRUE,
     alpha = 0.05, imbalance.penalty = 0,
     ci.group.size = 1, tune.parameters = "none",
-    num.threads = 0, seed = seed)
+    num.threads = 8L, seed = seed)
   if (is.null(Y.hat)) {
     forest.Y <- do.call(regression_forest, c(Y = list(Y),args.orthog))
   }
@@ -167,7 +167,7 @@ set.seed(1234L)
 wf <- get_W_forest(X = as.matrix(x_dummy), Y = blood$MBL, W = blood$VCmodedummy, mtry = mtry)
 W.hat <- predict(wf)$predictions
 
-pwhat <- ggplot(blood, aes(x = W.hat, color = VCmode)) +
+pwhat <- ggplot(blood, aes(x = W.hat, color = VCmode, linetype = VCmode)) +
   stat_density(geom = "line", position = "identity") +
   theme +
   theme(legend.title=element_blank(),
@@ -195,8 +195,8 @@ confint(m_MBL)
 # stratified by mode of delivery.
 nd <- data.frame(VCmodecenter = unique(blood$VCmodedummy))
 par(las = 1)
-plot(as.mlt(m_MBL), newdata = nd,
-  q = qy, type = "distribution", col = cols, lwd = 3, xlim = MBLlim,
+plot(as.mlt(m_MBL), newdata = nd, lty = c(1, 2),
+  q = qy, type = "distribution", col = cols, lwd = 2, xlim = MBLlim,
   xlab = "MBL", ylab = "Probability", ylim = c(-.05, 1.05))
 rug(blood$MBL[blood$VCmodedummy == 0], lwd = 2, col = cols[1])
 rug(blood$MBL[blood$VCmodedummy == 1], side = 3, lwd = 2, col = cols[2])
@@ -306,8 +306,6 @@ results <- mclapply(seq_len(nrow(res)), function(row) {
   llik <- logLik(mobf, OOB = OOB)
   return(c(loglik = llik))
 }, mc.cores = CORES)
-
-saveRDS(results, "demo/bloodloss_mtry_oob.rds")
 
 res <- cbind(res, do.call(rbind, results))
 res$mtry <- factor(res$mtry)
