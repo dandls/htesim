@@ -92,7 +92,7 @@ run <- function(
         Y = d$y, W = (0:1)[d$trt], W.hat = W.hat, # W.hat = W.hat if necessary!
         stabilize.splits = stabilize.splits,
         min.node.size = min_size_group, sample.fraction = prt$fraction,
-        mtry = mtry, ci.group.size = 1,
+        mtry = mtry,
         num.trees = NumTrees, honesty = honesty, num.threads = 32L)
       myW.hat <- cf$W.hat
       myY.hat <- cf$Y.hat

@@ -200,7 +200,7 @@ plot(as.mlt(m_MBL), newdata = nd, lty = c(1, 2),
   xlab = "MBL", ylab = "Probability", ylim = c(-.05, 1.05))
 rug(blood$MBL[blood$VCmodedummy == 0], lwd = 2, col = cols[1])
 rug(blood$MBL[blood$VCmodedummy == 1], side = 3, lwd = 2, col = cols[2])
-legend("bottomright", lwd = 2, col = cols, legend = levels(blood$VCmode), bty = "n")
+legend("bottomright", lwd = 2, lty = c(1, 2), col = cols, legend = levels(blood$VCmode), bty = "n")
 
 
 # Fit personalized model

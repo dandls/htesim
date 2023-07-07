@@ -1,6 +1,6 @@
 Package: htesim
 Title: Conducting Extensive Simulation Studies of Heterogeneous Treatment Effect Estimation 
-Version: 0.0.0.9000
+Version: 0.0.2
 Authors@R: 
     c(person(given = "Susanne",
            family = "Dandl",
@@ -22,11 +22,12 @@ Depends:
     R (>= 3.5.0)
 Imports: 
     checkmate,
-    stats
+    stats,
+    tram
 Suggests: 
     testthat (>= 3.0.0),
     basefun,
-    tram,
+    stringr,
     trtf,
     mlt,
     survival,
