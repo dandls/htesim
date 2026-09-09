@@ -12,13 +12,13 @@ forests. Journal of the American Statistical Association 2018. 113(523): 1228–
 The package also includes the code for reproducing all findings of 
 
 Dandl S, Hothorn T, Seibold H, Sverdrup E, Wager S, Zeileis A (2022). What Make Forest-based Heterogeneous Treatment
-Estimators Work? Technical report, arXiv 2206.10323. URL https://arxiv.org/abs/2206.10323.
+Estimators Work? The Annals of Applied Statistics, Ann. Appl. Stat. 18(1), 506-528. doi: 10.1214/23-AOAS1799
 
 * Empirical study: [inst/empeval/paper1](https://github.com/dandls/htesim/tree/master/inst/empeval/paper1)
 * Blood loss study: [demo/bloodloss.R](https://github.com/dandls/htesim/blob/master/demo/bloodloss.R)
 
 Dandl S, Bender A, Hothorn T (2022). Heterogeneous Treatment Effect Estimation for
-Observational Data using Model-based Forests. Preprint will be available soon.
+Observational Data using Model-based Forests. Statistical Methods in Medical Research. 2024; 33(3):392-413. doi: 10.1177/09622802231224628.
 
 * Empirical study: [inst/empeval/paper2](https://github.com/dandls/htesim/tree/master/inst/empeval/paper2)
 * ALS study: for [survival time](https://github.com/dandls/htesim/blob/master/demo/als/als_survival.R) and [handwriting ability score](https://github.com/dandls/htesim/blob/master/demo/als/als_handwriting.R) as outcomes
