@@ -28,7 +28,7 @@ Observational Data using Model-based Forests. Statistical Methods in Medical Res
 You can install the github version, using `remotes`:
 
 ```r
-remotes::install_github("susanne-207/htesim")
+remotes::install_github("dandls/htesim")
 ```
 
 ## Example 
